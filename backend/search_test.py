@@ -24,7 +24,7 @@ def get_embedding(text):
 def main():
     # 1. search_test_infra.json 파일 로드
     try:
-        with open("search_test_infra.json", "r", encoding="utf-8") as f:
+        with open("./json/search_test_infra.json", "r", encoding="utf-8") as f:
             test_infra = json.load(f)
         print("📄 'search_test_infra.json' 파일을 성공적으로 읽어왔습니다.")
     except FileNotFoundError:

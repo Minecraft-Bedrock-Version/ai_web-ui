@@ -34,7 +34,7 @@ def main():
         )
 
     # 2. 취약점 패턴 데이터 로드
-    with open("infra_vuln_test.json", "r", encoding="utf-8") as f:
+    with open("./json/infra_vuln_test.json", "r", encoding="utf-8") as f:
         vuln_data = json.load(f) # json 데이터 로드
 
     # 3. JSON 구조 그대로 임베딩 및 저장
