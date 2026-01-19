@@ -1,3 +1,5 @@
+# json 임베딩 + 벡터db 저장
+
 # db 저장용 테스트 코드(임베딩+저장)
 import boto3 # bedrock API 호출을 위해 사용
 import json
@@ -7,7 +9,7 @@ from qdrant_client.models import Distance, VectorParams, PointStruct
 # --- 설정 ---
 REGION = "ap-northeast-1" # 도쿄 리전
 MODEL_ID = "cohere.embed-v4:0" # 임베딩 모델
-COLLECTION_NAME = "json_test" # 데이터를 저장할 컬렉션 이름
+COLLECTION_NAME = "pandyo" # 데이터를 저장할 컬렉션 이름
 
 bedrock = boto3.client(service_name='bedrock-runtime', region_name=REGION) # bedrock 전용 클라이언트
 q_client = QdrantClient(url="http://localhost:6333") # Qdrant 인스턴스에 연결
@@ -34,7 +36,7 @@ def main():
         )
 
     # 2. 데이터 로드
-    with open("./json/infra_vuln_test.json", "r", encoding="utf-8") as f:
+    with open("./json/pandyo/pandyo.json", "r", encoding="utf-8") as f:
         vuln_data = json.load(f)
 
     # 3. resources 필드 원본 그대로 임베딩 및 저장
