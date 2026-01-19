@@ -1,89 +1,8 @@
 [
     {
         "id": 1,
-        "title": "EC2를 통한 S3 권한 탈취 위험",
-        "description": "퍼블릭 EC2 인스턴스에 S3FullAccess 권한이 있는 IAM Role이 부여되어 있습니다. EC2 침해 시 공격자가 S3의 모든 데이터를 탈취할 수 있습니다.",
-        "resources": [
-            {
-                "uid": "ec2-1",
-                "type": "ec2_instance",
-                "name": "web-server",
-                "properties": {"public": true, "iam_role": "role-1"}
-            },
-            {
-                "uid": "role-1",
-                "type": "iam_role",
-                "name": "ec2-role",
-                "properties": {"policies": ["AmazonS3FullAccess"]}
-            }
-        ],
-        "severity": "High",
-        "attack_vector": "SSRF / RCE"
-    },
-    {
-        "id": 2,
-        "title": "비암호화 RDS 및 퍼블릭 접근 허용",
-        "description": "데이터베이스가 암호화되지 않았으며 외부 접근이 가능한 보안 그룹이 설정되어 있습니다.",
-        "resources": [
-            {
-                "uid": "rds-1",
-                "type": "rds_instance",
-                "name": "prod-db",
-                "properties": {"encrypted": false, "publicly_accessible": true}
-            }
-        ],
-        "severity": "Critical",
-        "attack_vector": "Brute Force / Data Leak"
-    },
-    {
-        "id": 3,
-        "title": "Lambda 함수의 환경변수 내 자격 증명 노출",
-        "description": "Lambda 함수의 환경변수에 AWS_ACCESS_KEY_ID가 평문으로 저장되어 있습니다. 함수 코드나 설정 열람 권한이 있는 사용자에게 자격 증명이 유출될 수 있습니다.",
-        "resources": [
-            {
-                "uid": "lambda-1",
-                "type": "lambda_function",
-                "name": "data-processor",
-                "properties": {
-                    "runtime": "python3.9",
-                    "env_vars": {"AWS_ACCESS_KEY_ID": "AKIA...", "DEBUG": "true"}
-                }
-            },
-            {
-                "uid": "iam-user-1",
-                "type": "iam_user",
-                "name": "junior-dev",
-                "properties": {"permissions": ["lambda:GetFunctionConfiguration"]}
-            }
-        ],
-        "severity": "High",
-        "attack_vector": "Credential Leakage"
-    },
-    {
-        "id": 4,
-        "title": "API Gateway의 인증 미설정 및 백엔드 노출",
-        "description": "API Gateway의 특정 엔드포인트에 인증(Authorizer)이 설정되어 있지 않아, 내부 VPC에 있는 Lambda 함수를 누구나 호출할 수 있습니다.",
-        "resources": [
-            {
-                "uid": "apigw-1",
-                "type": "api_gateway",
-                "name": "internal-api",
-                "properties": {"method": "POST", "auth": "NONE", "endpoint": "/delete-user"}
-            },
-            {
-                "uid": "lambda-2",
-                "type": "lambda_function",
-                "name": "user-manager",
-                "properties": {"action": "database_delete"}
-            }
-        ],
-        "severity": "Critical",
-        "attack_vector": "Unauthorized Access"
-    },
-    {
-        "id": 5,
-        "title": "EBS 스냅샷의 퍼블릭 공유 설정 오류",
-        "description": "중요한 데이터가 포함된 EBS 볼륨의 스냅샷이 'Public'으로 설정되어 있어, 전 세계의 모든 AWS 사용자가 해당 데이터를 복사해갈 수 있습니다.",
+        "title": "sqs_flag_shop",
+        "description": "경로",
         "resources": [
   {
     "fileName": "vpc.json",
@@ -400,13 +319,12 @@
             },
             "rds_info": {
               "detected": true
-            }
+}
           }
         }
       ]
     }
   }
 ]
-    }
-    
+}
 ]
