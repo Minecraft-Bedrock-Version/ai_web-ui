@@ -48,8 +48,11 @@ def run_security_analysis(target_infra_json: str) -> Optional[str]: # 리턴 타
 
 
 # Output Format
-분석 결과를 읽기 쉬운 마크다운(Markdown) 보고서 형식으로 작성하라. 
+분석 결과는 마크다운 기호(#, *, -, | 등)를 전혀 사용하지 않은 순수 텍스트(Plain Text)의 보고서 형식으로 작성하라.
 취약점의 심각도, 공격 시나리오, 대응 방안을 포함해야 한다.
+
+# Language Setting (중요)
+반드시 모든 내용은 한국어로 작성하라. 전문 용어는 괄호 안에 영문을 병기할 수 있다.
 """
 
     # 3. Bedrock/LLM 클라이언트 및 페이로드 설정
