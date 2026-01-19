@@ -11,7 +11,7 @@ TARGET_JSON_PATH = os.path.join(BASE_DIR, "..", "json", "pandyo", "search_pandyo
 # 2. RAG용 지식 베이스 (backend/document/sqs_flag_shop.json) - mbv_search.py에서 경로 받아오기
 CONTEXT_PATH = os.path.join(BASE_DIR, "..", "document", "sqs_flag_shop.json")
 
-def run_security_analysis(target_infra_json: str) -> Optional[Dict[str, Any]]:
+def run_security_analysis(target_infra_json: str) -> Optional[str]: # 리턴 타입을 str로 변경
     """
     EC2에서 지정된 모델을 사용하여 클라우드 보안 분석을 수행합니다.
     """
@@ -83,8 +83,15 @@ def run_security_analysis(target_infra_json: str) -> Optional[Dict[str, Any]]:
             contentType='application/json'
         )
         response_body = json.loads(response.get('body').read())
-        result_text = response_body.get('completion', "")
-        return json.loads(result_text)
+# 모델 응답 구조에 따라 텍스트 추출 (choices 또는 completion)
+        if 'choices' in response_body:
+            result_text = response_body['choices'][0]['message']['content']
+        else:
+            result_text = response_body.get('completion', "")
+        
+        # ⭐ 핵심 수정: json.loads()를 절대 하지 말고 텍스트 그대로 리턴합니다.
+        return result_text.strip() 
+
     except Exception as e:
         print(f"오류 발생: {e}")
         return None
