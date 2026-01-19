@@ -2,7 +2,7 @@
     {
         "id": 1,
         "title": "sqs_flag_shop",
-        "description": "경로",
+        "description": "document/sqs_flag_shop.json",
         "resources": [
   {
     "fileName": "vpc.json",
