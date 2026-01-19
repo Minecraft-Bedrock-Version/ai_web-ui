@@ -47,8 +47,9 @@ def run_security_analysis(target_infra_json: str) -> Optional[Dict[str, Any]]:
 4. **[False Positive Filtering]**: MFA, SourceIp 등 제어 조건을 검토하여 실제 공격 불가능한 오탐을 제거하라.
 
 
-# Output Schema (JSON)
-결과는 반드시 JSON 형식으로만 응답하라.
+# Output Format
+분석 결과를 읽기 쉬운 마크다운(Markdown) 보고서 형식으로 작성하라. 
+취약점의 심각도, 공격 시나리오, 대응 방안을 포함해야 한다.
 """
 
     # 3. Bedrock/LLM 클라이언트 및 페이로드 설정
