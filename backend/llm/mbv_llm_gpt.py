@@ -57,7 +57,16 @@ def run_security_analysis(target_infra_json: str) -> Optional[Dict[str, Any]]:
 
     # f-string 중괄호 오류 방지를 위해 딕셔너리 먼저 생성 후 json.dumps
     payload = {
-        "prompt": prompt_template,
+        "messages": [
+   {
+                "role": "system",
+                "content": "너는 전 세계 기업 환경을 대상으로 실전 침투 시나리오를 설계하고 검증하는 Tier-1 클라우드 보안 아키텍트이자 레드팀 리더이다."
+            },
+            {
+                "role": "user",
+                "content": prompt_template  # 기존에 정의한 prompt_template을 여기에 넣습니다.
+            }
+        ],
         "max_tokens": 2096,
         "temperature": 0.2,
         "top_p": 0.9,
