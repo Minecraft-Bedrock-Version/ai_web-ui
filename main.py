@@ -13,3 +13,4 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 @app.get("/", response_class=HTMLResponse) 
 async def root():
     return templates.TemplateResponse("index.html", {"request": {}})
+
