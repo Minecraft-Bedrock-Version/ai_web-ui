@@ -3,6 +3,10 @@ import json
 import os
 from qdrant_client import QdrantClient
 
+# fastapi 라우터 설정
+from fastapi import APIRouter
+router = APIRouter()
+
 # --- 경로 설정 ---
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 # 검색할 대상 파일 (사용자가 방금 올린 JSON 구조)

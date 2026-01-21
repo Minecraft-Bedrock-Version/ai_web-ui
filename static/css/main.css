@@ -1,5 +1,4 @@
-
-        * {
+* {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
@@ -569,4 +568,124 @@
         .recommendation-text {
             font-size: 13px;
             color: #6B7280;
+        }
+
+        /* Two Column Layout */
+        .two-column-layout {
+            display: grid;
+            grid-template-columns: 400px 1fr;
+            gap: 24px;
+            margin-top: 24px;
+        }
+
+        .infrastructure-card {
+            background: #F9FAFB;
+            border: 1px solid #E5E7EB;
+            border-radius: 8px;
+            padding: 16px;
+            height: fit-content;
+            position: sticky;
+            top: 24px;
+        }
+
+        .infrastructure-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #232F3E;
+        }
+
+        .json-viewer {
+            background: #232F3E;
+            color: #F9FAFB;
+            padding: 16px;
+            border-radius: 6px;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 12px;
+            line-height: 1.6;
+            overflow-x: auto;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .report-section {
+            background: white;
+        }
+
+        .report-header {
+            background: linear-gradient(135deg, #232F3E 0%, #3d4f66 100%);
+            color: white;
+            padding: 24px;
+            border-radius: 8px 8px 0 0;
+            margin-bottom: 0;
+        }
+
+        .report-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .report-subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .report-body {
+            padding: 24px;
+            border: 1px solid #E5E7EB;
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+        }
+
+        .vulnerability-summary {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 24px;
+            padding-bottom: 24px;
+            border-bottom: 2px solid #E5E7EB;
+        }
+
+        .summary-item {
+            flex: 1;
+            text-align: center;
+            padding: 16px;
+            background: #F9FAFB;
+            border-radius: 8px;
+            border: 1px solid #E5E7EB;
+        }
+
+        .summary-count {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .summary-count.high {
+            color: #DC2626;
+        }
+
+        .summary-count.medium {
+            color: #F59E0B;
+        }
+
+        .summary-count.low {
+            color: #EAB308;
+        }
+
+        .summary-label {
+            font-size: 13px;
+            color: #6B7280;
+            font-weight: 500;
+        }
+
+        @media (max-width: 1024px) {
+            .two-column-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .infrastructure-card {
+                position: relative;
+                top: 0;
+            }
         }

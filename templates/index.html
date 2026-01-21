@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI 기반의 인프라 및 자격 증명 변경 통제</title>
-    <link rel="stylesheet" href="../static/css/main.css">
+    <link rel="stylesheet" href="/static/css/main.css">
 </head>
 <body>
     <!-- Header -->
     <div class="header">
         <svg class="header-icon" fill="currentColor" viewBox="0 0 24 24">
-            <!-- ---<path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/> -->
+            <!--<path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/>-->
             <img src="../static/img/logo.webp" alt="logo" height="30" width="30" />
         </svg>
         <h1>Minecraft Bedrock Version</h1>
@@ -30,7 +30,7 @@
             <!-- Step 0: User Configuration -->
             <div class="step-content-wrapper active" id="step-0">
                 <h2 class="section-title">인프라 구성 설정</h2>
-                <p class="section-description">새로 생성할 인프라의 설정을 입력해주세요</p>
+                <p class="section-description">새로 생성할 인프라의 설정을 입력해주세요.</p>
 
                 <div class="form-group">
                     <label class="form-label" for="region">AWS 리전</label>
@@ -64,7 +64,7 @@
                 <div class="form-group">
                     <label class="form-label" for="iamCredentials">IAM 자격 증명 ARN</label>
                     <input class="form-input" type="text" id="iamCredentials" placeholder="arn:aws:iam::123456789012:user/username">
-                    <p class="form-hint">사용자의 IAM 자격 증명을 입력하세요</p>
+                    <p class="form-hint">사용자 A의 IAM 자격 증명을 입력하세요</p>
                 </div>
             </div>
 
@@ -123,12 +123,23 @@
                 <h2 class="section-title">취약점 분석</h2>
                 <p class="section-description">AI가 Attack Graph를 생성하여 잠재적 보안 위험을 분석합니다.</p>
 
-                    <!-- 🔥 추가된 버튼 -->
-   <div id="analysisButtonWrapper" style="display: flex; justify-content: center; align-items: center; min-height: 200px;">
-    <button class="btn btn-primary btn-lg" onclick="runAnalysis()">
-        취약점 분석
-    </button>
-</div>
+                <div id="analysisIdle">
+                    <div class="generate-container">
+                        <svg width="64" height="64" fill="#FF9900" viewBox="0 0 24 24">
+                            <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-1 6h2v6h-2V7zm0 8h2v2h-2v-2z"/>
+                        </svg>
+                        <div style="text-align: center;">
+                            <p style="font-size: 18px; font-weight: 500; margin-bottom: 8px;">취약점 분석 준비 완료</p>
+                            <p style="font-size: 14px; color: #6B7280;">기존 인프라와 새 리소스 간의 공격 경로를 분석합니다</p>
+                        </div>
+                        <button class="btn btn-primary btn-lg" onclick="startAnalysis()" id="analysisBtn">
+                            <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/>
+                            </svg>
+                            분석 시작하기
+                        </button>
+                    </div>
+                </div>
 
                 <div id="analysisProgress" class="hidden">
                     <div class="card" style="padding: 24px; background: #F9FAFB;">
@@ -150,17 +161,45 @@
                 </div>
 
                 <div id="analysisResults" class="hidden">
-                    <div class="alert alert-info">
-                        <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-                        </svg>
+                    <div class="two-column-layout">
+                        <!-- Left Column: Infrastructure Info -->
                         <div>
-                            <p style="font-weight: 500; margin-bottom: 4px;">분석 완료</p>
-                            <p style="font-size: 14px;">총 3개의 잠재적 취약점이 발견되었습니다</p>
+                            <div class="infrastructure-card">
+                                <h3 class="infrastructure-title">현재 인프라 구성</h3>
+                                <div class="json-viewer" id="infrastructureJSON"></div>
+                            </div>
+                        </div>
+
+                        <!-- Right Column: Vulnerability Report -->
+                        <div>
+                            <div class="report-section">
+                                <div class="report-header">
+                                    <h2 class="report-title">보안 취약점 분석 보고서</h2>
+                                    <p class="report-subtitle">Attack Graph 기반 위험 평가 및 권장사항</p>
+                                </div>
+                                <div class="report-body">
+                                    <!-- Summary -->
+                                    <div class="vulnerability-summary">
+                                        <div class="summary-item">
+                                            <div class="summary-count high">1</div>
+                                            <div class="summary-label">높음 (HIGH)</div>
+                                        </div>
+                                        <div class="summary-item">
+                                            <div class="summary-count medium">1</div>
+                                            <div class="summary-label">중간 (MEDIUM)</div>
+                                        </div>
+                                        <div class="summary-item">
+                                            <div class="summary-count low">1</div>
+                                            <div class="summary-label">낮음 (LOW)</div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Vulnerability List -->
+                                    <div id="vulnerabilityList"></div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-
-                    <div id="vulnerabilityList"></div>
                 </div>
             </div>
 
@@ -306,7 +345,6 @@
         </div>
     </div>
 
-    <script src="../static/js/main.js">
-    </script>
+    <script src="/static/js/main.js" defer></script>
 </body>
 </html>
