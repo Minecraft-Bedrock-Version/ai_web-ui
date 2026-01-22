@@ -20,7 +20,36 @@ TARGET_JSON_PATH = os.path.join(BASE_DIR, "..", "json", "pandyo", "search_pandyo
 CONTEXT_PATH = os.path.join(BASE_DIR, "..", "document", "sqs_flag_shop.json")
 '''
 
-def run_security_analysis(target_infra_json: str, retrieved_context: str) -> Optional[str]: # 리턴 타입을 str로 변경
+def extract_json_from_text(text: str) -> Optional[Dict[str, Any]]:
+    """
+    모델 출력에서 JSON 객체를 추출한다.
+    전체 텍스트가 JSON이 아니어도 첫/마지막 중괄호로 감싼 영역을 파싱한다.
+    """
+    if not text:
+        return None
+
+    candidate = text.strip()
+    try:
+        parsed = json.loads(candidate)
+        if isinstance(parsed, dict):
+            return parsed
+    except json.JSONDecodeError:
+        pass
+
+    start = candidate.find("{")
+    end = candidate.rfind("}")
+    if start != -1 and end != -1 and end > start:
+        try:
+            parsed = json.loads(candidate[start:end + 1])
+            if isinstance(parsed, dict):
+                return parsed
+        except json.JSONDecodeError:
+            return None
+
+    return None
+
+
+def run_security_analysis(target_infra_json: str, retrieved_context: str) -> Optional[Dict[str, Any]]:
     """
     EC2에서 지정된 모델을 사용하여 클라우드 보안 분석을 수행합니다.
     """
@@ -36,20 +65,15 @@ def run_security_analysis(target_infra_json: str, retrieved_context: str) -> Opt
     # 2. 프롬프트 템플릿 정의
     # (주의: f-string 내의 중괄호는 {{ }}로 이중 처리해야 합니다.)
     prompt_template = f"""
-# Role
-너는 전 세계 기업 환경을 대상으로 실전 침투 시나리오를 설계하고 검증하는 Tier-1 클라우드 보안 아키텍트이자 레드팀 리더이다.
-너의 목표는 단순한 설정 오류 나열이 아니라, 현실적인 공격자가 실제로 악용 가능한 권한 조합과 신뢰 경계 붕괴 시나리오를 논리적으로 증명하는 것이다.
+역할: 너는 전 세계 기업 환경을 대상으로 실전 침투 시나리오를 설계하고 검증하는 Tier-1 클라우드 보안 아키텍트이자 레드팀 리더이다.
+목표: 단순한 설정 오류 나열이 아니라, 현실적인 공격자가 실제로 악용 가능한 권한 조합과 신뢰 경계 붕괴 시나리오를 논리적으로 증명한다.
 
-
----
-# Context: 취약점 지식 베이스 (RAG)
+컨텍스트: 취약점 지식 베이스 (RAG)
 {retrieved_context}
 
----
-# Input: 분석 대상 인프라 구성 (JSON)
+입력: 분석 대상 인프라 구성 (JSON)
 {target_infra_json}
 
----
 # Guidelines for Deep Analysis
 1. **[Effective Permission Calculation]**: Allow 뿐만 아니라 Deny, SCP, Permissions Boundary 등을 모두 대조하여 실제 유효 권한을 계산하라.
 2. **[Identity vs Resource-based Policy Interaction]**: IAM 정책과 리소스 기반 정책의 상호작용을 분석하여 신뢰 경계 붕괴를 식별하라.
@@ -57,12 +81,25 @@ def run_security_analysis(target_infra_json: str, retrieved_context: str) -> Opt
 4. **[False Positive Filtering]**: MFA, SourceIp 등 제어 조건을 검토하여 실제 공격 불가능한 오탐을 제거하라.
 
 
-# Output Format
-분석 결과는 마크다운 기호(#, *, -, | 등)를 전혀 사용하지 않은 순수 텍스트(Plain Text)의 보고서 형식으로 작성하라.
-취약점의 심각도, 공격 시나리오, 대응 방안을 포함해야 한다.
+출력 형식
+아래 스키마의 순수 JSON 객체만 출력한다. 다른 텍스트, 마크다운, 코드펜스, 주석을 포함하지 않는다.
+모든 문자열은 한국어로 작성하고, 전문 용어는 괄호 안에 영문을 병기할 수 있다.
 
-# Language Setting (중요)
-반드시 모든 내용은 한국어로 작성하라. 전문 용어는 괄호 안에 영문을 병기할 수 있다.
+스키마
+{{
+    "summary": {{ "high": 0, "medium": 0, "low": 0 }},
+    "vulnerabilities": [
+        {{
+            "severity": "high|medium|low",
+            "title": "문장형 제목",
+            "description": "취약점 설명",
+            "attackPath": ["단계1", "단계2"],
+            "impact": "잠재적 영향",
+            "recommendation": "권장 사항",
+            "cvss_score": 0.0
+        }}
+    ]
+}}
 """
 
     # 3. Bedrock/LLM 클라이언트 및 페이로드 설정
@@ -103,7 +140,15 @@ def run_security_analysis(target_infra_json: str, retrieved_context: str) -> Opt
             result_text = response_body.get('completion', "")
         
         # ⭐ 핵심 수정: json.loads()를 절대 하지 말고 텍스트 그대로 리턴합니다.
-        return result_text.strip() 
+        parsed = extract_json_from_text(result_text)
+        if parsed is not None:
+            return parsed
+        print("LLM 응답:", result_text.strip())
+        return {
+            "summary": {"high": 0, "medium": 0, "low": 0},
+            "vulnerabilities": [],
+            "raw_output": result_text.strip()
+        }
 
     except Exception as e:
         print(f"오류 발생: {e}")
