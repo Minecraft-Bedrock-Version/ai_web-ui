@@ -92,9 +92,10 @@ async def mbv_search(request: Request):
             print("\n" + "="*30 + " 검색 결과 " + "="*30)
             for i, hit in enumerate(results):
                 p = hit.payload
+                if i ==0:
+                    description_path = p.get("description", "no경로")
                 print(f"[{i+1}위] {p.get('title')} | 유사도: {hit.score:.4f}")
                 print(f"📌 취약점 설명: {p.get('description')}")
-                description_path = p.get('description',"경로__없음")
                 print("-" * 71)
         else:
             print("❌ 매칭되는 취약점 패턴을 찾지 못했습니다.")
@@ -109,8 +110,10 @@ async def mbv_search(request: Request):
         #     response = await client.post("/mbv_llm_gpt", json={"description": description})
         # print("LLM 응답:", response.json())
         # return{"message"}
+        print("전달 경로:", description_path)
         analysis_result = run_mbv_llm(description_path)
         return {"infrastructure":search_data,"analysis": analysis_result}
+    
 
     except Exception as e:
         print(f"❌ 오류 발생: {e}")
