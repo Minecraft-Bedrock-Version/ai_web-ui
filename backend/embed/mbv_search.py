@@ -111,7 +111,14 @@ async def mbv_search(request: Request):
         # print("LLM 응답:", response.json())
         # return{"message"}
         print("전달 경로:", description_path)
+        analysis_result = {"error":"분석이 실행되지 않음."}
+
+        print("run_mbv_llm 실행 시작")
         analysis_result = run_mbv_llm(description_path)
+        print("run_mbv_llm 실행 완료")
+
+        print("LLM 분석 결과:",analysis_result)
+
         return {"infrastructure":search_data,"analysis": analysis_result}
     
 
