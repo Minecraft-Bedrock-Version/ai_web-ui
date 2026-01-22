@@ -444,26 +444,49 @@ aws ${config.infrastructureType} create \\
         // Execution
 // 해당 페이지를 읽을 때 json 생성 및 띄우기
 async function grokjson() {
-    console.log("그록 JSON 생성 시작")
-    try{
-        const response = await fetch('/grok_json', {method:'POST',
-            headers:
-            {'Content-Type':'application/json'}
-        })
+    console.log("그록 JSON 생성 시작");
+    
+    // UI 요소들 가져오기
+    const policyPreviewContainer = document.getElementById('policyPreviewContainer');
+    const policyPreviewJson = document.getElementById('policyPreviewJson');
+    const policyLoading = document.getElementById('policyLoading');
+    const readyToExecute = document.getElementById('readyToExecute');
+
+    try {
+        const response = await fetch('/grok_json', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        });
         const data = await response.json();
-        console.log("그록 JSON생성 완료")
-        if (data.message === "success"){
-            latestGrokPolicyJSON = data.grok_result
-            console.log("생성된 JSON:",latestGrokPolicyJSON)
-            user_cli_input = data.user_cli_input
+
+        if (data.message === "success") {
+            console.log("그록 JSON생성 완료");
+
+            // 1. 전역 변수에 저장 (나중에 executeProcess에서 사용)
+            latestGrokPolicyJSON = data.grok_result;
+            user_cli_input = data.user_cli_input;
+
+            // 2. Grok 응답 내에서 순수 JSON 정책 부분만 추출하기
+            // 로그를 보면 data.grok_result.choices[0].message.content에 JSON이 들어있습니다.
+            const rawContent = data.grok_result.choices[0].message.content;
+            
+            // 3. 화면에 JSON 뿌려주기
+            policyPreviewJson.textContent = rawContent; // 텍스트로 삽입
+
+            // 4. UI 상태 변경 (로딩 숨기고 결과 보여주기)
+            policyLoading.style.display = 'none';           // 로딩 스피너 숨김
+            policyPreviewContainer.style.display = 'block'; // JSON 박스 표시
+            readyToExecute.style.display = 'block';         // 실행하기 버튼 표시
+
+        } else {
+            alert("정책 생성에 실패했습니다: " + data.error);
         }
 
-
-    }catch(error){
-        console.error("JSON 생성 에러:",error)
+    } catch (error) {
+        console.error("JSON 생성 에러:", error);
+        policyLoading.innerHTML = `<p style="color:red;">에러가 발생했습니다. 로그를 확인하세요.</p>`;
     }
 }
-
 async function executeProcess() {
     // 1. 초기 UI 설정
     document.getElementById('executionIdle').style.display = 'none';
