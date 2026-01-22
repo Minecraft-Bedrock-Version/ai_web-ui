@@ -446,7 +446,10 @@ aws ${config.infrastructureType} create \\
 async function grokjson() {
     console.log("그록 JSON 생성 시작")
     try{
-        const response = await fetch('/grok_json', {method:'POST'})
+        const response = await fetch('/grok_json', {method:'POST',
+            headers:
+            {'Content-Type':'application/json'}
+        })
         const data = await response.json();
         console.log("그록 JSON생성 완료")
         if (data.message === "success"){
