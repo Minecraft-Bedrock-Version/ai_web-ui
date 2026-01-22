@@ -117,4 +117,4 @@ async def mbv_search(request: Request):
 
     except Exception as e:
         print(f"❌ 오류 발생: {e}")
-        return e
+        return {"error": str(e)}

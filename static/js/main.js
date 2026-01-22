@@ -337,7 +337,7 @@ aws ${config.infrastructureType} create \\
             
             //document.getElementById('infrastructureJSON').textContent = JSON.stringify(infrastructureData, null, 2);
             // 사용자 인프라 데이터 반영
-            document.getElementById('infrastructureJson').textContent = JSON.stringify(data.infrastructure, null, 2);
+            document.getElementById('infrastructureJSON').textContent = JSON.stringify(data.infrastructure, null, 2);
             
             // const vulnerabilities = [
             //     {

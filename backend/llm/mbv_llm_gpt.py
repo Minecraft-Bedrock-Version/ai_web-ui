@@ -103,7 +103,7 @@ def run_security_analysis(target_infra_json: str, retrieved_context: str) -> Opt
 """
 
     # 3. Bedrock/LLM 클라이언트 및 페이로드 설정
-    client = boto3.client(service_name='bedrock-runtime', region_name='us-east-1')
+    client = boto3.client(service_name='bedrock-runtime', region_name='ap-northeast-1')
     model_id = 'openai.gpt-oss-120b-1:0'
 
     # f-string 중괄호 오류 방지를 위해 딕셔너리 먼저 생성 후 json.dumps
