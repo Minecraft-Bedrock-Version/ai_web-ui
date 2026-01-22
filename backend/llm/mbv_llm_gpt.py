@@ -4,24 +4,34 @@ import os  # 경로 처리를 위해 추가
 from typing import Dict, Any, Optional
 from botocore.exceptions import ClientError
 
+from fastapi import APIRouter, Request
+
+router = APIRouter()
+
 # --- 경로 설정 (이미지 구조 반영) ---
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
 # 1. 분석 대상 파일 (backend/json/pandyo/search_pandyo.json) - search_pandyo.py에서 인프라 받아오기(사용자 인프라)
 TARGET_JSON_PATH = os.path.join(BASE_DIR, "..", "json", "pandyo", "search_pandyo.json")
+
+
+'''
 # 2. RAG용 지식 베이스 (backend/document/sqs_flag_shop.json) - mbv_search.py에서 경로 받아오기
 CONTEXT_PATH = os.path.join(BASE_DIR, "..", "document", "sqs_flag_shop.json")
+'''
 
-def run_security_analysis(target_infra_json: str) -> Optional[str]: # 리턴 타입을 str로 변경
+def run_security_analysis(target_infra_json: str, retrieved_context: str) -> Optional[str]: # 리턴 타입을 str로 변경
     """
     EC2에서 지정된 모델을 사용하여 클라우드 보안 분석을 수행합니다.
     """
-    # 1. 취약점 지식 베이스(RAG) 파일 읽기
-    try:
-        with open(CONTEXT_PATH, "r", encoding="utf-8") as f:
-            retrieved_context = f.read()
-    except FileNotFoundError:
-        print(f"Error: {CONTEXT_PATH} 파일을 찾을 수 없습니다.")
-        return None
+    # # 1. 취약점 지식 베이스(RAG) 파일 읽기
+    # try:
+    #     with open(CONTEXT_PATH, "r", encoding="utf-8") as f:
+    #         retrieved_context = f.read()
+    # except FileNotFoundError:
+    #     print(f"Error: {CONTEXT_PATH} 파일을 찾을 수 없습니다.")
+    #     return None
+
 
     # 2. 프롬프트 템플릿 정의
     # (주의: f-string 내의 중괄호는 {{ }}로 이중 처리해야 합니다.)
@@ -98,9 +108,56 @@ def run_security_analysis(target_infra_json: str) -> Optional[str]: # 리턴 타
     except Exception as e:
         print(f"오류 발생: {e}")
         return None
+    
+def resolve_doc_path(relative_path: str) -> str:
+    """
+    mbv_search에서 받은 경로를
+    프로젝트 기준 절대경로로 변환
+    """
+    return os.path.abspath(
+        os.path.join(BASE_DIR, "..", relative_path.lstrip("/"))
+    )
+
+def run_mbv_llm(description: str) -> str:
+
+# 사용자 인프라 읽기
+    if not os.path.exists(TARGET_JSON_PATH):
+        raise FileNotFoundError(f"분석 대상 파일 없음:{TARGET_JSON_PATH}")
+    with open(TARGET_JSON_PATH, "r", encoding='utf-8') as f:
+        target_infra_json = json.dumps(json.load(f), ensure_ascii=False)
+
+
+# RAG 문서 읽기
+
+    # description == "document/sqs_flag_shop.json"
+    doc_path = resolve_doc_path(description)
+
+    if not os.path.exists(doc_path):
+        raise FileNotFoundError(f"문서 없음: {doc_path}")
+
+    with open(doc_path, "r", encoding="utf-8") as f:
+        retrieved_context = f.read()
+
+ # LLM 분석 실행
+    analysis_result = run_security_analysis(target_infra_json, retrieved_context)
+
+    return analysis_result
 
 # --- 실행부 수정 ---
-if __name__ == "__main__":
+# 외부에서 호출 계획 없으면 필요x
+@router.post("/mbv_llm_gpt")
+async def mbv_llm_gpt(request: Request):
+    print("mbv_llm_gpt 함수 실행됨")
+    body = await request.json()
+    description = body.get("descritpion")
+    print("llm에 전돨된 descritpion:", description)
+    analysis_result = run_mbv_llm(description)
+    return {"analysis_result": analysis_result}
+
+    '''
+    return{"message": "mbv_llm_gpt 호출"}
+'''
+'''
     # 1. search_pandyo.json 파일 읽기
     try:
         if not os.path.exists(TARGET_JSON_PATH):
@@ -119,6 +176,10 @@ if __name__ == "__main__":
             if analysis_result:
                 print("\n✅ 분석 완료:")
                 print(json.dumps(analysis_result, indent=4, ensure_ascii=False))
-                
+            
+            # 임시 리턴값
+            return 1 
     except Exception as e:
         print(f"❌ 실행 중 오류 발생: {e}")
+        return e
+'''

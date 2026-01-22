@@ -241,16 +241,16 @@ aws ${config.infrastructureType} create \\
                 
                 if (progress >= 100) {
                     clearInterval(interval);
-                    setTimeout(() => {
-                        showAnalysisResults();
-                    }, 500);
+                    // setTimeout(() => {
+                    //     showAnalysisResults();
+                    // }, 500);
                 }
             }, 300);
 
             
                     ////////
             // API 호출
-            fetch('/mbv_embed', {
+            fetch('/mbv_search', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -270,6 +270,7 @@ aws ${config.infrastructureType} create \\
             .then(data => {
                 console.log('[MBV 분석 결과]', data);
         // ⚠️ 지금은 그냥 로그만
+                showAnalysisResults(data);
         // 나중에 data로 vulnerabilities 대체 가능
             })
             .catch(err => {
@@ -279,143 +280,207 @@ aws ${config.infrastructureType} create \\
         }
 
 
-        function showAnalysisResults() {
+        function showAnalysisResults(data) {
             document.getElementById('analysisProgress').classList.add('hidden');
             document.getElementById('analysisResults').classList.remove('hidden');
 
-            
-            // Infrastructure JSON
-            const infrastructureData = {
-                "account_id": "123456789012",
-                "region": config.region,
-                "existing_resources": {
-                    "vpc": {
-                        "id": "vpc-0abc123def456",
-                        "cidr": "10.0.0.0/16",
-                        "subnets": ["subnet-1", "subnet-2"]
-                    },
-                    "iam_roles": [
-                        {
-                            "name": "LambdaExecutionRole",
-                            "policies": ["AWSLambdaBasicExecutionRole", "S3FullAccess"]
-                        },
-                        {
-                            "name": "EC2InstanceRole",
-                            "policies": ["EC2ReadOnlyAccess"]
-                        }
-                    ],
-                    "s3_buckets": [
-                        {
-                            "name": "company-data-bucket",
-                            "encryption": "AES256",
-                            "public_access": false
-                        }
-                    ],
-                    "security_groups": [
-                        {
-                            "id": "sg-0abc123",
-                            "name": "web-server-sg",
-                            "inbound_rules": [
-                                {"port": 80, "source": "0.0.0.0/0"},
-                                {"port": 443, "source": "0.0.0.0/0"}
-                            ]
-                        }
-                    ]
-                },
-                "new_resource": {
-                    "type": config.infrastructureType,
-                    "region": config.region,
-                    "description": config.description,
-                    "iam_policy": {
-                        "Action": [config.infrastructureType + ":*"],
-                        "Resource": "*"
-                    }
-                },
-                "analysis_timestamp": new Date().toISOString(),
-                "risk_score": 7.5,
-                "compliance_status": "Non-Compliant"
-            };
-            
-            document.getElementById('infrastructureJSON').textContent = JSON.stringify(infrastructureData, null, 2);
-            
-            const vulnerabilities = [
-                {
-                    severity: 'high',
-                    title: '권한 상승 가능성 탐지',
-                    description: '새로운 IAM 정책이 기존 인프라와 결합될 때 관리자 권한 상승 경로가 발견되었습니다.',
-                    attackPath: ['User A', 'Lambda Execution Role', 'S3 Full Access', 'Admin Policy'],
-                    recommendation: 'S3 버킷 접근 권한을 특정 리소스로 제한하세요.',
-                    impact: '공격자가 Lambda 실행 역할을 통해 S3 전체 접근 권한을 얻고, 이를 악용하여 관리자 정책으로 권한을 상승시킬 수 있습니다.',
-                    cvss_score: 8.5
-                },
-                {
-                    severity: 'medium',
-                    title: '과도한 권한 부여',
-                    description: '생성되는 리소스에 필요 이상의 권한이 부여되어 있습니다.',
-                    attackPath: ['New Resource', 'Wildcard Permissions', 'All Services'],
-                    recommendation: '최소 권한 원칙에 따라 필요한 권한만 부여하세요.',
-                    impact: '와일드카드(*) 권한 사용으로 인해 필요 이상의 서비스 및 리소스에 접근할 수 있습니다.',
-                    cvss_score: 5.5
-                },
-                {
-                    severity: 'low',
-                    title: '리전 간 접근 제한 없음',
-                    description: '특정 리전에만 접근해야 하지만 모든 리전에 대한 접근이 허용됩니다.',
-                    attackPath: ['IAM Policy', 'No Region Restriction', 'Global Access'],
-                    recommendation: 'aws:RequestedRegion 조건을 사용하여 리전을 제한하세요.',
-                    impact: '불필요한 리전에서의 리소스 생성 및 접근이 가능하여 관리 복잡도가 증가합니다.',
-                    cvss_score: 3.2
-                }
-            ];
-            
-            const container = document.getElementById('vulnerabilityList');
-            container.innerHTML = '';
-            
-            vulnerabilities.forEach((vuln, index) => {
-                const card = document.createElement('div');
-                card.className = `vulnerability-card ${vuln.severity}`;
-                
-                const badgeClass = vuln.severity === 'high' ? 'badge-danger' : vuln.severity === 'medium' ? 'badge-warning' : 'badge-secondary';
-                
-                let attackPathHTML = '<div class="attack-path">';
-                vuln.attackPath.forEach((step, i) => {
-                    attackPathHTML += `<span class="attack-path-item">${step}</span>`;
-                    if (i < vuln.attackPath.length - 1) {
-                        attackPathHTML += '<span class="attack-path-arrow">→</span>';
-                    }
-                });
-                attackPathHTML += '</div>';
-                
-                card.innerHTML = `
-                    <div style="display: flex; align-items: start; justify-content: space-between; margin-bottom: 12px;">
-                        <div>
-                            <h3 style="font-weight: 600; margin-bottom: 4px;">${index + 1}. ${vuln.title}</h3>
-                            <div style="display: flex; gap: 8px; margin-top: 8px;">
-                                <span class="badge ${badgeClass}">${vuln.severity.toUpperCase()}</span>
-                                <span class="badge badge-secondary">CVSS: ${vuln.cvss_score}</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div style="padding: 12px; background: white; border-radius: 6px; margin-bottom: 12px;">
-                        <p style="font-weight: 500; font-size: 13px; color: #232F3E; margin-bottom: 4px;">취약점 설명</p>
-                        <p style="color: #374151; font-size: 14px;">${vuln.description}</p>
-                    </div>
-                    <div style="padding: 12px; background: white; border-radius: 6px; margin-bottom: 12px;">
-                        <p style="font-weight: 500; font-size: 13px; color: #232F3E; margin-bottom: 8px;">공격 경로 (Attack Path)</p>
-                        ${attackPathHTML}
-                    </div>
-                    <div style="padding: 12px; background: white; border-radius: 6px; margin-bottom: 12px;">
-                        <p style="font-weight: 500; font-size: 13px; color: #232F3E; margin-bottom: 4px;">잠재적 영향</p>
-                        <p style="color: #6B7280; font-size: 13px;">${vuln.impact}</p>
-                    </div>
-                    <div class="recommendation-box">
-                        <p class="recommendation-title">✓ 권장 사항</p>
-                        <p class="recommendation-text">${vuln.recommendation}</p>
-                    </div>
-                `;
-                
-                container.appendChild(card);
+    // 1️⃣ 인프라 JSON 출력
+    if (data.infrastructure) {
+        document.getElementById('infrastructureJSON').textContent =
+            JSON.stringify(data.infrastructure, null, 2);
+    }
+
+    // 2️⃣ 분석 결과 출력
+    const vulnerabilities = (data.analysis && data.analysis.vulnerabilities) || [];
+    const container = document.getElementById('vulnerabilityList');
+    container.innerHTML = '';
+
+    vulnerabilities.forEach((vuln, index) => {
+        const card = document.createElement('div');
+        card.className = `vulnerability-card ${vuln.severity || ''}`;
+
+        const badgeClass = vuln.severity === 'high'
+            ? 'badge-danger'
+            : vuln.severity === 'medium'
+                ? 'badge-warning'
+                : 'badge-secondary';
+
+        // 공격 경로 HTML 생성
+        let attackPathHTML = '<div class="attack-path">';
+        if (vuln.attackPath) {
+            vuln.attackPath.forEach((step, i) => {
+                attackPathHTML += `<span class="attack-path-item">${step}</span>`;
+                if (i < vuln.attackPath.length - 1) attackPathHTML += '<span class="attack-path-arrow">→</span>';
             });
+        }
+        attackPathHTML += '</div>';
+
+        card.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px;">
+                <h3 style="font-weight: 600;">${index + 1}. ${vuln.title || '분석 결과'}</h3>
+                <div style="display: flex; gap: 8px;">
+                    <span class="badge ${badgeClass}">${(vuln.severity || '').toUpperCase()}</span>
+                    <span class="badge badge-secondary">CVSS: ${vuln.cvss_score || '-'}</span>
+                </div>
+            </div>
+
+            <div class="vuln-section">
+                <p class="vuln-label">취약점 설명 / 분석 내용</p>
+                <pre style="white-space: pre-wrap; word-break: break-word;">${vuln.description || JSON.stringify(vuln, null, 2)}</pre>
+            </div>
+
+            <div class="vuln-section">
+                <p class="vuln-label">공격 경로</p>
+                ${attackPathHTML}
+            </div>
+
+            <div class="vuln-section">
+                <p class="vuln-label">잠재적 영향</p>
+                <p>${vuln.impact || '-'}</p>
+            </div>
+
+            <div class="recommendation-box">
+                <p class="recommendation-title">✓ 권장 사항</p>
+                <p class="recommendation-text">${vuln.recommendation || '-'}</p>
+            </div>
+        `;
+
+        container.appendChild(card);
+    });
+            
+            // // 인프라 JSON 예시
+            // const infrastructureData = {
+            //     "account_id": "123456789012",
+            //     "region": config.region,
+            //     "existing_resources": {
+            //         "vpc": {
+            //             "id": "vpc-0abc123def456",
+            //             "cidr": "10.0.0.0/16",
+            //             "subnets": ["subnet-1", "subnet-2"]
+            //         },
+            //         "iam_roles": [
+            //             {
+            //                 "name": "LambdaExecutionRole",
+            //                 "policies": ["AWSLambdaBasicExecutionRole", "S3FullAccess"]
+            //             },
+            //             {
+            //                 "name": "EC2InstanceRole",
+            //                 "policies": ["EC2ReadOnlyAccess"]
+            //             }
+            //         ],
+            //         "s3_buckets": [
+            //             {
+            //                 "name": "company-data-bucket",
+            //                 "encryption": "AES256",
+            //                 "public_access": false
+            //             }
+            //         ],
+            //         "security_groups": [
+            //             {
+            //                 "id": "sg-0abc123",
+            //                 "name": "web-server-sg",
+            //                 "inbound_rules": [
+            //                     {"port": 80, "source": "0.0.0.0/0"},
+            //                     {"port": 443, "source": "0.0.0.0/0"}
+            //                 ]
+            //             }
+            //         ]
+            //     },
+            //     "new_resource": {
+            //         "type": config.infrastructureType,
+            //         "region": config.region,
+            //         "description": config.description,
+            //         "iam_policy": {
+            //             "Action": [config.infrastructureType + ":*"],
+            //             "Resource": "*"
+            //         }
+            //     },
+            //     "analysis_timestamp": new Date().toISOString(),
+            //     "risk_score": 7.5,
+            //     "compliance_status": "Non-Compliant"
+            // };
+            
+            // document.getElementById('infrastructureJSON').textContent = JSON.stringify(infrastructureData, null, 2);
+            
+        // 취약점 분석 예시
+            // const vulnerabilities = [
+            //     {
+            //         severity: 'high',
+            //         title: '권한 상승 가능성 탐지',
+            //         description: '새로운 IAM 정책이 기존 인프라와 결합될 때 관리자 권한 상승 경로가 발견되었습니다.',
+            //         attackPath: ['User A', 'Lambda Execution Role', 'S3 Full Access', 'Admin Policy'],
+            //         recommendation: 'S3 버킷 접근 권한을 특정 리소스로 제한하세요.',
+            //         impact: '공격자가 Lambda 실행 역할을 통해 S3 전체 접근 권한을 얻고, 이를 악용하여 관리자 정책으로 권한을 상승시킬 수 있습니다.',
+            //         cvss_score: 8.5
+            //     },
+            //     {
+            //         severity: 'medium',
+            //         title: '과도한 권한 부여',
+            //         description: '생성되는 리소스에 필요 이상의 권한이 부여되어 있습니다.',
+            //         attackPath: ['New Resource', 'Wildcard Permissions', 'All Services'],
+            //         recommendation: '최소 권한 원칙에 따라 필요한 권한만 부여하세요.',
+            //         impact: '와일드카드(*) 권한 사용으로 인해 필요 이상의 서비스 및 리소스에 접근할 수 있습니다.',
+            //         cvss_score: 5.5
+            //     },
+            //     {
+            //         severity: 'low',
+            //         title: '리전 간 접근 제한 없음',
+            //         description: '특정 리전에만 접근해야 하지만 모든 리전에 대한 접근이 허용됩니다.',
+            //         attackPath: ['IAM Policy', 'No Region Restriction', 'Global Access'],
+            //         recommendation: 'aws:RequestedRegion 조건을 사용하여 리전을 제한하세요.',
+            //         impact: '불필요한 리전에서의 리소스 생성 및 접근이 가능하여 관리 복잡도가 증가합니다.',
+            //         cvss_score: 3.2
+            //     }
+            // ];
+            
+            // const container = document.getElementById('vulnerabilityList');
+            // container.innerHTML = '';
+            
+            // vulnerabilities.forEach((vuln, index) => {
+            //     const card = document.createElement('div');
+            //     card.className = `vulnerability-card ${vuln.severity}`;
+                
+            //     const badgeClass = vuln.severity === 'high' ? 'badge-danger' : vuln.severity === 'medium' ? 'badge-warning' : 'badge-secondary';
+                
+            //     let attackPathHTML = '<div class="attack-path">';
+            //     vuln.attackPath.forEach((step, i) => {
+            //         attackPathHTML += `<span class="attack-path-item">${step}</span>`;
+            //         if (i < vuln.attackPath.length - 1) {
+            //             attackPathHTML += '<span class="attack-path-arrow">→</span>';
+            //         }
+            //     });
+            //     attackPathHTML += '</div>';
+                
+            //     card.innerHTML = `
+            //         <div style="display: flex; align-items: start; justify-content: space-between; margin-bottom: 12px;">
+            //             <div>
+            //                 <h3 style="font-weight: 600; margin-bottom: 4px;">${index + 1}. ${vuln.title}</h3>
+            //                 <div style="display: flex; gap: 8px; margin-top: 8px;">
+            //                     <span class="badge ${badgeClass}">${vuln.severity.toUpperCase()}</span>
+            //                     <span class="badge badge-secondary">CVSS: ${vuln.cvss_score}</span>
+            //                 </div>
+            //             </div>
+            //         </div>
+            //         <div style="padding: 12px; background: white; border-radius: 6px; margin-bottom: 12px;">
+            //             <p style="font-weight: 500; font-size: 13px; color: #232F3E; margin-bottom: 4px;">취약점 설명</p>
+            //             <p style="color: #374151; font-size: 14px;">${vuln.description}</p>
+            //         </div>
+            //         <div style="padding: 12px; background: white; border-radius: 6px; margin-bottom: 12px;">
+            //             <p style="font-weight: 500; font-size: 13px; color: #232F3E; margin-bottom: 8px;">공격 경로 (Attack Path)</p>
+            //             ${attackPathHTML}
+            //         </div>
+            //         <div style="padding: 12px; background: white; border-radius: 6px; margin-bottom: 12px;">
+            //             <p style="font-weight: 500; font-size: 13px; color: #232F3E; margin-bottom: 4px;">잠재적 영향</p>
+            //             <p style="color: #6B7280; font-size: 13px;">${vuln.impact}</p>
+            //         </div>
+            //         <div class="recommendation-box">
+            //             <p class="recommendation-title">✓ 권장 사항</p>
+            //             <p class="recommendation-text">${vuln.recommendation}</p>
+            //         </div>
+            //     `;
+                
+            //     container.appendChild(card);
+            // });
         }
 
         // Execution

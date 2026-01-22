@@ -23,3 +23,6 @@ app.include_router(mbv_embed_router)
 from backend.embed.mbv_search import router as mbv_search_router
 app.include_router(mbv_search_router)
 
+# mbv_llm_gpt.py 라우팅
+from backend.llm.mbv_llm_gpt import router as mbv_llm_gpt_router
+app.include_router(mbv_llm_gpt_router)

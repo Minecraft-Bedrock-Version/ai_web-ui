@@ -11,8 +11,6 @@ from fastapi import Request
 from fastapi import APIRouter
 router = APIRouter()
 
-
-'''
 # --- 경로 자동 설정 (추가된 핵심 로직) ---
 # 1. 이 파일(mbv_embed.py)의 실제 위치를 절대 경로로 가져옵니다.
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -40,10 +38,10 @@ def get_embedding(text):
     response_body = json.loads(response.get('body').read())
     embeddings = response_body.get('embeddings')
     return embeddings.get('float')[0] if isinstance(embeddings, dict) else embeddings[0]
-'''
+
+
 @router.post("/mbv_embed")
 async def mbv_embed(request: Request):
-    '''
     # 1. 컬렉션 생성
     if not q_client.collection_exists(COLLECTION_NAME):
         q_client.create_collection(
@@ -78,11 +76,5 @@ async def mbv_embed(request: Request):
     # 4. Qdrant 업로드
     q_client.upsert(collection_name=COLLECTION_NAME, points=points)
     print(f"\n완료. 총 {len(points)}개의 데이터가 저장되었습니다.")
-'''
-    body = await request.json()   # 🔥 여기서 받음
-    print("mbv_embed 호출됨: ",body)
 
-    step = body.get("step")
-    return {"status": "ok", "received":{
-        "step": step
-    }}
+    return 1

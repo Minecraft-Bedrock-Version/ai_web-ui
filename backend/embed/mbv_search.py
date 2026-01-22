@@ -3,9 +3,18 @@ import json
 import os
 from qdrant_client import QdrantClient
 
+# httpx는 비동기 요청을 위해 사용
+import httpx
+
+# Request 임포트
+from fastapi import Request 
+
 # fastapi 라우터 설정
 from fastapi import APIRouter
 router = APIRouter()
+
+# mbv_llm_gpt.py 임포트
+from backend.llm.mbv_llm_gpt import run_mbv_llm
 
 # --- 경로 설정 ---
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -32,7 +41,19 @@ def get_embedding(text):
     embeddings = res_body.get('embeddings')
     return embeddings.get('float')[0] if isinstance(embeddings, dict) else embeddings[0]
 
-def main():
+
+@router.post("/mbv_search")
+async def mbv_search(request: Request):
+    print("mbv_search 함수 실행됨")
+    '''
+    async with httpx.AsyncClient(
+        base_url="http://localhost:8000",
+        headers={"Content-Type":"application/json"}, timeout=30
+    ) as client:
+        response = await client.post("/mbv_llm_gpt", json={})
+    print(response.json())
+    return{"message": "mbv_search + llm 호출"}
+    '''
     try:
         if not os.path.exists(SEARCH_TARGET_PATH):
             print(f"❌ 파일을 찾을 수 없습니다: {SEARCH_TARGET_PATH}")
@@ -58,11 +79,13 @@ def main():
         search_response = q_client.query_points(
             collection_name=COLLECTION_NAME,
             query=query_vector,
-            limit=3
+            limit=1
         )
         
         # 3. 결과 출력
         results = search_response.points
+        description = search_data.get("description", "경로 없음")
+
         if results:
             print("\n" + "="*30 + " 검색 결과 " + "="*30)
             for i, hit in enumerate(results):
@@ -72,9 +95,20 @@ def main():
                 print("-" * 71)
         else:
             print("❌ 매칭되는 취약점 패턴을 찾지 못했습니다.")
+        
+        # 매칭 취약점 경로 mbv_llm_gpt로 전달
+        # print("description: ", description)
+        # async with httpx.AsyncClient(
+        #     base_url ="http://localhost:8000",
+        #     headers={"content-Type":"application/json"},
+        #     timeout=30
+        # ) as client:
+        #     response = await client.post("/mbv_llm_gpt", json={"description": description})
+        # print("LLM 응답:", response.json())
+        # return{"message"}
+        analysis_result = run_mbv_llm(description)
+        return {"infrastructure":search_data,"analysis": analysis_result}
 
     except Exception as e:
         print(f"❌ 오류 발생: {e}")
-
-if __name__ == "__main__":
-    main()
+        return e
