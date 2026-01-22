@@ -6,6 +6,8 @@ from botocore.exceptions import ClientError
 
 from fastapi import APIRouter, Request
 
+import re
+
 router = APIRouter()
 
 # --- 경로 설정 (이미지 구조 반영) ---
@@ -22,28 +24,34 @@ CONTEXT_PATH = os.path.join(BASE_DIR, "..", "document", "sqs_flag_shop.json")
 
 def extract_json_from_text(text: str) -> Optional[Dict[str, Any]]:
     """
-    모델 출력에서 JSON 객체를 추출한다.
-    전체 텍스트가 JSON이 아니어도 첫/마지막 중괄호로 감싼 영역을 파싱한다.
+    모델 출력에서 <reasoning> 태그를 제거하고 순수 JSON 객체만 추출한다.
     """
     if not text:
         return None
 
-    candidate = text.strip()
-    try:
-        parsed = json.loads(candidate)
-        if isinstance(parsed, dict):
-            return parsed
-    except json.JSONDecodeError:
-        pass
+    # 1. <reasoning> 태그 및 내부 내용 전체 제거 (가장 중요)
+    clean_text = re.sub(r'<reasoning>.*?</reasoning>', '', text, flags=re.DOTALL).strip()
 
-    start = candidate.find("{")
-    end = candidate.rfind("}")
+    # 2. JSON 객체 찾기 ({ } 추출)
+    start = clean_text.find("{")
+    end = clean_text.rfind("}")
+    
     if start != -1 and end != -1 and end > start:
+        json_str = clean_text[start:end + 1]
         try:
-            parsed = json.loads(candidate[start:end + 1])
+            parsed = json.loads(json_str)
             if isinstance(parsed, dict):
+                # 만약 모델이 summary 계산을 못했다면 기본값이라도 채워줌
+                if "vulnerabilities" in parsed and "summary" not in parsed:
+                    v = parsed["vulnerabilities"]
+                    parsed["summary"] = {
+                        "high": len([x for x in v if x.get("severity") == "high"]),
+                        "medium": len([x for x in v if x.get("severity") == "medium"]),
+                        "low": len([x for x in v if x.get("severity") == "low"]),
+                    }
                 return parsed
-        except json.JSONDecodeError:
+        except json.JSONDecodeError as e:
+            print(f"JSON 추출 후 파싱 실패: {e}")
             return None
 
     return None

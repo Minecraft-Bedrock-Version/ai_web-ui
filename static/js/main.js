@@ -278,7 +278,12 @@ aws ${config.infrastructureType} create \\
          }
 
 
-        function showAnalysisResults() {
+        // 취약점 분석 결과 표시
+        function showAnalysisResults(data) {
+            if (!data){
+                console.log("분석 결과 데이터 없음");
+                return;
+            }
             document.getElementById('analysisProgress').classList.add('hidden');
             document.getElementById('analysisResults').classList.remove('hidden');
 
@@ -336,6 +341,7 @@ aws ${config.infrastructureType} create \\
             // };
             
             //document.getElementById('infrastructureJSON').textContent = JSON.stringify(infrastructureData, null, 2);
+
             // 사용자 인프라 데이터 반영
             document.getElementById('infrastructureJSON').textContent = JSON.stringify(data.infrastructure, null, 2);
             
@@ -370,12 +376,17 @@ aws ${config.infrastructureType} create \\
             // ];
             
             //취약점 데이터 반영(LLM 분석 결과)
-            const analysisResult = data.analysis_result; // 백엔드 반환 전체
-            const vulnerabilities = analysisResult.vulnerabilities || [];
-            console.log("취약점 원본 데이터:", vulnerabilities)
+            const analysisResult = data.analysis; // 백엔드 반환 전체
+            const vulnerabilities = (analysisResult && analysisResult.vulnerabilities) ? analysisResult.vulnerabilities : [];
+
+            console.log("취약점데이터:",vulnerabilities)
 
             const container = document.getElementById('vulnerabilityList');
             container.innerHTML = '';
+            if (vulnerabilities.length === 0) {
+        container.innerHTML = '<p style="text-align:center; padding:20px;">발견된 취약점이 없거나 분석 중 오류가 발생했습니다.</p>';
+        return;
+    }
             
             vulnerabilities.forEach((vuln, index) => {
                 const card = document.createElement('div');
