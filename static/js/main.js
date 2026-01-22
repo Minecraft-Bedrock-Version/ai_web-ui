@@ -490,35 +490,25 @@ async function grokjson() {
 async function executeProcess() {
     // 1. 초기 UI 설정
     document.getElementById('executionIdle').style.display = 'none';
-    document.getElementById('executionSteps').classList.remove('hidden');
-    document.getElementById('executionComplete').classList.add('hidden'); // 다시 시작할 때 대비
+    const executionSteps = document.getElementById('executionSteps');
+    const executionComplete = document.getElementById('executionComplete');
+    executionSteps.classList.remove('hidden');
+    executionComplete.classList.add('hidden');
 
     const steps = [
-        { name: 'Grok 엔진 분석 중...', delay: 1000 },
-        { name: 'IAM 정책 생성 중...', delay: 2500 },
-        { name: 'AWS Lambda 검증 중...', delay: 4500 },
-        { name: '결과 정리 중...', delay: 6500 }
+        { name: 'Grok 엔진 분석 중...', id: 'step-0' },
+        { name: 'IAM 정책 생성 중...', id: 'step-1' },
+        { name: 'AWS Lambda 검증 중...', id: 'step-2' },
+        { name: '결과 정리 중...', id: 'step-3' }
     ];
 
     const container = document.getElementById('stepsContainer');
     container.innerHTML = '';
 
-    // 2. 백엔드 API 호출 시작 (애니메이션과 별개로 실행됨)
-    const apiCall = fetch('/grok_exe', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            "grok_result": latestGrokPolicyJSON,
-            "user_cli_input": user_cli_input
-        })
-    }).then(res => res.json());
-
-    // 3. UI 애니메이션 진행
-    // for 루프를 사용하여 순차적으로 단계를 표시합니다.
-    for (const [index, step] of steps.entries()) {
+    // UI 미리 생성
+    steps.forEach((step, index) => {
         const stepDiv = document.createElement('div');
         stepDiv.className = 'execution-step';
-        stepDiv.id = `exec-step-${index}`;
         stepDiv.innerHTML = `
             <div class="step-icon pending" id="icon-${index}"></div>
             <div style="flex: 1;">
@@ -530,35 +520,57 @@ async function executeProcess() {
             </div>
         `;
         container.appendChild(stepDiv);
+    });
 
-        // 지정된 딜레이 후에 '완료' 표시
-        await new Promise(resolve => setTimeout(resolve, step.delay / (index + 1))); 
-        
-        const icon = document.getElementById(`icon-${index}`);
-        icon.className = 'step-icon';
-        icon.innerHTML = '<svg width="20" height="20" fill="#16a34a" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>';
-        
-        const now = new Date().toLocaleTimeString('ko-KR');
-        document.getElementById(`time-${index}`).textContent = now;
-        document.getElementById(`status-${index}`).style.display = 'block';
-    }
+    // 2. 백엔드 API 호출 시작
+    const apiPromise = fetch('/grok_exe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            "grok_result": latestGrokPolicyJSON,
+            "user_cli_input": user_cli_input
+        })
+    }).then(res => res.json());
 
-    // 4. 실제 API 결과 기다리기
+    // 3. UI 애니메이션 진행 및 API 동기화
     try {
-        const result = await apiCall;
-        console.log("백엔드 응답:", result);
+        for (let i = 0; i < steps.length; i++) {
+            // 마지막 단계 전까지는 시각적인 가짜 딜레이를 줍니다 (사용자 경험용)
+            if (i < steps.length - 1) {
+                await new Promise(resolve => setTimeout(resolve, 800)); // 단계별 최소 노출 시간
+            } else {
+                // 마지막 단계("결과 정리 중")에서는 실제 API 응답이 올 때까지 기다립니다.
+                const result = await apiPromise;
+                
+                if (result.message !== "success") {
+                    throw new Error(result.error || "Unknown Error");
+                }
+                
+                console.log("백엔드 응답 완료:", result);
+            }
 
-        if (result.message === "success") {
-            // 성공 시 결과 화면 노출
-            document.getElementById('executionComplete').classList.remove('hidden');
-            // 필요하다면 여기서 result.lambda_result를 화면에 뿌려줄 수 있습니다.
-        } else {
-            alert("실행 중 오류가 발생했습니다: " + result.error);
+            // 해당 단계 완료 표시 UI 업데이트
+            completeStepUI(i);
         }
+
+        // 4. 모든 단계 완료 후 성공 화면 노출
+        executionComplete.classList.remove('hidden');
+
     } catch (error) {
-        console.error("API 호출 에러:", error);
-        alert("서버와 통신할 수 없습니다.");
+        console.error("실행 에러:", error);
+        alert("오류가 발생했습니다: " + error.message);
     }
+}
+
+// UI 업데이트를 위한 헬퍼 함수
+function completeStepUI(index) {
+    const icon = document.getElementById(`icon-${index}`);
+    icon.className = 'step-icon';
+    icon.innerHTML = '<svg width="20" height="20" fill="#16a34a" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>';
+    
+    const now = new Date().toLocaleTimeString('ko-KR');
+    document.getElementById(`time-${index}`).textContent = now;
+    document.getElementById(`status-${index}`).style.display = 'block';
 }
 
         // Logging Tabs
