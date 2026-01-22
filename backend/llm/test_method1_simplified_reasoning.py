@@ -106,7 +106,7 @@ def run_security_analysis(target_infra_json: str, retrieved_context: str) -> Opt
                 "content": prompt_template
             }
         ],
-        "max_tokens": 2096,
+        "max_tokens": 4096,
         "temperature": 0.2,
         "top_p": 0.9,
         "reasoning_effort": "medium"  # 방법 1: medium
