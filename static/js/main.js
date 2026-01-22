@@ -453,7 +453,7 @@ async function executeProcess() {
     container.innerHTML = '';
 
     // 2. 백엔드 API 호출 시작 (애니메이션과 별개로 실행됨)
-    const apiCall = fetch('http://localhost:8000/grok_exe', {
+    const apiCall = fetch('/grok_exe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' }
     }).then(res => res.json());

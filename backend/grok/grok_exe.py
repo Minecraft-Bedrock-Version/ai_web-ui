@@ -9,12 +9,15 @@ import os
 from dotenv import load_dotenv
 # fastapi 라우터 설정
 from fastapi import APIRouter
+
+load_dotenv()
+
 router = APIRouter()
 
 # 리전 설정 추가
 lambda_client = boto3.client("lambda", region_name="ap-northeast-1")
 
-load_dotenv()
+
 
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
 
