@@ -1,4 +1,5 @@
 # 양유상 작업물
+#현재 2번 방법 채택중
 import json
 import boto3
 import os  # 경로 처리를 위해 추가
@@ -134,10 +135,10 @@ def run_security_analysis(target_infra_json: str, retrieved_context: str) -> Opt
                 "content": prompt_template  # 기존에 정의한 prompt_template을 여기에 넣습니다.
             }
         ],
-        "max_tokens": 2096,
+        "max_tokens": 4096,
         "temperature": 0.2,
         "top_p": 0.9,
-        "reasoning_effort": "medium"
+        "reasoning_effort": "low"
     }
     body = json.dumps(payload)
 
