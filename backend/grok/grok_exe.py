@@ -23,9 +23,14 @@ lambda_client = boto3.client("lambda", region_name="ap-northeast-1")
 
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
 
+
+class GrokRequest(BaseModel):
+    grok_result: dict
+    user_cli_input: str
+
 #그록 실행 함수로 지정
 @router.post("/grok_json")
-def run_grok_exe():
+def grok_json():
     try:
         print("그록 실행합니다")
         user_cli_input = """aws iam put-user-policy \
@@ -90,9 +95,6 @@ def run_grok_exe():
         print(f"오류발생:{e}")
         return {"message":"error","error":str(e)}
 
-class GrokRequest:
-    grok_result: dict
-    user_cli_input: str
 
 @router.post("/grok_exe")
 def run_grok_exe(data: GrokRequest):
