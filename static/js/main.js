@@ -436,52 +436,75 @@ aws ${config.infrastructureType} create \\
         }
 
         // Execution
-        function executeProcess() {
-            document.getElementById('executionIdle').style.display = 'none';
-            document.getElementById('executionSteps').classList.remove('hidden');
-            
-            const steps = [
-                { name: '되는 중...', delay: 1500 },
-                { name: '시간이 흐르는 중...', delay: 3000 },
-                { name: '테스트가 되는 중...', delay: 4500 },
-                { name: '흘러간다...', delay: 6000 },
-                { name: '끝나간다...', delay: 7500 }
-            ];
-            
-            const container = document.getElementById('stepsContainer');
-            container.innerHTML = '';
-            
-            steps.forEach((step, index) => {
-                const stepDiv = document.createElement('div');
-                stepDiv.className = 'execution-step';
-                stepDiv.id = `exec-step-${index}`;
-                stepDiv.innerHTML = `
-                    <div class="step-icon pending" id="icon-${index}"></div>
-                    <div style="flex: 1;">
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <p style="font-weight: 500;">${step.name}</p>
-                            <span style="font-size: 13px; color: #6B7280;" id="time-${index}"></span>
-                        </div>
-                        <p style="font-size: 13px; color: #16a34a; margin-top: 4px; display: none;" id="status-${index}">완료됨</p>
-                    </div>
-                `;
-                container.appendChild(stepDiv);
-                
-                setTimeout(() => {
-                    const icon = document.getElementById(`icon-${index}`);
-                    icon.className = 'step-icon';
-                    icon.innerHTML = '<svg width="20" height="20" fill="#16a34a" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>';
-                    
-                    const now = new Date().toLocaleTimeString('ko-KR');
-                    document.getElementById(`time-${index}`).textContent = now;
-                    document.getElementById(`status-${index}`).style.display = 'block';
-                    
-                    if (index === steps.length - 1) {
-                        document.getElementById('executionComplete').classList.remove('hidden');
-                    }
-                }, step.delay);
-            });
+async function executeProcess() {
+    // 1. 초기 UI 설정
+    document.getElementById('executionIdle').style.display = 'none';
+    document.getElementById('executionSteps').classList.remove('hidden');
+    document.getElementById('executionComplete').classList.add('hidden'); // 다시 시작할 때 대비
+
+    const steps = [
+        { name: 'Grok 엔진 분석 중...', delay: 1000 },
+        { name: 'IAM 정책 생성 중...', delay: 2500 },
+        { name: 'AWS Lambda 검증 중...', delay: 4500 },
+        { name: '결과 정리 중...', delay: 6500 }
+    ];
+
+    const container = document.getElementById('stepsContainer');
+    container.innerHTML = '';
+
+    // 2. 백엔드 API 호출 시작 (애니메이션과 별개로 실행됨)
+    const apiCall = fetch('http://localhost:8000/grok_exe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+    }).then(res => res.json());
+
+    // 3. UI 애니메이션 진행
+    // for 루프를 사용하여 순차적으로 단계를 표시합니다.
+    for (const [index, step] of steps.entries()) {
+        const stepDiv = document.createElement('div');
+        stepDiv.className = 'execution-step';
+        stepDiv.id = `exec-step-${index}`;
+        stepDiv.innerHTML = `
+            <div class="step-icon pending" id="icon-${index}"></div>
+            <div style="flex: 1;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <p style="font-weight: 500;">${step.name}</p>
+                    <span style="font-size: 13px; color: #6B7280;" id="time-${index}"></span>
+                </div>
+                <p style="font-size: 13px; color: #16a34a; margin-top: 4px; display: none;" id="status-${index}">완료됨</p>
+            </div>
+        `;
+        container.appendChild(stepDiv);
+
+        // 지정된 딜레이 후에 '완료' 표시
+        await new Promise(resolve => setTimeout(resolve, step.delay / (index + 1))); 
+        
+        const icon = document.getElementById(`icon-${index}`);
+        icon.className = 'step-icon';
+        icon.innerHTML = '<svg width="20" height="20" fill="#16a34a" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>';
+        
+        const now = new Date().toLocaleTimeString('ko-KR');
+        document.getElementById(`time-${index}`).textContent = now;
+        document.getElementById(`status-${index}`).style.display = 'block';
+    }
+
+    // 4. 실제 API 결과 기다리기
+    try {
+        const result = await apiCall;
+        console.log("백엔드 응답:", result);
+
+        if (result.message === "success") {
+            // 성공 시 결과 화면 노출
+            document.getElementById('executionComplete').classList.remove('hidden');
+            // 필요하다면 여기서 result.lambda_result를 화면에 뿌려줄 수 있습니다.
+        } else {
+            alert("실행 중 오류가 발생했습니다: " + result.error);
         }
+    } catch (error) {
+        console.error("API 호출 에러:", error);
+        alert("서버와 통신할 수 없습니다.");
+    }
+}
 
         // Logging Tabs
         function switchTab(tabName) {

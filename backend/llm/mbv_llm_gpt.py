@@ -1,3 +1,4 @@
+# 양유상 작업물
 import json
 import boto3
 import os  # 경로 처리를 위해 추가
@@ -82,7 +83,16 @@ def run_security_analysis(target_infra_json: str, retrieved_context: str) -> Opt
 입력: 분석 대상 인프라 구성 (JSON)
 {target_infra_json}
 
-# Guidelines for Deep Analysis
+[분석 실행 전략 (반드시 준수)]
+1. **Primary Task (RAG 시나리오 검증):**
+   - 최우선적으로 상기 '컨텍스트'에 명시된 공격 기법이 '입력된 인프라'에서 실제로 재현 가능한지 검증하라.
+   - 해당 시나리오가 성립한다면 이를 결과에 반드시 포함해야 한다.
+
+2. **Secondary Task (Zero-Base 확장 탐지):**
+   - RAG 시나리오 검증 후 분석을 멈추지 말고, 네가 가진 클라우드 보안 지식(OWASP, AWS Best Practices)을 총동원하여 인프라 전체를 다시 스캔하라.
+   - 컨텍스트에 없는 치명적인 취약점(IAM 권한 오남용, 리소스 노출, 암호화 미비 등)을 식별하여 보고하라.
+
+[심층 검증 및 오탐 제거 지침]
 1. **[Effective Permission Calculation]**: Allow 뿐만 아니라 Deny, SCP, Permissions Boundary 등을 모두 대조하여 실제 유효 권한을 계산하라.
 2. **[Identity vs Resource-based Policy Interaction]**: IAM 정책과 리소스 기반 정책의 상호작용을 분석하여 신뢰 경계 붕괴를 식별하라.
 3. **[Multi-hop Attack Simulation]**: sts:AssumeRole, iam:PassRole 등을 포함한 연쇄 공격 경로를 시뮬레이션하라.
