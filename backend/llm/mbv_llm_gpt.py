@@ -156,12 +156,15 @@ def run_security_analysis(target_infra_json: str, retrieved_context: str) -> Opt
     
 def resolve_doc_path(relative_path: str) -> str:
     """
-    mbv_search에서 받은 경로를
-    프로젝트 기준 절대경로로 변환
+    relative_path가 'document/sqs_flag_shop.json'으로 들어올 경우를 대비
     """
-    return os.path.abspath(
-        os.path.join(BASE_DIR, "..", relative_path.lstrip("/"))
-    )
+    # 1. 넘겨받은 경로가 비어있는지 확인
+    if not relative_path:
+        return "경로 없음"
+        
+    # 2. BASE_DIR(backend/llm) -> ..(backend) -> relative_path(document/...)
+    full_path = os.path.normpath(os.path.join(BASE_DIR, "..", relative_path))
+    return full_path
 
 def run_mbv_llm(description: str) -> str:
 
