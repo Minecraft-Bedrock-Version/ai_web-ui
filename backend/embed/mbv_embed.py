@@ -7,7 +7,7 @@ from qdrant_client.models import Distance, VectorParams, PointStruct
 # Request 임포트
 from fastapi import Request 
 
-# fastapi 라우터 설정
+# fastapi 라우터 설정 - 필요x
 from fastapi import APIRouter
 router = APIRouter()
 
@@ -39,9 +39,7 @@ def get_embedding(text):
     embeddings = response_body.get('embeddings')
     return embeddings.get('float')[0] if isinstance(embeddings, dict) else embeddings[0]
 
-
-@router.post("/mbv_embed")
-async def mbv_embed(request: Request):
+def main():
     # 1. 컬렉션 생성
     if not q_client.collection_exists(COLLECTION_NAME):
         q_client.create_collection(
@@ -77,4 +75,5 @@ async def mbv_embed(request: Request):
     q_client.upsert(collection_name=COLLECTION_NAME, points=points)
     print(f"\n완료. 총 {len(points)}개의 데이터가 저장되었습니다.")
 
-    return 1
+if __name__ == "__main__":
+    main()

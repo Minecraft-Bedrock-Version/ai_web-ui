@@ -15,9 +15,7 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 async def root(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
-# mbv_embed.py 라우팅
-from backend.embed.mbv_embed import router as mbv_embed_router
-app.include_router(mbv_embed_router)
+
 
 # mbv_search.py 라우팅
 from backend.embed.mbv_search import router as mbv_search_router
