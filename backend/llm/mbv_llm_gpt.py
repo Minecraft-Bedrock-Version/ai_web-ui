@@ -24,37 +24,35 @@ CONTEXT_PATH = os.path.join(BASE_DIR, "..", "document", "sqs_flag_shop.json")
 '''
 
 def extract_json_from_text(text: str) -> Optional[Dict[str, Any]]:
-    """
-    모델 출력에서 <reasoning> 태그를 제거하고 순수 JSON 객체만 추출한다.
-    """
     if not text:
         return None
 
-    # 1. <reasoning> 태그 및 내부 내용 전체 제거 (가장 중요)
-    clean_text = re.sub(r'<reasoning>.*?</reasoning>', '', text, flags=re.DOTALL).strip()
-
-    # 2. JSON 객체 찾기 ({ } 추출)
-    start = clean_text.find("{")
-    end = clean_text.rfind("}")
+    # 1. <reasoning> 태그가 있다면 제거 (비탐욕적 매칭)
+    text = re.sub(r'<reasoning>.*?</reasoning>', '', text, flags=re.DOTALL)
     
-    if start != -1 and end != -1 and end > start:
-        json_str = clean_text[start:end + 1]
-        try:
-            parsed = json.loads(json_str)
-            if isinstance(parsed, dict):
-                # 만약 모델이 summary 계산을 못했다면 기본값이라도 채워줌
-                if "vulnerabilities" in parsed and "summary" not in parsed:
-                    v = parsed["vulnerabilities"]
-                    parsed["summary"] = {
-                        "high": len([x for x in v if x.get("severity") == "high"]),
-                        "medium": len([x for x in v if x.get("severity") == "medium"]),
-                        "low": len([x for x in v if x.get("severity") == "low"]),
-                    }
-                return parsed
-        except json.JSONDecodeError as e:
-            print(f"JSON 추출 후 파싱 실패: {e}")
-            return None
+    # 2. 마크다운 코드 블록(```json ... ```)이 있다면 제거
+    text = re.sub(r'```(?:json)?\s*([\s\S]*?)\s*```', r'\1', text)
 
+    # 3. 가장 바깥쪽의 { } 구간 찾기
+    try:
+        start = text.find("{")
+        end = text.rfind("}")
+        if start != -1 and end != -1:
+            json_str = text[start:end+1]
+            parsed = json.loads(json_str)
+            
+            # 요약 데이터 보정 로직 (기존 유지)
+            if "vulnerabilities" in parsed and "summary" not in parsed:
+                v = parsed["vulnerabilities"]
+                parsed["summary"] = {
+                    "high": len([x for x in v if str(x.get("severity")).lower() == "high"]),
+                    "medium": len([x for x in v if str(x.get("severity")).lower() == "medium"]),
+                    "low": len([x for x in v if str(x.get("severity")).lower() == "low"]),
+                }
+            return parsed
+    except Exception as e:
+        print(f"JSON 파싱 최종 실패: {e}")
+    
     return None
 
 
