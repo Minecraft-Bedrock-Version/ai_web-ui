@@ -436,6 +436,25 @@ aws ${config.infrastructureType} create \\
         }
 
         // Execution
+// 해당 페이지를 읽을 때 json 생성 및 띄우기
+async function grokjson() {
+    console.log("그록 JSON 생성 시작")
+    try{
+        const response = await fetch('/grok_json', {method:'POST'})
+        const data = await response.json();
+        console.log("그록 JSON생성 완료")
+        if (data.message === "success"){
+            latestGrokPolicyJSON = data.grok_result
+            console.log("생성된 JSON:",latestGrokPolicyJSON)
+            user_cli_input = data.user_cli_input
+        }
+
+
+    }catch(error){
+        console.error("JSON 생성 에러:",error)
+    }
+}
+
 async function executeProcess() {
     // 1. 초기 UI 설정
     document.getElementById('executionIdle').style.display = 'none';
@@ -455,7 +474,11 @@ async function executeProcess() {
     // 2. 백엔드 API 호출 시작 (애니메이션과 별개로 실행됨)
     const apiCall = fetch('/grok_exe', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            "grok_result": latestGrokPolicyJSON,
+            "user_cli_input": user_cli_input
+        })
     }).then(res => res.json());
 
     // 3. UI 애니메이션 진행

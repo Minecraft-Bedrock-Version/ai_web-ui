@@ -9,6 +9,8 @@ import os
 from dotenv import load_dotenv
 # fastapi 라우터 설정
 from fastapi import APIRouter
+from pydantic import BaseModel
+from typing import Optional
 
 load_dotenv()
 
@@ -22,7 +24,7 @@ lambda_client = boto3.client("lambda", region_name="ap-northeast-1")
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
 
 #그록 실행 함수로 지정
-@router.post("/grok_exe")
+@router.post("/grok_json")
 def run_grok_exe():
     try:
         print("그록 실행합니다")
@@ -80,7 +82,26 @@ def run_grok_exe():
         })
     )
 
+        #응답에서 JSON 부분 추출
         result = response.json()
+        print("Grok(json):",result)
+        return {"message": "success","grok_result": result, "user_cli_input": user_cli_input}
+    except Exception as e:
+        print(f"오류발생:{e}")
+        return {"message":"error","error":str(e)}
+
+class GrokRequest:
+    grok_result: dict
+    user_cli_input: str
+
+@router.post("/grok_exe")
+def run_grok_exe(data: GrokRequest):
+    result = data.grok_result
+    user_cli_input = data.user_cli_input
+    print("grok_result:",result)
+    print("user_cli_input:",user_cli_input)
+    try:
+        print("JSON실행 실행")
         content = result["choices"][0]["message"]["content"]
 
         match = re.search(r'\{[\s\S]*\}', content)

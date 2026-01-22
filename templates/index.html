@@ -217,25 +217,32 @@
                         리소스 생성 후 CloudTrail 로그를 검증하여 비정상적인 활동을 탐지하고, 작업 완료 후 임시 자격 증명을 자동으로 삭제합니다.</p>
                     </div>
                 </div>
+<div id="executionIdle">
+        <div class="generate-container">
+            <div id="policyPreviewContainer" style="width: 100%; margin-bottom: 20px; display: none;">
+                <p style="text-align: left; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">
+                    ✨ AI가 분석한 최소 권한 정책 (JSON)
+                </p>
+                <pre id="policyPreviewJson" style="background: #1e293b; color: #f8fafc; padding: 15px; border-radius: 8px; text-align: left; font-size: 13px; max-height: 250px; overflow-y: auto; font-family: monospace;"></pre>
+            </div>
 
-                <div id="executionIdle">
-                    <div class="generate-container">
-                        <svg width="64" height="64" fill="#9CA3AF" viewBox="0 0 24 24">
-                            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
-                        </svg>
-                        <div style="text-align: center;">
-                            <p style="font-size: 18px; font-weight: 500; margin-bottom: 8px;">실행 준비 완료</p>
-                            <p style="font-size: 14px; color: #6B7280;">아래 버튼을 클릭하여 보안 프로세스를 시작하세요</p>
-                        </div>
-                        <button class="btn btn-primary btn-lg" onclick="executeProcess()">
-                            <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M8 5v14l11-7z"/>
-                            </svg>
-                            실행하기
-                        </button>
-                    </div>
-                </div>
+            <div id="policyLoading" style="margin-bottom: 20px;">
+                <div class="spinner" style="margin: 0 auto 10px;"></div>
+                <p style="font-size: 14px; color: #6B7280;">AI가 최소 권한 정책을 생성하고 있습니다...</p>
+            </div>
 
+            <div id="readyToExecute" style="display: none;">
+                <p style="font-size: 18px; font-weight: 500; margin-bottom: 8px;">실행 준비 완료</p>
+                <p style="font-size: 14px; color: #6B7280; margin-bottom: 20px;">위 정책을 기반으로 보안 프로세스를 시작합니다.</p>
+                <button class="btn btn-primary btn-lg" onclick="executeProcess()">
+                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M8 5v14l11-7z"/>
+                    </svg>
+                    실행하기
+                </button>
+            </div>
+        </div>
+    </div>
                 <div id="executionSteps" class="hidden">
                     <div class="card" style="padding: 16px; margin-bottom: 16px;" id="stepsContainer">
                         <!-- Populated by JavaScript -->
