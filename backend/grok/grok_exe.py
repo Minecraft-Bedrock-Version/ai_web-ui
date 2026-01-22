@@ -11,7 +11,8 @@ from dotenv import load_dotenv
 from fastapi import APIRouter
 router = APIRouter()
 
-lambda_client = boto3.client("lambda")
+# 리전 설정 추가
+lambda_client = boto3.client("lambda", region_name="ap-northeast-1")
 
 load_dotenv()
 
