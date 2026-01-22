@@ -57,6 +57,12 @@ let currentStep = 0;
                 if (currentStep === 0 && !validateStep0()) {
                     return;
                 }
+                // 추가: 취약점 분석(2)에서 실행(3) 단계로 넘어갈 때 grokjson 실행
+        // (배열 인덱스: 0사용자설정, 1CLI생성, 2취약점분석, 3실행, 4로깅)
+                if (currentStep === 2){
+                    console.log("Grok Json 생성 시작")
+                    grokjson();
+                }
                 
                 currentStep++;
                 updateSteps();
