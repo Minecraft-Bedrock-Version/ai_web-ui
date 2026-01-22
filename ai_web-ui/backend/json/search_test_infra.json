@@ -1,0 +1,12 @@
+
+{
+  "resources": [
+    {
+      "type": "rds_instance",
+      "properties": {
+        "publicly_accessible": true,
+        "storage_encrypted": false
+      }
+    }
+  ]
+}

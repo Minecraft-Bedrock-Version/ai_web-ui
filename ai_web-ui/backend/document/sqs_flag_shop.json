@@ -1,0 +1,28 @@
+{
+  "platform": {
+    "name": "CloudGoat",
+    "scenario": "sqs_flag_shop",
+    "reference": "https://github.com/RhinoSecurityLabs/cloudgoat/tree/master/cloudgoat/scenarios/aws/sqs_flag_shop"
+  },
+
+  "vulnerability_title": "서비스 중인 애플리케이션 침해",
+
+  "category": ["Assume Role 권한 오남용", "간접 리소스 침해"],
+
+  "vulnerability_detail": "본 시나리오는 AWS IAM(Identity and Access Management) User에게 부여된 Inline Policy 내 sts:AssumeRole 권한을 통해 Amazon SQS(Simple Queue Service) 접근 권한을 가진 Role의 임시 자격 증명을 획득하여, 이를 통해 Queue에 조작된 Message를 전송하여 AWS Lambda 함수를 Trigger함으로써 Amazon EC2(Elastic Compute Cloud)에서 Amazon RDS(Relational Database Service) 및 외부 웹 서비스로 이어지는 간접 침해 경로를 형성합니다.",
+
+  "attack_path": [
+    {
+      "step": "IAM User → IAM Role",
+      "detail": "Inline Policy sts:AssumeRole"
+    },
+    {
+      "step": "IAM Role → SQS",
+      "detail": "GetQueueUrl, SendMessage → Event Trigger"
+    },
+    {
+      "step": "SQS → Lambda → EC2 Instance → RDS / External Web",
+      "detail": "Event-based indirect resource access"
+    }
+  ]
+}
