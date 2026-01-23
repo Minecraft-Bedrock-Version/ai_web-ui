@@ -261,78 +261,33 @@
             </div>
 
             <!-- Step 4: Logging -->
+
+            
             <div class="step-content-wrapper" id="step-4">
-                <h2 class="section-title">로깅 및 모니터링</h2>
-                <p class="section-description">모든 활동이 기록되고 CloudTrail 로그와 비교 검증됩니다.</p>
+    <div style="text-align: center; padding: 60px 20px;">
+        <div style="margin-bottom: 24px;">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM10 17L5 12L6.41 10.59L10 14.17L17.59 6.58L19 8L10 17Z" fill="#16A34A"/>
+            </svg>
+        </div>
 
-                <div class="stats-grid">
-                    <div class="card stat-card">
-                        <div class="stat-icon blue">
-                            <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
-                            </svg>
-                        </div>
-                        <div>
-                            <p style="font-size: 13px; color: #6B7280;">총 활동</p>
-                            <p style="font-size: 28px; font-weight: 600;">4</p>
-                        </div>
-                    </div>
+        <h2 class="section-title" style="font-size: 24px;">서비스 신청이 완료되었습니다</h2>
+        <p class="section-description" style="font-size: 16px; margin-top: 12px;">
+            모든 보안 검증 및 인프라 구성 작업이 성공적으로 끝났습니다.<br>
+            <strong>콘솔을 통해 실행 결과를 확인해주세요.</strong>
+        </p>
 
-                    <div class="card stat-card">
-                        <div class="stat-icon green">
-                            <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-                            </svg>
-                        </div>
-                        <div>
-                            <p style="font-size: 13px; color: #6B7280;">검증 완료</p>
-                            <p style="font-size: 28px; font-weight: 600;">4</p>
-                        </div>
-                    </div>
-
-                    <div class="card stat-card">
-                        <div class="stat-icon orange">
-                            <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/>
-                            </svg>
-                        </div>
-                        <div>
-                            <p style="font-size: 13px; color: #6B7280;">보안 경고</p>
-                            <p style="font-size: 28px; font-weight: 600;">0</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="tabs">
-                    <div class="tab-list">
-                        <button class="tab-button active" onclick="switchTab('ai-logs')">AI 로그</button>
-                        <button class="tab-button" onclick="switchTab('cloudtrail')">CloudTrail</button>
-                        <button class="tab-button" onclick="switchTab('alerts')">보안 알림</button>
-                    </div>
-
-                    <div class="tab-content active" id="tab-ai-logs">
-                        <div class="card">
-                            <div class="scroll-area" id="aiLogsContent">
-                                <!-- Populated by JavaScript -->
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="tab-content" id="tab-cloudtrail">
-                        <div class="card">
-                            <div class="scroll-area" id="cloudtrailContent">
-                                <!-- Populated by JavaScript -->
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="tab-content" id="tab-alerts">
-                        <div class="card" style="padding: 16px;" id="alertsContent">
-                            <!-- Populated by JavaScript -->
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <div style="margin-top: 48px; border-top: 1px solid #E5E7EB; padding-top: 40px;">
+            <p style="font-size: 14px; color: #6B7280; margin-bottom: 16px;">다른 인프라를 추가로 구성하시겠습니까?</p>
+            <button class="btn btn-primary btn-lg" onclick="location.reload()" style="padding: 12px 32px;">
+                <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24" style="margin-right: 8px;">
+                    <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
+                </svg>
+                새로 시작하기
+            </button>
+        </div>
+    </div>
+</div>
         </div>
 
         <!-- Navigation Buttons -->

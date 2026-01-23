@@ -1,6 +1,6 @@
 let currentStep = 0;
         const totalSteps = 5;
-        const stepTitles = ['사용자 설정', 'CLI 생성', '취약점 분석', '실행', '로깅'];
+        const stepTitles = ['사용자 설정', 'CLI 생성', '취약점 분석', '실행', '완료'];
         
         const config = {
             region: '',
@@ -90,19 +90,20 @@ let currentStep = 0;
         }
 
         function updateNavigation() {
-            const prevBtn = document.getElementById('prevBtn');
+            const prevBtn = document.getElementById('prevBtn'); 
             const nextBtn = document.getElementById('nextBtn');
             
             prevBtn.disabled = currentStep === 0;
             
             if (currentStep === totalSteps - 1) {
-                nextBtn.innerHTML = '새로 시작하기';
-                nextBtn.className = 'btn btn-success btn-lg';
-                nextBtn.onclick = function() {
-                    currentStep = 0;
-                    resetForm();
-                    updateSteps();
-                };
+                // nextBtn.innerHTML = '새로 시작하기';
+                // nextBtn.className = 'btn btn-success btn-lg';
+                // nextBtn.onclick = function() {
+                //     currentStep = 0;
+                //     resetForm();
+                //     updateSteps();
+                // };
+                nextBtn.style.display = 'none';
             } else {
                 nextBtn.innerHTML = `다음 <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>`;
                 nextBtn.className = 'btn btn-primary btn-lg';
@@ -442,7 +443,7 @@ aws ${config.infrastructureType} create \\
         }
 
         // Execution
-// 해당 페이지를 읽을 때 json 생성 및 띄우기
+//해당 페이지를 읽을 때 json 생성 및 띄우기
 async function grokjson() {
     console.log("그록 JSON 생성 시작");
     
@@ -487,6 +488,7 @@ async function grokjson() {
         policyLoading.innerHTML = `<p style="color:red;">에러가 발생했습니다. 로그를 확인하세요.</p>`;
     }
 }
+
 async function executeProcess() {
     // 1. 초기 UI 설정
     document.getElementById('executionIdle').style.display = 'none';
