@@ -382,6 +382,18 @@ aws ${config.infrastructureType} create \\
             //     }
             // ];
 
+            
+            //취약점 데이터 반영(LLM 분석 결과)
+            const analysisResult = data.analysis; // 백엔드 반환 전체
+            const vulnerabilities = (analysisResult && analysisResult.vulnerabilities) ? analysisResult.vulnerabilities : [];
+
+            console.log("취약점데이터:",vulnerabilities)
+
+            const container = document.getElementById('vulnerabilityList');
+
+            container.innerHTML = '';
+
+            
             if (data.analysis ===1 ){
                 console.log("취약점 데이터 없음")
 container.innerHTML = `
@@ -391,15 +403,6 @@ container.innerHTML = `
             </div>`;
         return;
             }
-            
-            //취약점 데이터 반영(LLM 분석 결과)
-            const analysisResult = data.analysis; // 백엔드 반환 전체
-            const vulnerabilities = (analysisResult && analysisResult.vulnerabilities) ? analysisResult.vulnerabilities : [];
-
-            console.log("취약점데이터:",vulnerabilities)
-
-            const container = document.getElementById('vulnerabilityList');
-            container.innerHTML = '';
             if (vulnerabilities.length === 0) {
         container.innerHTML = '<p style="text-align:center; padding:20px;">발견된 취약점이 없거나 분석 중 오류가 발생했습니다.</p>';
         return;
