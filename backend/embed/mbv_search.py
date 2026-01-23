@@ -89,6 +89,11 @@ async def mbv_search(request: Request):
         description_path ="경로_없음"
         
         if results:
+            top_hit = results[0]
+            if top_hit.score < 0.6: # 유사도 임계값 설정
+                print(" 유사도 점수가 낮아 탐지된 취약점이 없습니다.")
+                return {"infrastructure":search_data,"analysis": 1}
+            
             print("\n" + "="*30 + " 검색 결과 " + "="*30)
             for i, hit in enumerate(results):
                 p = hit.payload

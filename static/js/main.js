@@ -381,6 +381,16 @@ aws ${config.infrastructureType} create \\
             //         cvss_score: 3.2
             //     }
             // ];
+
+            if (data.analysis ===1 ){
+                console.log("취약점 데이터 없음")
+container.innerHTML = `
+            <div style="text-align:center; padding:40px; background:#f9fafb; border-radius:8px; border:1px dashed #d1d5db;">
+                <p style="font-size: 18px; color: #374151; font-weight: 600;">탐지된 취약점이 없습니다.</p>
+                <p style="font-size: 14px; color: #6b7280; margin-top: 8px;">분석 결과, 현재 인프라 구조에서 일치하는 취약점 패턴이 발견되지 않았습니다.</p>
+            </div>`;
+        return;
+            }
             
             //취약점 데이터 반영(LLM 분석 결과)
             const analysisResult = data.analysis; // 백엔드 반환 전체
