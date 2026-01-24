@@ -28,3 +28,7 @@ app.include_router(mbv_llm_gpt_router)
 # grok_ext.py 라우팅
 from backend.grok.grok_exe import router as grok_exe_router
 app.include_router(grok_exe_router)
+
+# lambda.py 라우팅
+from backend.mbv_lambda.mbv_lambda import router as mbv_lambda_router
+app.include_router(mbv_lambda_router)
