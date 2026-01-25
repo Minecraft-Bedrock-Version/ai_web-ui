@@ -31,11 +31,11 @@ class GrokRequest(BaseModel):
 
 #그록 실행 함수로 지정
 @router.post("/grok_json")
-def grok_json(request: Request):
+async def grok_json(request: Request):
     try:
         print("그록 실행합니다")
 
-        data = request.json()
+        data = await request.json()
         user_cli_input = data.get('customCLI')
         # user_cli_input = """aws iam put-user-policy \
         # --user-name scp_test \
