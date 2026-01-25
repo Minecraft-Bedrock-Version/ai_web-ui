@@ -91,6 +91,7 @@ async def mbv_search(request: Request):
         if results:
             top_hit = results[0]
             if top_hit.score < 0.6: # 유사도 임계값 설정
+                print(f"⚠️ 유사도 점수가 낮습니다. (최고 점수: {top_hit.score:.4f})")
                 print(" 유사도 점수가 낮아 탐지된 취약점이 없습니다.")
                 return {"infrastructure":search_data,"analysis": 1}
             
