@@ -54,9 +54,10 @@ let currentStep = 0;
         // Navigation
         function nextStep() {
             if (currentStep < totalSteps - 1) {
-                if (currentStep === 0 && !validateStep0()) {
-                    return;
-                }
+                // 스텝 0 열어 놓기
+                // if (currentStep === 0 && !validateStep0()) {
+                //     return;
+                // }
                 // 추가: 취약점 분석(2)에서 실행(3) 단계로 넘어갈 때 grokjson 실행
         // (배열 인덱스: 0사용자설정, 1CLI생성, 2취약점분석, 3실행, 4로깅)
                 if (currentStep === 2){
@@ -117,9 +118,11 @@ let currentStep = 0;
                 nextBtn.className = 'btn btn-primary btn-lg';
                 nextBtn.onclick = nextStep;
                 
-                if (currentStep === 0) {
-                    nextBtn.disabled = !validateStep0();
-                }else if(currentStep ===1){ 
+                //스텝 0 열어놓기
+                // if (currentStep === 0) {
+                //     nextBtn.disabled = !validateStep0();
+                // }else 
+                if(currentStep ===1){ 
                     //cli 입력 없을 시 다음 버튼 비활성화
                     nextBtn.disabled = !config.customCLI;
                 } 
