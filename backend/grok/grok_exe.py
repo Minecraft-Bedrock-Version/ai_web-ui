@@ -37,22 +37,7 @@ async def grok_json(request: Request):
 
         data = await request.json()
         user_cli_input = data.get('customCLI')
-        # user_cli_input = """aws iam put-user-policy \
-        # --user-name scp_test \
-        # --policy-name cg-sqs-scenario-assumed-role \
-        # --policy-document '{
-        # "Version": "2012-10-17",
-        # "Statement": [
-        # {
-        # "Effect": "Allow",
-        # "Action": [
-        #     "iam:Get*",
-        #     "iam:List*"
-        # ],
-        # "Resource": "*"
-        #     }
-        # ]
-        # }'"""
+
         print("사용자 입력 CLI(grok_json):", user_cli_input)
         if not user_cli_input:
             return {"error":"사용자 CLI 입력이 비어 있습니다."}

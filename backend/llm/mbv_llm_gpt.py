@@ -222,29 +222,3 @@ async def mbv_llm_gpt(request: Request):
     '''
     return{"message": "mbv_llm_gpt 호출"}
 '''
-'''
-    # 1. search_pandyo.json 파일 읽기
-    try:
-        if not os.path.exists(TARGET_JSON_PATH):
-            print(f"❌ 분석 대상 파일을 찾을 수 없습니다: {TARGET_JSON_PATH}")
-        else:
-            with open(TARGET_JSON_PATH, "r", encoding="utf-8") as f:
-                # 파일 전체를 읽어서 문자열로 변환
-                search_pandyo_data = json.load(f)
-                target_infra_json_str = json.dumps(search_pandyo_data, indent=2, ensure_ascii=False)
-            
-            print(f"🚀 {TARGET_JSON_PATH} 파일을 기반으로 분석을 시작합니다...")
-            
-            # 2. 분석 실행
-            analysis_result = run_security_analysis(target_infra_json_str)
-            
-            if analysis_result:
-                print("\n✅ 분석 완료:")
-                print(json.dumps(analysis_result, indent=4, ensure_ascii=False))
-            
-            # 임시 리턴값
-            return 1 
-    except Exception as e:
-        print(f"❌ 실행 중 오류 발생: {e}")
-        return e
-'''

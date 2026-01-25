@@ -45,15 +45,7 @@ def get_embedding(text):
 @router.post("/mbv_search")
 async def mbv_search(request: Request):
     print("mbv_search 함수 실행됨")
-    '''
-    async with httpx.AsyncClient(
-        base_url="http://localhost:8000",
-        headers={"Content-Type":"application/json"}, timeout=30
-    ) as client:
-        response = await client.post("/mbv_llm_gpt", json={})
-    print(response.json())
-    return{"message": "mbv_search + llm 호출"}
-    '''
+
     try:
         if not os.path.exists(SEARCH_TARGET_PATH):
             print(f"❌ 파일을 찾을 수 없습니다: {SEARCH_TARGET_PATH}")
@@ -107,15 +99,7 @@ async def mbv_search(request: Request):
             print("❌ 매칭되는 취약점 패턴을 찾지 못했습니다.")
         
         # 매칭 취약점 경로 mbv_llm_gpt로 전달
-        # print("description: ", description)
-        # async with httpx.AsyncClient(
-        #     base_url ="http://localhost:8000",
-        #     headers={"content-Type":"application/json"},
-        #     timeout=30
-        # ) as client:
-        #     response = await client.post("/mbv_llm_gpt", json={"description": description})
-        # print("LLM 응답:", response.json())
-        # return{"message"}
+
         print("전달 경로:", description_path)
         analysis_result = {"error":"분석이 실행되지 않음."}
 
