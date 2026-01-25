@@ -7,6 +7,7 @@ import re
 # 필요한 라이브러리 추가
 import os
 from dotenv import load_dotenv
+from fastapi import Request
 # fastapi 라우터 설정
 from fastapi import APIRouter
 from pydantic import BaseModel
@@ -30,25 +31,31 @@ class GrokRequest(BaseModel):
 
 #그록 실행 함수로 지정
 @router.post("/grok_json")
-def grok_json():
+def grok_json(request: Request):
     try:
         print("그록 실행합니다")
-        user_cli_input = """aws iam put-user-policy \
-        --user-name scp_test \
-        --policy-name cg-sqs-scenario-assumed-role \
-        --policy-document '{
-        "Version": "2012-10-17",
-        "Statement": [
-        {
-        "Effect": "Allow",
-        "Action": [
-            "iam:Get*",
-            "iam:List*"
-        ],
-        "Resource": "*"
-            }
-        ]
-        }'"""
+
+        data = request.json()
+        user_cli_input = data.get('customCLI')
+        # user_cli_input = """aws iam put-user-policy \
+        # --user-name scp_test \
+        # --policy-name cg-sqs-scenario-assumed-role \
+        # --policy-document '{
+        # "Version": "2012-10-17",
+        # "Statement": [
+        # {
+        # "Effect": "Allow",
+        # "Action": [
+        #     "iam:Get*",
+        #     "iam:List*"
+        # ],
+        # "Resource": "*"
+        #     }
+        # ]
+        # }'"""
+        print("사용자 입력 CLI(grok_json):", user_cli_input)
+        if not user_cli_input:
+            return {"error":"사용자 CLI 입력이 비어 있습니다."}
 
         system_prompt = """
         You are an AWS IAM least-privilege policy generator.

@@ -561,7 +561,10 @@ async function grokjson() {
     try {
         const response = await fetch('/grok_json', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' }
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                "customCLI": config.customCLI
+            })
         });
         const data = await response.json();
 
