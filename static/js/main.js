@@ -647,7 +647,7 @@ async function executeProcess() {
         for (let i = 0; i < steps.length; i++) {
             // 마지막 단계 전까지는 시각적인 가짜 딜레이를 줍니다 (사용자 경험용)
             if (i < steps.length - 1) {
-                await new Promise(resolve => setTimeout(resolve, 800)); // 단계별 최소 노출 시간
+                await new Promise(resolve => setTimeout(resolve, 1400)); // 단계별 최소 노출 시간
             } else {
                 // 마지막 단계("결과 정리 중")에서는 실제 API 응답이 올 때까지 기다립니다.
                 const result = await apiPromise;
