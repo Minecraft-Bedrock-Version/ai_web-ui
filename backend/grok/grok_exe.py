@@ -45,7 +45,7 @@ async def grok_json(request: Request):
         system_prompt = """
         You are an AWS IAM least-privilege policy generator.
 
-        Rules (MANDATORY):
+        Rules (MANDATORY): 
         - Determine permissions required to EXECUTE the CLI command only.
         - NEVER analyze or reuse permissions inside --policy-document.
         - NEVER invent AWS actions.

@@ -5,134 +5,124 @@
         "description": "document/sqs_flag_shop.json",
         "resources": [
   {
-    "fileName": "vpc.json",
-    "content": {
-      "nodes": [
-        {
-          "node_type": "vpc",
-          "node_id": "string"
-        }
-      ]
-    }
-  },
-  {
-    "fileName": "subnet.json",
-    "content": {
-      "nodes": [
-        {
-          "node_type": "subnet",
-          "node_id": "string",
-          "attributes": {
-            "visibility": "public"
-          }
-        }
-      ]
-    }
-  },
-  {
-    "fileName": "sqs_to_lambda.json",
-    "content": {
-      "src": "sqs node_id",
-      "dst": "lambda_event_source_mapping node_id",
-      "directed": true,
-      "conditions": [
-        {
-          "lambda_event_source_mapping": {
-            "relationships": {
-              "source_arn": "sqs"
+  "nodes": [
+    {
+      "node_type": "lambda_function",
+      "node_id": "graph_node_id"
+    },
+    {
+      "node_type": "lambda_event_source_mapping",
+      "node_id": "graph_node_id",
+      "attributes": {
+        "state": "Enabled"
+      },
+      "relationships": {
+        "source_arn": "sqs"
+      }
+    },
+    {
+      "node_type": "route_table",
+      "node_id": "string",
+      "attributes": {
+        "type": "public"
+      }
+    },
+    {
+      "node_type": "internet_gateway",
+      "node_id": "graph_node_id",
+      "attributes": {
+        "state": "available"
+      }
+    },
+    {
+      "node_type": "iam_role",
+      "node_id": "string",
+      "attributes": {
+        "assume_role_policy": {
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": "sts:AssumeRole"
             }
+          ]
+        },
+        "inline_policies": [
+          {
+            "Statement": [
+              {
+                "Action": ["sqs:GetQueueUrl", "sqs:SendMessage"],
+                "Effect": "Allow"
+              }
+            ]
           }
+        ]
+      }
+    },
+    {
+      "node_type": "ec2",
+      "node_id": "string",
+      "attributes": {
+        "public": true,
+        "sqs_info": {
+          "detected": true
+        },
+        "rds_info": {
+          "detected": true
         }
-      ]
-    }
-  },
-  {
-    "fileName": "sqs.json",
-    "content": {
-      "nodes": [
-        {
-          "node_type": "sqs",
-          "node_id": "graph_node_id"
-        }
-      ]
-    }
-  },
-  {
-    "fileName": "route_table.json",
-    "content": {
-      "nodes": [
-        {
-          "node_type": "route_table",
-          "node_id": "string",
-          "attributes": {
-            "type": "public"
+      }
+    },
+    {
+      "node_type": "sqs",
+      "node_id": "graph_node_id"
+    },
+    {
+      "node_type": "iam_user",
+      "node_id": "string",
+      "attributes": {
+        "inline_policies": [
+          {
+            "Statement": [
+              {
+                "Effect": "Allow",
+                "Action": "sts:AssumeRole"
+              }
+            ]
           }
-        }
-      ]
+        ]
+      }
+    },
+    {
+      "node_type": "rds_instance",
+      "node_id": "graph_node_id"
+    },
+    {
+      "node_type": "subnet",
+      "node_id": "string",
+      "attributes": {
+        "visibility": "public"
+      }
+    },
+    {
+      "node_type": "vpc",
+      "node_id": "string"
     }
-  },
-  {
-    "fileName": "rds.json",
-    "content": {
-      "nodes": [
-        {
-          "node_type": "rds_instance",
-          "node_id": "graph_node_id"
-        }
-      ]
-    }
-  },
-  {
-    "fileName": "lambda_to_ec2.json",
-    "content": {
-      "src": "lambda_function node_id",
-      "dst": "ec2 node_id",
+  ],
+  "edges": [
+    {
+      "src": "ec2 node_id",
+      "dst": "sqs node_id",
       "directed": true,
       "conditions": [
-        {
-          "lambda_format_in_ec2_ip": true
+        { 
+          "ec2" : {
+            "attributes": {
+              "sqs_info": { "detected": true }
+            }
+          } 
         }
       ]
-    }
-  },
-  {
-    "fileName": "lambda.json",
-    "content": {
-      "nodes": [
-        {
-          "node_type": "lambda_function",
-          "node_id": "graph_node_id"
-        },
-        {
-          "node_type": "lambda_event_source_mapping",
-          "node_id": "graph_node_id",
-          "attributes": {
-            "state": "Enabled"
-          },
-          "relationships": {
-            "source_arn": "sqs"
-          }
-        }
-      ]
-    }
-  },
-  {
-    "fileName": "igw.json",
-    "content": {
-      "nodes": [
-        {
-          "node_type": "internet_gateway",
-          "node_id": "graph_node_id",
-          "attributes": {
-            "state": "available"
-          }
-        }
-      ]
-    }
-  },
-  {
-    "fileName": "iam_user_to_iam_role.json",
-    "content": {
+    },
+    {
       "src": "iam_user node_id",
       "dst": "iam_role node_id",
       "directed": false,
@@ -143,10 +133,7 @@
               "inline_policies": [
                 {
                   "Statement": [
-                    {
-                      "Effect": "Allow",
-                      "Action": "sts:AssumeRole"
-                    }
+                    { "Effect": "Allow", "Action": "sts:AssumeRole" }
                   ]
                 }
               ]
@@ -154,34 +141,28 @@
           }
         }
       ]
-    }
-  },
-  {
-    "fileName": "iam_user.json",
-    "content": {
-      "nodes": [
+    },
+    {
+      "src": "lambda_function node_id",
+      "dst": "ec2 node_id",
+      "directed": true,
+      "conditions": [
+        { "lambda_format_in_ec2_ip" : true }
+      ]
+    },
+    {
+      "src": "sqs node_id",
+      "dst": "lambda_event_source_mapping node_id",
+      "directed": true,
+      "conditions": [
         {
-          "node_type": "iam_user",
-          "node_id": "string",
-          "attributes": {
-            "inline_policies": [
-              {
-                "Statement": [
-                  {
-                    "Effect": "Allow",
-                    "Action": "sts:AssumeRole"
-                  }
-                ]
-              }
-            ]
+          "lambda_event_source_mapping": {
+            "relationships": { "source_arn": "sqs" }
           }
         }
       ]
-    }
-  },
-  {
-    "fileName": "iam_role_to_sqs.json",
-    "content": {
+    },
+    {
       "src": "iam_role node_id",
       "dst": "sqs node_id",
       "directed": true,
@@ -193,13 +174,7 @@
                 "inline_policies": [
                   {
                     "Statement": [
-                      {
-                        "Action": [
-                          "sqs:GetQueueUrl",
-                          "sqs:SendMessage"
-                        ],
-                        "Effect": "Allow"
-                      }
+                      { "Action": ["sqs:GetQueueUrl", "sqs:SendMessage"], "Effect": "Allow" }
                     ]
                   }
                 ],
@@ -214,117 +189,35 @@
           }
         }
       ]
-    }
-  },
-  {
-    "fileName": "iam_role.json",
-    "content": {
-      "nodes": [
-        {
-          "node_type": "iam_role",
-          "node_id": "string",
-          "attributes": {
-            "assume_role_policy": {
-              "Statement": [
-                {
-                  "Effect": "Allow",
-                  "Action": "sts:AssumeRole"
-                }
-              ]
-            },
-            "inline_policies": [
-              {
-                "Statement": [
-                  {
-                    "Action": [
-                      "sqs:GetQueueUrl",
-                      "sqs:SendMessage"
-                    ],
-                    "Effect": "Allow"
-                  }
-                ]
-              }
-            ]
-          }
-        }
-      ]
-    }
-  },
-  {
-    "fileName": "ec2_to_sqs.json",
-    "content": {
-      "src": "ec2 node_id",
-      "dst": "sqs node_id",
-      "directed": true,
-      "conditions": [
-        {
-          "ec2": {
-            "attributes": {
-              "sqs_info": {
-                "detected": true
-              }
-            }
-          }
-        }
-      ]
-    }
-  },
-  {
-    "fileName": "ec2_and_rds.json",
-    "content": {
-      "src": "ec2 node_id",
-      "dst": "rds_instance node_id",
-      "directed": false,
-      "conditions": [
-        {
-          "ec2": {
-            "attributes": {
-              "rds_info": {
-                "detected": true
-              }
-            }
-          }
-        }
-      ]
-    }
-  },
-  {
-    "fileName": "ec2_and_igw.json",
-    "content": {
+    },
+    {
       "src": "ec2 node_id",
       "dst": "igw node_id",
       "directed": false,
       "conditions": [
         {
           "ec2": {
+            "attributes": { "public": true }
+          }
+        }
+      ]
+    },
+    {
+      "src": "ec2 node_id",
+      "dst": "rds_instance node_id",
+      "directed": false,
+      "conditions": [
+        { 
+          "ec2" : {
             "attributes": {
-              "public": true
+              "rds_info": { "detected": true }
             }
-          }
+          } 
         }
       ]
     }
-  },
-  {
-    "fileName": "ec2.json",
-    "content": {
-      "nodes": [
-        {
-          "node_type": "ec2",
-          "node_id": "string",
-          "attributes": {
-            "public": true,
-            "sqs_info": {
-              "detected": true
-            },
-            "rds_info": {
-              "detected": true
+  ]
 }
-          }
-        }
-      ]
-    }
-  }
 ]
 },{
     "id": 2,
