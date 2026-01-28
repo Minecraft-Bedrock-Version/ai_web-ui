@@ -3,8 +3,6 @@ import json
 import os
 from qdrant_client import QdrantClient
 
-# httpx는 비동기 요청을 위해 사용
-import httpx
 
 # Request 임포트
 from fastapi import Request 

@@ -1,0 +1,27 @@
+[
+  {
+    "id": "iam",
+    "name": "IAM",
+    "description": "Identity and Access Management",
+    "icon": "IAM"
+    
+  },
+  {
+    "id": "ec2",
+    "name": "EC2",
+    "description": "Elastic Compute Cloud",
+    "icon": "EC2"
+  },
+  {
+    "id": "s3",
+    "name": "S3",
+    "description": "Simple Storage Service",
+    "icon": "S3"
+  },
+  {
+    "id": "lambda",
+    "name": "Lambda",
+    "description": "Serverless Computing",
+    "icon": "λ"
+  }
+]

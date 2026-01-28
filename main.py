@@ -14,6 +14,10 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 @app.get("/", response_class=HTMLResponse) 
 async def root(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
+@app.get("/service/iam",response_class=HTMLResponse)
+async def service_iam(request: Request):
+    return templates.TemplateResponse("/service/iam/iam.html",{"request":request})
+
 
 
 
@@ -32,3 +36,7 @@ app.include_router(grok_exe_router)
 # lambda.py 라우팅
 from backend.mbv_lambda.mbv_lambda import router as mbv_lambda_router
 app.include_router(mbv_lambda_router)
+
+# cliCreate.py 라우팅
+from backend.cliCreate.cliCreate import router as cli_create_router
+app.include_router(cli_create_router)

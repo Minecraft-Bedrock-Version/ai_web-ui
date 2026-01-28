@@ -1,0 +1,227 @@
+  :root {
+    --aws-blue: #0972d3;
+    --aws-dark: #232f3e;
+    --bg-gray: #f2f3f3;
+    --border-color: #eaeded;
+    --text-main: #16191f;
+    --aws-orange: #ff9900; /* AWS 로고 포인트 색상 */
+  --aws-orange-hover: #ec7211;
+  }
+
+  body {
+    margin: 0;
+    font-family: "Amazon Ember", "Segoe UI", Roboto, sans-serif;
+    background: var(--bg-gray);
+    color: var(--text-main);
+  }
+/* 2. 레이아웃 반응형 대응 */
+.layout {
+  display: flex;
+  height: 100vh;
+  transition: all 0.3s ease;
+}
+
+/* 화면이 작아질 때 사이드바 숨기기 혹은 너비 조절 */
+
+@media (max-width: 1024px) {
+  .sidebar {
+    width: 200px;
+  }
+}
+@media (max-width: 768px) {
+  .layout {
+    flex-direction: column; /* 세로로 쌓기 */
+  }
+
+  .sidebar {
+    width: 100% !important; /* 가로 꽉 채우기 */
+    height: auto;
+    padding: 0;
+    display: flex;
+    flex-direction: row; /* 내부 요소 가로 배치 */
+    align-items: center;
+    overflow-x: auto; /* 메뉴가 많으면 가로 스크롤 */
+    border-bottom: 1px solid #37475a;
+  }
+
+  .sidebar h3 {
+    padding: 0 20px;
+    margin: 0;
+    font-size: 14px;
+    white-space: nowrap; /* 제목 줄바꿈 방지 */
+    border-right: 1px solid #37475a; /* 제목과 메뉴 구분 */
+    height: 100%;
+    display: flex;
+    align-items: center;
+  }
+
+  /* 메뉴 아이템들을 한 줄로 나열 */
+  .sidebar div {
+    flex: 0 0 auto; /* 너비 고정 */
+    padding: 15px 20px;
+    font-size: 13px;
+    border-left: none !important; /* 기존 세로형 보더 제거 */
+    border-bottom: 3px solid transparent; /* 하단 탭 스타일 준비 */
+  }
+
+  .sidebar div.active {
+    background: #37475a;
+    color: white;
+    border-bottom: 3px solid var(--aws-blue); /* 아래쪽에 강조선 */
+  }
+
+  .sidebar div:hover:not(.active) {
+    border-bottom: 3px solid #545b64;
+  }
+
+  .main {
+    padding: 15px;
+    width: 100%;
+    box-sizing: border-box; /* 패딩이 너비에 포함되도록 */
+  }
+
+  /* 빌더 그리드 한 줄 처리 */
+  .builder {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+}
+
+  /* Sidebar */
+  .sidebar {
+    width: 240px;
+    background: var(--aws-dark);
+    color: #fff;
+    padding: 20px 0;
+  }
+  .sidebar h3 { padding: 0 20px; margin-bottom: 20px; font-size: 1.2rem; }
+  .sidebar div {
+    padding: 12px 24px;
+    cursor: pointer;
+    transition: 0.2s;
+    font-size: 14px;
+    color: #aab7c4;
+  }
+  .sidebar div.active {
+    background: #37475a;
+    color: white;
+    border-left: 4px solid var(--aws-blue);
+    font-weight: bold;
+  }
+  .sidebar div:hover:not(.active) { background: #2e3e50; color: white; }
+
+  /* Main */
+  .main { flex: 1; padding: 30px; overflow: auto; }
+  .section {
+    background: white;
+    padding: 24px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  }
+  h2 { margin-top: 0; font-size: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; }
+  h3 { font-size: 1.1rem; margin-bottom: 15px; color: #444; }
+
+  /* Table Custom */
+  table { width: 100%; border-collapse: collapse; }
+  th { text-align: left; background: #fafafa; }
+  td { padding: 12px; border-bottom: 1px solid var(--border-color); cursor: pointer; }
+  tr.selected { background: #f1faff; color: var(--aws-blue); font-weight: bold; }
+  tr:hover:not(.selected) { background: #f9f9f9; }
+
+  /* Policy Builder Layout */
+  .builder { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  
+  .control-group { margin-bottom: 15px; }
+  label { display: block; font-weight: bold; margin-bottom: 8px; font-size: 14px; }
+  
+  select {
+    width: 100%; padding: 10px; border: 1px solid #aab7c4; border-radius: 4px;
+    background-color: white;
+  }
+
+  #actionArea {
+    border: 1px solid #d5dbdb;
+    border-radius: 4px;
+    padding: 10px;
+    height: 180px;
+    overflow-y: auto;
+    background: #fbfbfb;
+  }
+  #actionArea label {
+    font-weight: normal;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 0;
+    cursor: pointer;
+  }
+
+  /* JSON Editor Style */
+  textarea {
+    width: 100%;
+    height: 250px;
+    font-family: 'Courier New', Courier, monospace;
+    background: #1e1e1e;
+    color: #d4d4d4;
+    padding: 15px;
+    border-radius: 4px;
+    border: none;
+    line-height: 1.5;
+    box-sizing: border-box;
+  }
+
+  /* Buttons */
+  .btn-group { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+  button {
+    padding: 10px 20px;
+    border: 1px solid #545b64;
+    background: white;
+    cursor: pointer;
+    border-radius: 20px;
+    font-weight: bold;
+    transition: 0.2s;
+  }
+  button:hover { background: #f2f3f3; }
+  button.primary {
+background: var(--aws-orange);
+  color: #16191f; /* AWS 오렌지 버튼은 글자가 어두운 색일 때가 많습니다 */
+  border-color: var(--aws-orange);
+  }
+  button.primary:hover {background: var(--aws-orange-hover);
+  border-color: var(--aws-orange-hover);
+  color: white;}
+
+  .policy-tag {
+    display: inline-block;
+    padding: 4px 12px;
+    background: #e9f3ff;
+    color: #0061c1;
+    border-radius: 12px;
+    font-size: 12px;
+    margin: 4px;
+
+    /* 4. 테이블 스크롤 대응 (작은 화면에서 테이블 깨짐 방지) */
+.section {
+  overflow-x: auto; /* 내용이 넘치면 가로 스크롤 생성 */
+}
+
+/* 5. 입력창 및 셀렉트 박스 터치 타겟 최적화 */
+select, button, input {
+  font-size: 16px; /* 모바일에서 자동 확대 방지 */
+}
+
+/* 6. JSON 에디터 반응형 높이 */
+@media (max-width: 480px) {
+  textarea {
+    height: 180px;
+  }
+  .btn-group {
+    flex-direction: column;
+    gap: 8px;
+  }
+  button {
+    width: 100%;
+  }
+}
+  }

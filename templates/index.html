@@ -28,7 +28,41 @@
         <!-- Content Area -->
         <div class="card content-area">
             <!-- Step 0: User Configuration -->
+                        <!-- Step 0: User Configuration with Card-based Service Selection -->
             <div class="step-content-wrapper active" id="step-0">
+                <h2 class="section-title">인프라 구성 설정</h2>
+                <p class="section-description">새로 생성할 AWS 서비스와 액션을 선택해주세요.</p>
+
+                <!-- Region Selector -->
+                <div class="region-selector">
+                    <label class="form-label" for="region">AWS 리전</label>
+                    <select class="form-select" id="region">
+                        <option value="">리전을 선택하세요</option>
+                        <option value="us-east-1">US East (N. Virginia)</option>
+                        <option value="us-west-2">US West (Oregon)</option>
+                        <option value="ap-northeast-2">Asia Pacific (Seoul)</option>
+                        <option value="ap-northeast-1">Asia Pacific (Tokyo)</option>
+                        <option value="eu-west-1">Europe (Ireland)</option>
+                    </select>
+                </div>
+
+                <!-- Selected Services Summary -->
+                <div class="selected-services-summary" id="selectedSummary">
+                    <div class="summary-title">
+                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                        </svg>
+                        선택된 서비스 및 액션
+                    </div>
+                    <div id="summaryContent"></div>
+                </div>
+
+                <!-- AWS Services Grid -->
+                <div class="services-grid" id="servicesGrid">
+                    <!-- Services populated by JavaScript -->
+                </div>
+            </div>
+            <!-- <div class="step-content-wrapper active" id="step-0">
                 <h2 class="section-title">인프라 구성 설정</h2>
                 <p class="section-description">새로 생성할 인프라의 설정을 입력해주세요.</p>
 
@@ -66,7 +100,7 @@
                     <input class="form-input" type="text" id="iamCredentials" placeholder="arn:aws:iam::123456789012:user/username">
                     <p class="form-hint">사용자 A의 IAM 자격 증명을 입력하세요</p>
                 </div>
-            </div>
+            </div> -->
 
             <!-- Step 1: CLI Generation -->
             <!-- <div class="step-content-wrapper" id="step-1">
@@ -327,6 +361,6 @@
         </div>
     </div>
 
-    <script src="/static/js/main.js" defer></script>
+    <script type="module" src="/static/js/main.js" defer></script>
 </body>
 </html>

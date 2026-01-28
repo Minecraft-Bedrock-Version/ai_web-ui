@@ -1,21 +1,127 @@
+// aws 서비스 및 정책 데이터 임포트
+
+import awsServices from '../json/cliset/awsServices.json' with {type: 'json'};
+
 let currentStep = 0;
         const totalSteps = 5;
         const stepTitles = ['사용자 설정', 'CLI 생성', '취약점 분석', '실행', '완료'];
-        
+
+
+        console.log(awsServices);
+
+
         const config = {
             region: '',
             infrastructureType: '',
             description: '',
-            iamCredentials: ''
+            selectedServices: {},
+            customPolicies: [],
+            selectedService: null
         };
 
+        window.config = config;
+
+        window.previousStep = previousStep;
+
+
         // Initialize
+        let hasStateFromURL = false;
         window.onload = function() {
+
+            const params = new URLSearchParams(window.location.search);
+            if(params.has("state")){
+                try{
+                    const decoded = decodeURIComponent(params.get("state"));
+                    Object.assign(config, JSON.parse(decoded));
+                    currentStep=0
+                    hasStateFromURL = true
+                }catch(e){
+                    console.error("State 파싱 오류:",e);
+                }
+            }
+            // UI 갱신
             renderProgressSteps();
             updateNavigation();
-            loadFormData();
+            // loadFormData();
             // populateLoggingData();
+            renderServiceCards();
+            setupRegionSelector();
+            //previousStep();
+            if(hasStateFromURL){
+                this.setTimeout(()=>{
+                    nextStep()
+                },0)
+            }
         };
+
+               // Region Selector
+        function setupRegionSelector() {
+            document.getElementById('region').addEventListener('change', function(e) {
+                config.region = e.target.value;
+                updateNavigation();
+            });
+        }
+
+        // Render Service Cards
+        function renderServiceCards() {
+            const container = document.getElementById('servicesGrid');
+            container.innerHTML = '';
+
+            awsServices.forEach(service => {
+                const card = createServiceCard(service);
+                container.appendChild(card);
+            });
+        }
+
+function createServiceCard(service) {
+  const card = document.createElement('div');
+  card.className = 'service-card';
+  card.id = `service-${service.id}`;
+
+  card.onclick = () => toggleServiceSelect(service.id);
+
+  const icon = document.createElement('div');
+  icon.className = 'service-icon';
+  icon.textContent = service.icon;
+
+  const info = document.createElement('div');
+  info.className = 'service-info';
+  info.innerHTML = `
+    <div class="service-name">${service.name}</div>
+    <div class="service-desc">${service.description}</div>
+  `;
+
+  card.appendChild(icon);
+  card.appendChild(info);
+
+  return card;
+}
+function toggleServiceSelect(serviceId) {
+  // 기존 선택된 서비스 카드 해제
+  if (config.selectedService) {
+    const prevCard = document.getElementById(`service-${config.selectedService}`);
+    if (prevCard) {
+      prevCard.classList.remove('selected');
+    }
+  }
+
+  // 같은 걸 다시 누르면 선택 해제
+  if (config.selectedService === serviceId) {
+    config.selectedService = null;
+    updateNavigation();
+    return;
+  }
+
+  // 새 서비스 선택
+  config.selectedService = serviceId;
+
+  const card = document.getElementById(`service-${serviceId}`);
+  card.classList.add('selected');
+
+  updateNavigation();
+}
+
+
 
         // Progress Steps
         function renderProgressSteps() {
@@ -51,6 +157,8 @@ let currentStep = 0;
             }
         }
 
+
+
         // Navigation
         function nextStep() {
             if (currentStep < totalSteps - 1) {
@@ -60,6 +168,22 @@ let currentStep = 0;
                 // }
                 // 추가: 취약점 분석(2)에서 실행(3) 단계로 넘어갈 때 grokjson 실행
         // (배열 인덱스: 0사용자설정, 1CLI생성, 2취약점분석, 3실행, 4로깅)
+                // step0 ->1로 갈 때 cli 요소 보기
+                if(currentStep === 0){
+                    if(!hasStateFromURL){
+                    if (!config.selectedService){
+                        alert("서비스를 선택하세요.");
+                        return;
+                    } else if (!config.region){
+                        alert("리전을 선택하세요.");
+                        return;
+                    }
+                    console.log("선택된 서비스:",config.selectedService);
+                    location.href= `/service/${config.selectedService}?region=${config.region}`;
+                    return;
+                }
+            }
+
                 if (currentStep === 2){
                     console.log("Grok Json 생성 시작")
                     grokjson();
@@ -81,6 +205,12 @@ let currentStep = 0;
             if (currentStep > 0) {
                 currentStep--;
                 updateSteps();
+
+                // step-0으로 돌아갈 때 URL 파라미터 제거
+                if (currentStep === 0) {
+                const cleanUrl = window.location.origin + window.location.pathname;
+                window.history.replaceState({}, document.title, cleanUrl);
+                }
             }
         }
 
@@ -95,6 +225,10 @@ let currentStep = 0;
             
             renderProgressSteps();
             updateNavigation();
+
+            if(currentStep===1){
+                loadCLIFromBackend();
+            }
         }
 
         function updateNavigation() {
@@ -133,122 +267,96 @@ let currentStep = 0;
             }
         }
 
-        // Form Validation
-        function validateStep0() {
-            const region = document.getElementById('region').value;
-            const infrastructureType = document.getElementById('infrastructureType').value;
-            const description = document.getElementById('description').value;
-            const iamCredentials = document.getElementById('iamCredentials').value;
+        // // Form Validation
+        // function validateStep0() {
+        //     const region = document.getElementById('region').value;
+        //     const infrastructureType = document.getElementById('infrastructureType').value;
+        //     const description = document.getElementById('description').value;
+        //     const iamCredentials = document.getElementById('iamCredentials').value;
             
-            return region && infrastructureType && description && iamCredentials;
-        }
+        //     return region && infrastructureType && description && iamCredentials;
+        // }
 
-        function loadFormData() {
-            document.getElementById('region').addEventListener('change', function(e) {
-                config.region = e.target.value;
-                updateNavigation();
-            });
-            
-            document.getElementById('infrastructureType').addEventListener('change', function(e) {
-                config.infrastructureType = e.target.value;
-                updateNavigation();
-            });
-            
-            document.getElementById('description').addEventListener('input', function(e) {
-                config.description = e.target.value;
-                updateNavigation();
-            });
-            
-            document.getElementById('iamCredentials').addEventListener('input', function(e) {
-                config.iamCredentials = e.target.value;
-                updateNavigation();
-            });
-        }
 
-        function resetForm() {
-            document.getElementById('region').value = '';
-            document.getElementById('infrastructureType').value = '';
-            document.getElementById('description').value = '';
-            document.getElementById('iamCredentials').value = '';
+        // function resetForm() {
+        //     document.getElementById('region').value = '';
+        //     document.getElementById('infrastructureType').value = '';
+        //     document.getElementById('description').value = '';
+        //     document.getElementById('iamCredentials').value = '';
             
-            config.region = '';
-            config.infrastructureType = '';
-            config.description = '';
-            config.iamCredentials = '';
+        //     config.region = '';
+        //     config.infrastructureType = '';
+        //     config.description = '';
+        //     config.iamCredentials = '';
             
-            // Reset CLI generation
-            document.getElementById('generateContainer').style.display = 'flex';
-            document.getElementById('generatedContent').classList.remove('show');
+        //     // Reset CLI generation
+        //     document.getElementById('generateContainer').style.display = 'flex';
+        //     document.getElementById('generatedContent').classList.remove('show');
             
-            // Reset analysis
-            document.getElementById('analysisIdle').style.display = 'block';
-            document.getElementById('analysisProgress').classList.add('hidden');
-            document.getElementById('analysisResults').classList.add('hidden');
-            document.getElementById('analysisProgressBar').style.width = '0%';
+        //     // Reset analysis
+        //     document.getElementById('analysisIdle').style.display = 'block';
+        //     document.getElementById('analysisProgress').classList.add('hidden');
+        //     document.getElementById('analysisResults').classList.add('hidden');
+        //     document.getElementById('analysisProgressBar').style.width = '0%';
             
-            // Reset execution
-            document.getElementById('executionIdle').style.display = 'block';
-            document.getElementById('executionSteps').classList.add('hidden');
-        }
+        //     // Reset execution
+        //     document.getElementById('executionIdle').style.display = 'block';
+        //     document.getElementById('executionSteps').classList.add('hidden');
+        // }
 
         // CLI Generation
-//         function generateCLI() {
-//             const btn = document.getElementById('generateBtn');
-//             btn.innerHTML = '<svg class="spinner" width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z" opacity="0.3"/><path d="M12 2v4c3.31 0 6 2.69 6 6h4c0-5.52-4.48-10-10-10z"/></svg> 생성 중...';
-//             btn.disabled = true;
+
+
+
+        // step-1로딩 시 cli가져오기
+        async function loadCLIFromBackend(){
+            if(currentStep !==1) return;
             
-//             setTimeout(() => {
-//                 document.getElementById('generateContainer').style.display = 'none';
-//                 document.getElementById('generatedContent').classList.add('show');
-                
-//                 const policyJSON = {
-//                     "Version": "2012-10-17",
-//                     "Statement": [
-//                         {
-//                             "Effect": "Allow",
-//                             "Action": [`${config.infrastructureType}:*`],
-//                             "Resource": "*",
-//                             "Condition": {
-//                                 "StringEquals": {
-//                                     "aws:RequestedRegion": config.region
-//                                 }
-//                             }
-//                         }
-//                     ]
-//                 };
-                
-//                 const cliCommand = `# AI가 생성한 IAM 정책
-// aws iam create-policy \\
-//   --policy-name AutoGenerated-${config.infrastructureType}-Policy \\
-//   --policy-document '{
-//     "Version": "2012-10-17",
-//     "Statement": [
-//       {
-//         "Effect": "Allow",
-//         "Action": ["${config.infrastructureType}:*"],
-//         "Resource": "*"
-//       }
-//     ]
-//   }'
+            //url에서 state
+            const params = new URLSearchParams(window.location.search);
+            if(!params.has("state")){
+                console.log("url에 state없음")
+                alert("URL에 인프라 정보가 없습니다.")
+                return;
+            }
+            const stateFromURL = decodeURIComponent(params.get("state"));
+            const textarea = document.getElementById("inputCLI");
+    if (textarea) {
+        textarea.value = "CLI를 생성 중입니다... 잠시만 기다려 주세요.";
+        textarea.disabled = true; // 생성 중 수정 방지
+    }
+            try {
+            const response = await fetch("/cli_create", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ state: config }) // <-- stringify
+            });
 
-// # CLI 명령어
-// aws ${config.infrastructureType} create \\
-//   --region ${config.region} \\
-//   --name ${config.infrastructureType}-instance \\
-//   --description "${config.description}"`;
-                
-//                 document.getElementById('generatedJSON').textContent = JSON.stringify(policyJSON, null, 2);
-//                 document.getElementById('generatedCLI').textContent = cliCommand;
-                
-//                 btn.innerHTML = 'CLI 생성하기';
-//                 btn.disabled = false;
-//             }, 2000);
-//         }
+            if (!response.ok){
+                throw new Error('서버 응답 실패')
+            }
 
-//         function regenerateCLI() {
-//             document.getElementById('generateContainer').style.display = 'flex';
-//             document.getElementById('generatedContent').classList.remove('show');
-//         }
+
+            const data = await response.json(); // JSON으로 변환
+            console.log("전체",data)
+            console.log("받은 CLI:", data.cli);
+
+
+            // textarea에 CLI 넣기
+            if (textarea){ 
+                textarea.value = data.cli;  
+                textarea.disabled = false;
+        }
+            } catch (err) {
+            console.error("CLI 로드 실패:", err);
+                if(textarea){
+                    textarea.value="CLI 생성에 실패했습니다.";
+                    textarea.disabled= false
+                }
+            }
+        }
+
+
 
         //사용자 입력 CLI 전역 저장
 function saveCLI() {
