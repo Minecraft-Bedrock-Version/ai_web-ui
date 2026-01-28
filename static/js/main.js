@@ -28,6 +28,7 @@ let currentStep = 0;
         window.latestGrokPolicyJSON = null;
         window.executeProcess = executeProcess;
         window.switchTab = switchTab;
+        window.resetAll = resetAll;
         window.user_cli_input = null;
 
 
