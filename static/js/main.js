@@ -731,6 +731,80 @@ function completeStepUI(index) {
             document.getElementById(`tab-${tabName}`).classList.add('active');
         }
 
+        //새로 시작하기
+        function resetAll() {
+    if (!confirm("모든 진행 상황을 초기화하고 새로 시작하시겠습니까?")) return;
+
+    // 1. config 초기화
+    config.region = '';
+    config.infrastructureType = '';
+    config.description = '';
+    config.selectedServices = {};
+    config.customPolicies = [];
+    config.selectedService = null;
+    config.customCLI = '';
+
+    // CLI 및 Grok 관련 변수 초기화
+    window.latestGrokPolicyJSON = null;
+    window.user_cli_input = null;
+
+    // 2. UI 초기화
+    // region 선택 초기화
+    const regionSelect = document.getElementById('region');
+    if (regionSelect) regionSelect.value = '';
+
+    // 서비스 카드 선택 해제
+    document.querySelectorAll('.services-grid .service-card.selected').forEach(card => card.classList.remove('selected'));
+
+    // 선택된 서비스 요약 초기화
+    const summaryContent = document.getElementById('summaryContent');
+    if (summaryContent) summaryContent.innerHTML = '';
+
+    // CLI 입력 초기화
+    const cliInput = document.getElementById('inputCLI');
+    if (cliInput) cliInput.value = '';
+
+    // CLI 저장 버튼 초기화
+    const saveBtn = document.getElementById('saveCliBtn');
+    if (saveBtn) {
+        saveBtn.innerText = '명령어 저장';
+        saveBtn.style.backgroundColor = '';
+    }
+
+    // 분석/실행 영역 초기화
+    ['analysisIdle', 'analysisProgress', 'analysisResults'].forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        if (id === 'analysisIdle') el.style.display = 'block';
+        else el.classList.add('hidden');
+    });
+    const progressBar = document.getElementById('analysisProgressBar');
+    if (progressBar) progressBar.style.width = '0%';
+    const progressText = document.getElementById('progressText');
+    if (progressText) progressText.textContent = '0% 완료';
+
+    // 실행 영역 초기화
+    const policyContainer = document.getElementById('policyPreviewContainer');
+    if (policyContainer) policyContainer.style.display = 'none';
+    const policyJson = document.getElementById('policyPreviewJson');
+    if (policyJson) policyJson.textContent = '';
+    const policyLoading = document.getElementById('policyLoading');
+    if (policyLoading) policyLoading.style.display = 'block';
+    const readyToExecute = document.getElementById('readyToExecute');
+    if (readyToExecute) readyToExecute.style.display = 'none';
+    const executionSteps = document.getElementById('executionSteps');
+    if (executionSteps) executionSteps.classList.add('hidden');
+    const executionComplete = document.getElementById('executionComplete');
+    if (executionComplete) executionComplete.classList.add('hidden');
+
+    // 3. Step 초기화
+    currentStep = 0;
+    updateSteps();
+
+    // 4. URL 상태 초기화
+    window.history.replaceState({}, document.title, window.location.pathname);
+}
+
         //로그 분석
         // function populateLoggingData() {
         //     // AI Logs
