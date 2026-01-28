@@ -22,7 +22,8 @@ let currentStep = 0;
         window.config = config;
 
         window.previousStep = previousStep;
-
+        window.saveCLI = saveCLI;
+        
 
         // Initialize
         let hasStateFromURL = false;
