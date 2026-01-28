@@ -1,0 +1,28 @@
+{
+  "platform": {
+    "name": "CloudGoat",
+    "scenario": "lambda_privesc",
+    "reference": "https://github.com/RhinoSecurityLabs/cloudgoat/tree/master/cloudgoat/scenarios/aws/lambda_privesc"
+  },
+
+  "vulnerability_title": "Lambda 기반의 권한 상승",
+
+  "category": ["Assume Role 권한 오남용", "Pass Role 권한 오남용"],
+
+  "vulnerability_detail": "본 시나리오는 AWS IAM(Identity and Access Management) User에게 연결된 Attached Policy 내 sts:AssumeRole 권한을 통해 lambda*, iam:PassRole 권한을 가진 Role의 임시 자격 증명을 획득하여, AWS Lambda에 대하여 Function 생성 등의 행동을 할 수 있다. 이때 iam:PassRole 권한으로 AWS Lambda 서비스에게 AdministratorAccess 권한을 가진 Role을 부여할 수 있어, 권한이 낮은 사용자가 우회적인 관리자 권한을 획득할 수 있습니다.",
+
+  "attack_path": [
+    {
+      "step": "IAM User → IAM Role(User)",
+      "detail": "Attached Policy sts:AssumeRole"
+    },
+    {
+      "step": "IAM Role(Service) → Lambda",
+      "detail": "IAM Role(User) iam:PassRole"
+    },
+    {
+      "step": "IAM User → Lambda Function",
+      "detail": "IAM Role(Service) AdministratorAccess"
+    }
+  ]
+}
