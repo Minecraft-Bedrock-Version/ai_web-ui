@@ -23,7 +23,15 @@ let currentStep = 0;
 
         window.previousStep = previousStep;
         window.saveCLI = saveCLI;
-        
+        window.resetCLI = resetCLI;
+        window.startAnalysis=startAnalysis;
+        window.latestGrokPolicyJSON = null;
+        window.executeProcess = executeProcess;
+        window.switchTab = switchTab;
+        window.user_cli_input = null;
+
+
+
 
         // Initialize
         let hasStateFromURL = false;
