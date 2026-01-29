@@ -221,33 +221,161 @@
 ]
 },{
     "id": 2,
-    "title": "더미2",
-    "description": "더미경로2",
+    "title": "lambda_privesc",
+    "description": "document/lambda_privesc.json",
     "resources": [
       {
-        "fileName": "s3.json",
-        "content": {
-          "nodes": [
+  "nodes": [
+    {
+      "node_type": "iam_role",
+      "node_id": "string",
+      "attributes": {
+        "assume_role_policy": {
+          "Statement": [
             {
-              "node_type": "s3_bucket",
-              "node_id": "storage_node",
-              "attributes": { "public_access": true, "encryption": false }
+              "Effect": "Allow",
+              "Action": ["sts:AssumeRole"]
             }
           ]
-        }
-      },
-      {
-        "fileName": "iam_policy.json",
-        "content": {
-          "nodes": [
-            {
-              "node_type": "iam_policy",
-              "node_id": "allow_all_policy",
-              "attributes": { "Statement": [{ "Effect": "Allow", "Action": "s3:*", "Principal": "*" }] }
-            }
-          ]
-        }
+        },
+        "inline_policies": [],
+        "attached_policies": [
+          {
+            "PolicyName": "AdministratorAccess",
+            "Statement": [
+              {
+                "Effect": "Allow",
+                "Action": ["*"]
+              }
+            ]
+          }
+        ]
       }
+    },
+    {
+      "node_type": "iam_role",
+      "node_id": "string",
+      "attributes": {
+        "assume_role_policy": {
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": ["sts:AssumeRole"]
+            }
+          ]
+        },
+        "inline_policies": [],
+        "attached_policies": [
+          {
+            "PolicyName": "string",
+            "Statement": [
+              {
+                "Effect": "Allow",
+                "Action": ["lambda:*", "iam:PassRole"]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "node_type": "iam_user",
+      "node_id": "string",
+      "attributes": {
+        "inline_policies": [],
+        "attached_policies": [
+          {
+            "PolicyName": "string",
+            "Statement": [
+              {
+                "Effect": "Allow",
+                "Action": ["sts:AssumeRole", "iam:List*", "iam:Get*"]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "node_type": "lambda_service",
+      "node_id": "string"
+    }
+  ],
+  "edges": [
+    {
+      "src": "iam_role node_id",
+      "dst": "iam_role node_id",
+      "directed": false,
+      "conditions": [
+        {
+          "iam_role": {
+            "attributes": {
+              "attached_policies": [
+                {
+                  "Statement": [
+                    {
+                      "Effect": "Allow",
+                      "Action": ["iam:PassRole"]
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "src": "iam_role node_id",
+      "dst": "lambda_service node_id",
+      "directed": false,
+      "conditions": [
+        {
+          "iam_role": {
+            "attributes": {
+              "assume_role_policy": [
+                {
+                  "Statement": [
+                    {
+                      "Effect": "Allow",
+                      "Action": ["sts:AssumeRole"],
+                      "Principal": {
+                        "Service": "lambda.amazonaws.com"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "src": "iam_user node_id",
+      "dst": "iam_role node_id",
+      "directed": false,
+      "conditions": [
+        {
+          "iam_user": {
+            "attributes": {
+              "attached_policies": [
+                {
+                  "Statement": [
+                    {
+                      "Effect": "Allow",
+                      "Action": "sts:AssumeRole"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
     ]
   },
   {
