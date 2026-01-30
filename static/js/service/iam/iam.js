@@ -5,7 +5,8 @@
   const iamServices = {
     s3: { label: "Amazon S3", actions: ["GetObject", "PutObject", "ListBucket"] },
     ec2: { label: "Amazon EC2", actions: ["StartInstances", "StopInstances", "DescribeInstances"] },
-    sts: { label: "AWS STS", actions: ["AssumeRole", "GetAccessKeyInfo"] }
+    sts: { label: "AWS STS", actions: ["AssumeRole", "GetAccessKeyInfo"] },
+    iam: {label: "AWS IAM", actions: ["List*", "Get*", "Create*"]}
   };
     const state = { 
     resource: "user", 
