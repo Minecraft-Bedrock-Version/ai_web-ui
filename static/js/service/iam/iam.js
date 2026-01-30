@@ -69,23 +69,26 @@ console.log("Region from URL:", state.region);
   }
 
   // 액션 선택 영역 UI 개선
-function selectService(serviceKey, presetActions = []) {
-  state.service = serviceKey;
+function selectService(serviceKey) {
+state.service = serviceKey;
   const area = document.getElementById("actionArea");
   area.innerHTML = "";
   if (!iamServices[serviceKey]) return;
 
-  // 이전에 이 서비스에 선택했던 액션들이 있다면 가져옴
+  // 최신화된 state.activePolicies에서 현재 서비스의 액션들을 가져옴
   const savedActions = state.activePolicies[serviceKey] || [];
 
   iamServices[serviceKey].actions.forEach(action => {
+    // Wildcard(예: List*) 처리나 정확한 매칭 확인
     const isChecked = savedActions.includes(action);
     const label = document.createElement("label");
-    label.innerHTML = `<input type="checkbox" ${isChecked ? "checked" : ""} 
-                        onchange="toggleAction('${serviceKey}', '${action}', this.checked)"> ${action}`;
+    label.style.display = "block"; // UI 가독성을 위해 추가
+    label.innerHTML = `
+      <input type="checkbox" ${isChecked ? "checked" : ""} 
+             onchange="toggleAction('${serviceKey}', '${action}', this.checked)"> 
+      ${action}`;
     area.appendChild(label);
   });
-  updatePolicyJson();
 }
 
   /* ... 나머지 updatePolicyJson, syncFromJson, goNext 등 로직은 기존 코드와 동일 ... */
