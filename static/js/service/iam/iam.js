@@ -171,30 +171,45 @@ function updatePolicyJson() {
 
 function syncFromJson() {
   try {
-    const json = JSON.parse(
-      document.getElementById("policyJson").value
-    );
+    const jsonValue = document.getElementById("policyJson").value;
+    
+    if(!jsonValue.trim()){
+      state.activePolicies = {};
+      renderServiceOptions();
+      return;
+    }
 
-    const stmt = json.Statement?.[0];
-    if (!stmt || !Array.isArray(stmt.Action)) return;
+    const json = JSON.parse(jsonValue);
+    const newActivePolicies = {};
 
-    const actions = stmt.Action;
-    if (actions.length === 0) return;
+    // 1. JSON의 모든 Statement를 순회하며 state.activePolicies 재구성
+    if (json.Statement && Array.isArray(json.Statement)) {
+      json.Statement.forEach(stmt => {
+        const actions = Array.isArray(stmt.Action) ? stmt.Action : [stmt.Action];
+        actions.forEach(fullAction => {
+          const [service, action] = fullAction.split(":");
+          if (service && action) {
+            if (!newActivePolicies[service]) newActivePolicies[service] = [];
+            if (!newActivePolicies[service].includes(action)) {
+              newActivePolicies[service].push(action);
+            }
+          }
+        });
+      });
+    }
 
-    const [service] = actions[0].split(":");
-    const actionNames = actions.map(a => a.split(":")[1]);
+    // 2. 전역 상태 교체
+    state.activePolicies = newActivePolicies;
 
-    if (!iamServices[service]) return;
-
-    // 서비스 select 반영
-    const select = document.getElementById("serviceSelect");
-    select.value = service;
-
-    // UI + state 동기화
-    selectService(service, actionNames);
+    // 3. 현재 화면에 보이는 체크박스 UI 업데이트
+    const currentService = document.getElementById("serviceSelect").value;
+    if (currentService) {
+      selectService(currentService); 
+    }
 
   } catch (e) {
-    // JSON 깨졌을 때는 무시
+    // JSON 형식이 맞지 않을 때는 업데이트 중단 (사용자가 타이핑 중일 수 있음)
+    console.warn("Invalid JSON format");
   }
 }
 
