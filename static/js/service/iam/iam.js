@@ -119,37 +119,30 @@ function toggleAction(serviceKey, action, checked) {
 
 
 function updatePolicyJson() {
-  if (isEditingJson) return;
+// 사용자가 직접 편집 중일 때는 덮어씌우지 않음 (커서 튐 방지)
+  if (isEditingJson) return; 
 
-  const statements = Object.entries(state.activePolicies).map(([service, actions]) => {
-    return {
-      Effect: "Allow",
-      Action: actions.map(a => `${service}:${a}`),
-      Resource: "*"
-    };
-  });
+  const statements = Object.entries(state.activePolicies)
+    .filter(([_, actions]) => actions.length > 0) // 액션이 없으면 제외
+    .map(([service, actions]) => {
+      return {
+        Effect: "Allow",
+        Action: actions.map(a => `${service}:${a}`),
+        Resource: "*"
+      };
+    });
+
+  if (statements.length === 0) {
+    document.getElementById("policyJson").value = "";
+    return;
+  }
 
   const policy = {
     Version: "2012-10-17",
     Statement: statements
   };
 
-  // 아무것도 선택 안 된 경우 처리
-  if (statements.length === 0) {
-    document.getElementById("policyJson").value = "";
-    return;
-  }
-
   document.getElementById("policyJson").value = JSON.stringify(policy, null, 2);
-}
-
-  // cli 구성을 json포맷에 담아 /경로로 전달.
-  function goNext() {
-    alert("다음 단계로 진행합니다."); 
-    console.log(state); 
-
-    location.href = `/?state=${encodeURIComponent(JSON.stringify(state))}`;
-
 }
 
   function handleJsonKeydown(e) {
@@ -173,22 +166,24 @@ function updatePolicyJson() {
 }
 
 function syncFromJson() {
-  try {
+try {
     const jsonValue = document.getElementById("policyJson").value;
     
+    // 1. 내용이 없으면 전체 초기화
     if(!jsonValue.trim()){
       state.activePolicies = {};
-      renderServiceOptions();
+      selectService(state.service); // 현재 체크박스 UI 갱신
       return;
     }
 
     const json = JSON.parse(jsonValue);
     const newActivePolicies = {};
 
-    // 1. JSON의 모든 Statement를 순회하며 state.activePolicies 재구성
+    // 2. JSON을 읽어서 state 구성
     if (json.Statement && Array.isArray(json.Statement)) {
       json.Statement.forEach(stmt => {
-        const actions = Array.isArray(stmt.Action) ? stmt.Action : [stmt.Action];
+        const actions = Array.isArray(stmt.Action) ? stmt.Action : (stmt.Action ? [stmt.Action] : []);
+        
         actions.forEach(fullAction => {
           const [service, action] = fullAction.split(":");
           if (service && action) {
@@ -201,18 +196,16 @@ function syncFromJson() {
       });
     }
 
-    // 2. 전역 상태 교체
+    // 3. 전역 상태 교체
     state.activePolicies = newActivePolicies;
 
-    // 3. 현재 화면에 보이는 체크박스 UI 업데이트
-    const currentService = document.getElementById("serviceSelect").value;
-    if (currentService) {
-      selectService(currentService); 
+    // 4. 중요: 현재 보고 있는 서비스의 체크박스 상태 업데이트
+    if (state.service) {
+      selectService(state.service); 
     }
 
   } catch (e) {
-    // JSON 형식이 맞지 않을 때는 업데이트 중단 (사용자가 타이핑 중일 수 있음)
-    console.warn("Invalid JSON format");
+    // JSON 형식이 깨진 동안(타이핑 중)은 업데이트를 멈춤
   }
 }
 
