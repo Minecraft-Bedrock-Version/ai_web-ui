@@ -40,3 +40,7 @@ app.include_router(mbv_lambda_router)
 # cliCreate.py 라우팅
 from backend.cliCreate.cliCreate import router as cli_create_router
 app.include_router(cli_create_router)
+
+
+from backend.cliCreate.iamlist import router as iam_list_router
+app.include_router(iam_list_router)

@@ -1,7 +1,6 @@
-  // 스크립트 부분은 기존 로직을 유지하되 UI 업데이트 함수만 약간 수정했습니다.
-  
-  /* (기존 Mock Data 및 State 동일) */
-  const mockResources = { user: ["admin", "dev-user", "hyeok"], role: ["EC2Role", "LambdaRole"], group: ["Admins", "Developers"] };
+
+  // const mockResources = { user: ["admin", "dev-user", "hyeok"], role: ["EC2Role", "LambdaRole"], group: ["Admins", "Developers"] };
+let mockResources = { user: [], role: [], group: [] };
   const iamServices = {
     s3: { label: "Amazon S3", actions: ["GetObject", "PutObject", "ListBucket"] },
     ec2: { label: "Amazon EC2", actions: ["StartInstances", "StopInstances", "DescribeInstances"] },
@@ -15,6 +14,32 @@
     activePolicies: {} // { s3: ["GetObject"], ec2: ["StartInstances"] } 형식
     };
   let isEditingJson = false;
+
+
+  async function fetchIamResources() {
+  try {
+    const response = await fetch('/iam_list',{
+      method: 'post',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+    if (!response.ok) throw new Error('Network response was not ok');
+    
+    const data = await response.json();
+    
+    // 서버 응답 형식이 { user: [...], role: [...], group: [...] } 라고 가정
+    mockResources = data;
+    
+    // 데이터를 다 받아온 후 리스트 렌더링
+    renderResourceList();
+    console.log("Resources loaded from /iam_list:", mockResources);
+  } catch (error) {
+    console.error("Failed to fetch IAM resources:", error);
+    alert("리소스를 불러오는 데 실패했습니다.");
+  }
+}
+
 
   // URL에서 region 파라미터 읽기
 function getUrlParam(name) {
@@ -165,6 +190,15 @@ function updatePolicyJson() {
   }
 }
 
+  // cli 구성을 json포맷에 담아 /경로로 전달.
+  function goNext() {
+    alert("다음 단계로 진행합니다."); 
+    console.log(state); 
+
+    location.href = `/?state=${encodeURIComponent(JSON.stringify(state))}`;
+
+}
+
 function syncFromJson() {
 try {
     const jsonValue = document.getElementById("policyJson").value;
@@ -210,5 +244,17 @@ try {
 }
 
   // 초기화
-  renderResourceList();
+// 3. 초기화 부분 수정
+async function init() {
+  // Region 파라미터 읽기 등 기초 설정
+  state.region = getUrlParam("region");
+  
+  // 서비스 옵션은 정적 데이터이므로 바로 렌더링
   renderServiceOptions();
+  
+  // 서버에서 리소스 데이터를 가져온 후 리스트 출력
+  await fetchIamResources();
+}
+
+// 페이지 로드 시 실행
+init();
