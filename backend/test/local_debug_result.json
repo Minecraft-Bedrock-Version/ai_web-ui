@@ -1,0 +1,801 @@
+{
+  "schema_version": "1.0",
+  "collected_at": "2026-01-31T13:06:17.904740",
+  "account_id": "unknown",
+  "nodes": [
+    {
+      "node_id": "288528695623:us-east-1:subnet:subnet-04de117025f2caf3d",
+      "type": "subnet",
+      "name": "cg-cgidtdbcrdw7ec-private-1",
+      "properties": {
+        "visibility": "unknown"
+      }
+    },
+    {
+      "node_id": "288528695623:us-east-1:route_table:rtb-02286ccec5ff01988",
+      "type": "route_table",
+      "name": "cg-cgidtdbcrdw7ec-public",
+      "properties": {
+        "type": null
+      }
+    },
+    {
+      "node_id": "288528695623:global:iam_role:AROAUGLNGQFDZ6IYPJLIY",
+      "type": "iam_role",
+      "name": "AWSServiceRoleForAmazonEventBridgeApiDestinations",
+      "properties": {
+        "assume_role_policy": {
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": "sts:AssumeRole"
+            }
+          ]
+        },
+        "inline_policies": []
+      }
+    },
+    {
+      "node_id": "288528695623:us-east-1:internet_gateway:igw-00c8cb823ee04072e",
+      "type": "internet_gateway",
+      "name": "cg-cgidtdbcrdw7ec",
+      "properties": {
+        "state": "available"
+      }
+    },
+    {
+      "node_id": "288528695623:global:iam_role:AROAUGLNGQFD5SXNZKOFU",
+      "type": "iam_role",
+      "name": "cg-sqs-lambda-cgidtdbcrdw7ec",
+      "properties": {
+        "assume_role_policy": {
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": "sts:AssumeRole"
+            }
+          ]
+        },
+        "inline_policies": []
+      }
+    },
+    {
+      "node_id": "288528695623:us-east-1:vpc:vpc-0d9969be3519b31dd",
+      "type": "vpc",
+      "name": "cg-cgidtdbcrdw7ec",
+      "properties": {}
+    },
+    {
+      "node_id": "288528695623:us-east-1:rds:terraform-20260130134340781800000003",
+      "type": "rds_instance",
+      "name": "terraform-20260130134340781800000003",
+      "properties": {}
+    },
+    {
+      "node_id": "288528695623:us-east-1:ec2:i-058830ee87c33afba",
+      "type": "ec2",
+      "name": "cg-linux-ec2-cgidtdbcrdw7ec",
+      "properties": {
+        "public": true,
+        "sqs_info": {
+          "detected": false
+        },
+        "rds_info": {
+          "detected": false
+        }
+      }
+    },
+    {
+      "node_id": "288528695623:us-east-1:sqs:cash_charging_queue",
+      "type": "sqs",
+      "name": "cash_charging_queue",
+      "properties": {}
+    },
+    {
+      "node_id": "288528695623:us-east-1:subnet:subnet-02ab87a1afe20b3d1",
+      "type": "subnet",
+      "name": "cg-cgidtdbcrdw7ec-private-2",
+      "properties": {
+        "visibility": "unknown"
+      }
+    },
+    {
+      "node_id": "iam_user:288528695623:cg-web-sqs-manager-cgidtdbcrdw7ec",
+      "type": "iam_user",
+      "name": "cg-web-sqs-manager-cgidtdbcrdw7ec",
+      "properties": {
+        "inline_policies": []
+      }
+    },
+    {
+      "id": "288528695623:us-east-1:key_pair:key-0a2298636ce7fd4ce",
+      "type": "key_pair",
+      "name": "cg-ec2-cgidtdbcrdw7ec",
+      "region": "us-east-1",
+      "properties": {
+        "key_type": "rsa",
+        "key_fingerprint": "35:04:95:e6:ca:8e:7a:02:aa:6a:39:9d:85:d7:73:a7"
+      }
+    },
+    {
+      "node_id": "iam_user:288528695623:cg-sqs-user-cgidtdbcrdw7ec",
+      "type": "iam_user",
+      "name": "cg-sqs-user-cgidtdbcrdw7ec",
+      "properties": {
+        "inline_policies": [
+          {
+            "Statement": [
+              {
+                "Effect": "Allow",
+                "Action": [
+                  "iam:Get*",
+                  "iam:List*"
+                ]
+              },
+              {
+                "Effect": "Allow",
+                "Action": [
+                  "sts:AssumeRole"
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "node_id": "288528695623:us-east-1:subnet:subnet-0cfe63e8f5e6a2aac",
+      "type": "subnet",
+      "name": "cg-cgidtdbcrdw7ec-public-1",
+      "properties": {
+        "visibility": "unknown"
+      }
+    },
+    {
+      "node_id": "288528695623:global:iam_role:AROAUGLNGQFDQV5IJVZ6C",
+      "type": "iam_role",
+      "name": "cg-sqs-send-message-cgidtdbcrdw7ec",
+      "properties": {
+        "assume_role_policy": {
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": "sts:AssumeRole"
+            }
+          ]
+        },
+        "inline_policies": [
+          {
+            "Statement": [
+              {
+                "Action": [
+                  "sqs:GetQueueUrl",
+                  "sqs:SendMessage"
+                ],
+                "Effect": "Allow"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "node_id": "288528695623:us-east-1:route_table:rtb-015a31530c88c5e03",
+      "type": "route_table",
+      "name": "cg-cgidtdbcrdw7ec-private",
+      "properties": {
+        "type": null
+      }
+    },
+    {
+      "node_type": "iam_user",
+      "node_id": "iam_user:288528695623:scp_test",
+      "resource_id": "scp_test",
+      "name": "scp_test",
+      "attributes": {
+        "arn": "arn_string",
+        "create_date": "2026-01-31T04:06:01.188937+00:00",
+        "attached_policies": [],
+        "inline_policies": [
+          {
+            "PolicyName": "cg-sqs-scenario-assumed-role",
+            "Statement": [
+              {
+                "Effect": "Allow",
+                "Action": [
+                  "iam:Get*",
+                  "iam:List*"
+                ],
+                "Resource": "*"
+              },
+              {
+                "Effect": "Allow",
+                "Action": [
+                  "sts:AssumeRole"
+                ],
+                "Resource": "*"
+              }
+            ]
+          }
+        ],
+        "group_policies": []
+      },
+      "raw_refs": {
+        "source": [
+          "cli:aws iam put-user-policy"
+        ],
+        "collected_at": "2026-01-31T04:06:01.188937+00:00"
+      }
+    },
+    {
+      "node_id": "288528695623:us-east-1:route_table:rtb-0e92753d0894a0a7b",
+      "type": "route_table",
+      "name": null,
+      "properties": {
+        "type": null
+      }
+    },
+    {
+      "node_id": "288528695623:us-east-1:subnet:subnet-001d11c230cea3b86",
+      "type": "subnet",
+      "name": "cg-cgidtdbcrdw7ec-public-2",
+      "properties": {
+        "visibility": "unknown"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge:iam_user:288528695623:scp_test:CanAssumeRole:iam_user:288528695623:cg-web-sqs-manager-cgidtdbcrdw7ec",
+      "src": "iam_user:288528695623:scp_test",
+      "dst": "iam_user:288528695623:cg-web-sqs-manager-cgidtdbcrdw7ec",
+      "relation": "CanAssumeRole",
+      "directed": false,
+      "conditions": [
+        "iam:Get*",
+        "iam:List*"
+      ]
+    },
+    {
+      "id": "edge:subnet-0cfe63e8f5e6a2aac:MEMBER_OF:vpc-0d9969be3519b31dd",
+      "src": "288528695623:us-east-1:subnet:subnet-0cfe63e8f5e6a2aac",
+      "dst": "288528695623:us-east-1:vpc:vpc-0d9969be3519b31dd",
+      "relation": "MEMBER_OF",
+      "directed": true,
+      "conditions": []
+    },
+    {
+      "id": "edge:subnet-001d11c230cea3b86:ASSOCIATED_WITH:rtb-02286ccec5ff01988",
+      "src": "288528695623:us-east-1:subnet:subnet-001d11c230cea3b86",
+      "dst": "288528695623:us-east-1:route_table:rtb-02286ccec5ff01988",
+      "relation": "ASSOCIATED_WITH",
+      "directed": true,
+      "conditions": []
+    },
+    {
+      "id": "edge:subnet-02ab87a1afe20b3d1:MEMBER_OF:vpc-0d9969be3519b31dd",
+      "src": "288528695623:us-east-1:subnet:subnet-02ab87a1afe20b3d1",
+      "dst": "288528695623:us-east-1:vpc:vpc-0d9969be3519b31dd",
+      "relation": "MEMBER_OF",
+      "directed": true,
+      "conditions": []
+    },
+    {
+      "id": "edge:288528695623:us-east-1:ec2:i-058830ee87c33afba:CONNECTED_TO_IGW:288528695623:us-east-1:internet_gateway:igw-00c8cb823ee04072e",
+      "src": "288528695623:us-east-1:ec2:i-058830ee87c33afba",
+      "dst": "288528695623:us-east-1:internet_gateway:igw-00c8cb823ee04072e",
+      "relation": "CONNECTED_TO_IGW",
+      "directed": false,
+      "conditions": [
+        {
+          "ec2": {
+            "attributes": {
+              "public": true
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "edge:subnet-04de117025f2caf3d:ASSOCIATED_WITH:rtb-015a31530c88c5e03",
+      "src": "288528695623:us-east-1:subnet:subnet-04de117025f2caf3d",
+      "dst": "288528695623:us-east-1:route_table:rtb-015a31530c88c5e03",
+      "relation": "ASSOCIATED_WITH",
+      "directed": true,
+      "conditions": []
+    },
+    {
+      "id": "edge:subnet-02ab87a1afe20b3d1:ASSOCIATED_WITH:rtb-015a31530c88c5e03",
+      "src": "288528695623:us-east-1:subnet:subnet-02ab87a1afe20b3d1",
+      "dst": "288528695623:us-east-1:route_table:rtb-015a31530c88c5e03",
+      "relation": "ASSOCIATED_WITH",
+      "directed": true,
+      "conditions": []
+    },
+    {
+      "id": "edge:subnet-0cfe63e8f5e6a2aac:ASSOCIATED_WITH:rtb-02286ccec5ff01988",
+      "src": "288528695623:us-east-1:subnet:subnet-0cfe63e8f5e6a2aac",
+      "dst": "288528695623:us-east-1:route_table:rtb-02286ccec5ff01988",
+      "relation": "ASSOCIATED_WITH",
+      "directed": true,
+      "conditions": []
+    },
+    {
+      "id": "edge:i-058830ee87c33afba:MEMBER_OF:vpc-0d9969be3519b31dd",
+      "src": "288528695623:us-east-1:ec2:i-058830ee87c33afba",
+      "dst": "288528695623:us-east-1:vpc:vpc-0d9969be3519b31dd",
+      "relation": "MEMBER_OF",
+      "directed": true,
+      "conditions": []
+    },
+    {
+      "id": "edge:i-058830ee87c33afba:ACCESSES_SQS:288528695623:us-east-1:sqs:cash_charging_queue",
+      "src": "288528695623:us-east-1:ec2:i-058830ee87c33afba",
+      "dst": "288528695623:us-east-1:sqs:cash_charging_queue",
+      "relation": "ACCESSES_SQS",
+      "directed": true,
+      "conditions": [
+        {
+          "ec2": {
+            "attributes": {
+              "sqs_info": {
+                "detected": true
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "edge:iam_user:288528695623:cg-sqs-user-cgidtdbcrdw7ec:CAN_ASSUME_ROLE:288528695623:global:iam_role:AROAUGLNGQFDQV5IJVZ6C",
+      "src": "iam_user:288528695623:cg-sqs-user-cgidtdbcrdw7ec",
+      "dst": "288528695623:global:iam_role:AROAUGLNGQFDQV5IJVZ6C",
+      "relation": "CAN_ASSUME_ROLE",
+      "directed": true,
+      "conditions": [
+        {
+          "iam_user": {
+            "attributes": {
+              "policies": {
+                "inline_policies": [
+                  {
+                    "PolicyName": "cg-sqs-scenario-assumed-role",
+                    "PolicyArn": null,
+                    "Statement": [
+                      {
+                        "Effect": "Allow",
+                        "Action": [
+                          "iam:Get*",
+                          "iam:List*"
+                        ],
+                        "Resource": [
+                          "*"
+                        ]
+                      },
+                      {
+                        "Effect": "Allow",
+                        "Action": [
+                          "sts:AssumeRole"
+                        ],
+                        "Resource": [
+                          "arn:aws:iam::288528695623:role/cg-sqs-send-message-cgidtdbcrdw7ec"
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            "statement": {
+              "Effect": "Allow",
+              "Action": [
+                "sts:AssumeRole"
+              ],
+              "Resource": [
+                "arn:aws:iam::288528695623:role/cg-sqs-send-message-cgidtdbcrdw7ec"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "edge:288528695623:global:iam_role:AROAUGLNGQFD5SXNZKOFU:ACCESSES_SQS:288528695623:us-east-1:sqs:cash_charging_queue",
+      "src": "288528695623:global:iam_role:AROAUGLNGQFD5SXNZKOFU",
+      "dst": "288528695623:us-east-1:sqs:cash_charging_queue",
+      "relation": "ACCESSES_SQS",
+      "directed": true,
+      "conditions": [
+        {
+          "iam_role": {
+            "attributes": {
+              "policies": {
+                "inline_policies": [],
+                "attached_policies": [
+                  {
+                    "PolicyName": "AWSLambdaSQSQueueExecutionRole",
+                    "PolicyArn": "arn:aws:iam::aws:policy/service-role/AWSLambdaSQSQueueExecutionRole",
+                    "Statement": [
+                      {
+                        "Effect": "Allow",
+                        "Action": [
+                          "sqs:ReceiveMessage",
+                          "sqs:DeleteMessage",
+                          "sqs:GetQueueAttributes",
+                          "logs:CreateLogGroup",
+                          "logs:CreateLogStream",
+                          "logs:PutLogEvents"
+                        ],
+                        "Resource": [
+                          "*"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "PolicyName": "AWSLambdaVPCAccessExecutionRole",
+                    "PolicyArn": "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole",
+                    "Statement": [
+                      {
+                        "Effect": "Allow",
+                        "Action": [
+                          "logs:CreateLogGroup",
+                          "logs:CreateLogStream",
+                          "logs:PutLogEvents",
+                          "ec2:CreateNetworkInterface",
+                          "ec2:DescribeNetworkInterfaces",
+                          "ec2:DescribeSubnets",
+                          "ec2:DeleteNetworkInterface",
+                          "ec2:AssignPrivateIpAddresses",
+                          "ec2:UnassignPrivateIpAddresses"
+                        ],
+                        "Resource": [
+                          "*"
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            "service_actions": [
+              "sqs:ReceiveMessage",
+              "sqs:DeleteMessage",
+              "sqs:GetQueueAttributes"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "edge:iam_user:288528695623:scp_test:CAN_ASSUME_ROLE:288528695623:global:iam_role:AROAUGLNGQFDQV5IJVZ6C",
+      "src": "iam_user:288528695623:scp_test",
+      "dst": "288528695623:global:iam_role:AROAUGLNGQFDQV5IJVZ6C",
+      "relation": "CAN_ASSUME_ROLE",
+      "directed": true,
+      "conditions": [
+        {
+          "iam_user": {
+            "attributes": {
+              "policies": {
+                "inline_policies": [
+                  {
+                    "PolicyName": "cg-sqs-scenario-assumed-role",
+                    "Statement": [
+                      {
+                        "Effect": "Allow",
+                        "Action": [
+                          "iam:Get*",
+                          "iam:List*"
+                        ],
+                        "Resource": "*"
+                      },
+                      {
+                        "Effect": "Allow",
+                        "Action": [
+                          "sts:AssumeRole"
+                        ],
+                        "Resource": "*"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            "statement": {
+              "Effect": "Allow",
+              "Action": [
+                "sts:AssumeRole"
+              ],
+              "Resource": "*"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "edge:rtb-0e92753d0894a0a7b:MEMBER_OF:vpc-0d9969be3519b31dd",
+      "src": "288528695623:us-east-1:route_table:rtb-0e92753d0894a0a7b",
+      "dst": "288528695623:us-east-1:vpc:vpc-0d9969be3519b31dd",
+      "relation": "MEMBER_OF",
+      "directed": true,
+      "conditions": []
+    },
+    {
+      "id": "edge:terraform-20260130134340781800000003:MEMBER_OF:vpc-0d9969be3519b31dd",
+      "src": "288528695623:us-east-1:rds:terraform-20260130134340781800000003",
+      "dst": "288528695623:us-east-1:vpc:vpc-0d9969be3519b31dd",
+      "relation": "MEMBER_OF",
+      "directed": true,
+      "conditions": []
+    },
+    {
+      "id": "edge:iam_user:288528695623:scp_test:CAN_ASSUME_ROLE:288528695623:global:iam_role:AROAUGLNGQFD5SXNZKOFU",
+      "src": "iam_user:288528695623:scp_test",
+      "dst": "288528695623:global:iam_role:AROAUGLNGQFD5SXNZKOFU",
+      "relation": "CAN_ASSUME_ROLE",
+      "directed": true,
+      "conditions": [
+        {
+          "iam_user": {
+            "attributes": {
+              "policies": {
+                "inline_policies": [
+                  {
+                    "PolicyName": "cg-sqs-scenario-assumed-role",
+                    "Statement": [
+                      {
+                        "Effect": "Allow",
+                        "Action": [
+                          "iam:Get*",
+                          "iam:List*"
+                        ],
+                        "Resource": "*"
+                      },
+                      {
+                        "Effect": "Allow",
+                        "Action": [
+                          "sts:AssumeRole"
+                        ],
+                        "Resource": "*"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            "statement": {
+              "Effect": "Allow",
+              "Action": [
+                "sts:AssumeRole"
+              ],
+              "Resource": "*"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "edge:iam_user:288528695623:scp_test:CanAssumeRole:iam_user:288528695623:cg-sqs-user-cgidtdbcrdw7ec",
+      "src": "iam_user:288528695623:scp_test",
+      "dst": "iam_user:288528695623:cg-sqs-user-cgidtdbcrdw7ec",
+      "relation": "CanAssumeRole",
+      "directed": false,
+      "conditions": [
+        "iam:Get*",
+        "iam:List*"
+      ]
+    },
+    {
+      "id": "edge:iam_user:288528695623:scp_test:CAN_ASSUME_ROLE:288528695623:global:iam_role:AROAUGLNGQFDZ6IYPJLIY",
+      "src": "iam_user:288528695623:scp_test",
+      "dst": "288528695623:global:iam_role:AROAUGLNGQFDZ6IYPJLIY",
+      "relation": "CAN_ASSUME_ROLE",
+      "directed": true,
+      "conditions": [
+        {
+          "iam_user": {
+            "attributes": {
+              "policies": {
+                "inline_policies": [
+                  {
+                    "PolicyName": "cg-sqs-scenario-assumed-role",
+                    "Statement": [
+                      {
+                        "Effect": "Allow",
+                        "Action": [
+                          "iam:Get*",
+                          "iam:List*"
+                        ],
+                        "Resource": "*"
+                      },
+                      {
+                        "Effect": "Allow",
+                        "Action": [
+                          "sts:AssumeRole"
+                        ],
+                        "Resource": "*"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            "statement": {
+              "Effect": "Allow",
+              "Action": [
+                "sts:AssumeRole"
+              ],
+              "Resource": "*"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "edge:288528695623:global:iam_role:AROAUGLNGQFD5SXNZKOFU:ACCESSES_EC2:288528695623:us-east-1:ec2:i-058830ee87c33afba",
+      "src": "288528695623:global:iam_role:AROAUGLNGQFD5SXNZKOFU",
+      "dst": "288528695623:us-east-1:ec2:i-058830ee87c33afba",
+      "relation": "ACCESSES_EC2",
+      "directed": true,
+      "conditions": [
+        {
+          "iam_role": {
+            "attributes": {
+              "policies": {
+                "inline_policies": [],
+                "attached_policies": [
+                  {
+                    "PolicyName": "AWSLambdaSQSQueueExecutionRole",
+                    "PolicyArn": "arn:aws:iam::aws:policy/service-role/AWSLambdaSQSQueueExecutionRole",
+                    "Statement": [
+                      {
+                        "Effect": "Allow",
+                        "Action": [
+                          "sqs:ReceiveMessage",
+                          "sqs:DeleteMessage",
+                          "sqs:GetQueueAttributes",
+                          "logs:CreateLogGroup",
+                          "logs:CreateLogStream",
+                          "logs:PutLogEvents"
+                        ],
+                        "Resource": [
+                          "*"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "PolicyName": "AWSLambdaVPCAccessExecutionRole",
+                    "PolicyArn": "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole",
+                    "Statement": [
+                      {
+                        "Effect": "Allow",
+                        "Action": [
+                          "logs:CreateLogGroup",
+                          "logs:CreateLogStream",
+                          "logs:PutLogEvents",
+                          "ec2:CreateNetworkInterface",
+                          "ec2:DescribeNetworkInterfaces",
+                          "ec2:DescribeSubnets",
+                          "ec2:DeleteNetworkInterface",
+                          "ec2:AssignPrivateIpAddresses",
+                          "ec2:UnassignPrivateIpAddresses"
+                        ],
+                        "Resource": [
+                          "*"
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            "service_actions": [
+              "ec2:CreateNetworkInterface",
+              "ec2:DescribeNetworkInterfaces",
+              "ec2:DescribeSubnets",
+              "ec2:DeleteNetworkInterface",
+              "ec2:AssignPrivateIpAddresses",
+              "ec2:UnassignPrivateIpAddresses"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "edge:288528695623:global:iam_role:AROAUGLNGQFDQV5IJVZ6C:ACCESSES_SQS:288528695623:us-east-1:sqs:cash_charging_queue",
+      "src": "288528695623:global:iam_role:AROAUGLNGQFDQV5IJVZ6C",
+      "dst": "288528695623:us-east-1:sqs:cash_charging_queue",
+      "relation": "ACCESSES_SQS",
+      "directed": true,
+      "conditions": [
+        {
+          "iam_role": {
+            "attributes": {
+              "policies": {
+                "inline_policies": [
+                  {
+                    "PolicyName": "cg-sqs",
+                    "PolicyArn": null,
+                    "Statement": [
+                      {
+                        "Effect": "Allow",
+                        "Action": [
+                          "sqs:GetQueueUrl",
+                          "sqs:SendMessage"
+                        ],
+                        "Resource": [
+                          "arn:aws:sqs:us-east-1:288528695623:cash_charging_queue"
+                        ]
+                      }
+                    ]
+                  }
+                ],
+                "attached_policies": []
+              }
+            },
+            "service_actions": [
+              "sqs:GetQueueUrl",
+              "sqs:SendMessage"
+            ],
+            "resource_arn": "arn:aws:sqs:us-east-1:288528695623:cash_charging_queue"
+          }
+        }
+      ]
+    },
+    {
+      "id": "edge:subnet-04de117025f2caf3d:MEMBER_OF:vpc-0d9969be3519b31dd",
+      "src": "288528695623:us-east-1:subnet:subnet-04de117025f2caf3d",
+      "dst": "288528695623:us-east-1:vpc:vpc-0d9969be3519b31dd",
+      "relation": "MEMBER_OF",
+      "directed": true,
+      "conditions": []
+    },
+    {
+      "id": "edge:rtb-015a31530c88c5e03:MEMBER_OF:vpc-0d9969be3519b31dd",
+      "src": "288528695623:us-east-1:route_table:rtb-015a31530c88c5e03",
+      "dst": "288528695623:us-east-1:vpc:vpc-0d9969be3519b31dd",
+      "relation": "MEMBER_OF",
+      "directed": true,
+      "conditions": []
+    },
+    {
+      "id": "edge:rtb-02286ccec5ff01988:MEMBER_OF:vpc-0d9969be3519b31dd",
+      "src": "288528695623:us-east-1:route_table:rtb-02286ccec5ff01988",
+      "dst": "288528695623:us-east-1:vpc:vpc-0d9969be3519b31dd",
+      "relation": "MEMBER_OF",
+      "directed": true,
+      "conditions": []
+    },
+    {
+      "id": "edge:subnet-001d11c230cea3b86:MEMBER_OF:vpc-0d9969be3519b31dd",
+      "src": "288528695623:us-east-1:subnet:subnet-001d11c230cea3b86",
+      "dst": "288528695623:us-east-1:vpc:vpc-0d9969be3519b31dd",
+      "relation": "MEMBER_OF",
+      "directed": true,
+      "conditions": []
+    },
+    {
+      "id": "edge:i-058830ee87c33afba:USES_KEY:cg-ec2-cgidtdbcrdw7ec",
+      "src": "288528695623:us-east-1:ec2:i-058830ee87c33afba",
+      "dst": "288528695623:us-east-1:key_pair:key-0a2298636ce7fd4ce",
+      "relation": "USES_KEY",
+      "directed": true,
+      "conditions": []
+    },
+    {
+      "id": "edge:igw-00c8cb823ee04072e:ATTACHED_TO:vpc-0d9969be3519b31dd",
+      "src": "288528695623:us-east-1:internet_gateway:igw-00c8cb823ee04072e",
+      "dst": "288528695623:us-east-1:vpc:vpc-0d9969be3519b31dd",
+      "relation": "ATTACHED_TO",
+      "directed": true,
+      "conditions": [
+        {
+          "key": "state",
+          "value": "available"
+        }
+      ]
+    }
+  ]
+}
