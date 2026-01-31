@@ -3,34 +3,40 @@ from fastapi import APIRouter
 
 router = APIRouter()
 
-# 전역이 아닌 함수 안에서 선언하여 세션을 확실히 잡습니다.
+
 @router.post("/iam_list")
 async def get_detailed_inventory():
-    print("--- [IAM List API Start] ---")
-    
-    # IAM Client 생성
     iam = boto3.client('iam')
     inventory = {"user": [], "role": [], "group": []}
 
     try:
-        # 1. Users 수집
+        # 1. Users + Policies
         users_data = iam.list_users()
-        inventory["user"] = [u['UserName'] for u in users_data.get('Users', [])]
-        print(f"Users found: {len(inventory['user'])}")
+        for u in users_data.get('Users', []):
+            name = u['UserName']
+            # 해당 유저에게 연결된 정책 조회
+            p_resp = iam.list_attached_user_policies(UserName=name)
+            policies = [p['PolicyName'] for p in p_resp.get('AttachedPolicies', [])]
+            inventory["user"].append({"name": name, "policies": policies})
 
-        # 2. Roles 수집
+        # 2. Roles + Policies
         roles_data = iam.list_roles()
-        inventory["role"] = [r['RoleName'] for r in roles_data.get('Roles', [])]
-        print(f"Roles found: {len(inventory['role'])}")
+        for r in roles_data.get('Roles', []):
+            name = r['RoleName']
+            p_resp = iam.list_attached_role_policies(RoleName=name)
+            policies = [p['PolicyName'] for p in p_resp.get('AttachedPolicies', [])]
+            inventory["role"].append({"name": name, "policies": policies})
 
-        # 3. Groups 수집
+        # 3. Groups + Policies
         groups_data = iam.list_groups()
-        inventory["group"] = [g['GroupName'] for g in groups_data.get('Groups', [])]
-        print(f"Groups found: {len(inventory['group'])}")
+        for g in groups_data.get('Groups', []):
+            name = g['GroupName']
+            p_resp = iam.list_attached_group_policies(GroupName=name)
+            policies = [p['PolicyName'] for p in p_resp.get('AttachedPolicies', [])]
+            inventory["group"].append({"name": name, "policies": policies})
 
-        print(f"Final Inventory: {inventory}")
         return inventory
 
     except Exception as e:
-        print(f"!!! AWS Boto3 Error: {str(e)}")
+        print(f"!!! AWS Error: {str(e)}")
         return {"error": str(e), "user": [], "role": [], "group": []}

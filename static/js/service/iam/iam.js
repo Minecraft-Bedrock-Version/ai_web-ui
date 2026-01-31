@@ -59,27 +59,36 @@ console.log("Region from URL:", state.region);
     renderResourceList();
   }
 
-  function renderResourceList() {
+function renderResourceList() {
     const tbody = document.getElementById("resourceList");
     tbody.innerHTML = "";
-    mockResources[state.resource].forEach(name => {
-      const tr = document.createElement("tr");
-      tr.innerHTML = `<td>${name}</td>`;
-      tr.onclick = () => {
-        document.querySelectorAll("#resourceList tr").forEach(r => r.classList.remove("selected"));
-        tr.classList.add("selected");
-        selectEntity(name);
-      };
-      tbody.appendChild(tr);
+    
+    // mockResources[state.resource]는 이제 객체 배열입니다. [{name: '...', policies: []}, ...]
+    mockResources[state.resource].forEach(item => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td>${item.name}</td>`;
+        tr.onclick = () => {
+            document.querySelectorAll("#resourceList tr").forEach(r => r.classList.remove("selected"));
+            tr.classList.add("selected");
+            // 이름과 해당 아이템의 정책 리스트를 같이 넘깁니다.
+            selectEntity(item.name, item.policies);
+        };
+        tbody.appendChild(tr);
     });
-  }
+}
 
-  function selectEntity(name) {
+function selectEntity(name, policies) {
     state.selectedEntity = name;
     document.getElementById("policySection").style.display = "block";
-    document.getElementById("policyList").innerHTML = `<span class="policy-tag">AdministratorAccess</span>`;
-  }
-
+    
+    // 기존 AdministratorAccess 하드코딩 대신 실제 정책 리스트를 렌더링
+    const policyListEl = document.getElementById("policyList");
+    if (policies && policies.length > 0) {
+        policyListEl.innerHTML = policies.map(p => `<span class="policy-tag">${p}</span>`).join("");
+    } else {
+        policyListEl.innerHTML = `<span style="color: #666; font-size: 12px;">No attached policies</span>`;
+    }
+}
 
   
   // 서비스 옵션 렌더링 (기존 동일)
