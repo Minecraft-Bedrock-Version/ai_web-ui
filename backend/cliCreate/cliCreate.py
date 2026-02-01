@@ -102,7 +102,7 @@ def generate_cli_commands(state: dict) -> str:
                 }
             ]
         }
-        trust_policy_str = json.dumps(trust_policy, separators=(',', ':'))
+        trust_policy_str = json.dumps(trust_policy, indent=2)
         # Windows PowerShell에서는 작은따옴표로 감싸고, JSON 내부는 큰따옴표 유지
         create_cmd = f"aws iam create-role --role-name {entity_name} --assume-role-policy-document '{trust_policy_str}'"
         commands.append(create_cmd)
@@ -116,7 +116,7 @@ def generate_cli_commands(state: dict) -> str:
     if active_policies:
         # Policy JSON 생성
         policy_json = generate_policy_json(active_policies)
-        policy_str = json.dumps(policy_json, separators=(',', ':'))
+        policy_str = json.dumps(policy_json, indent=2)
         
         # 리소스 타입에 따라 적절한 정책 부여 명령어 생성
         if resource_type == "user":
