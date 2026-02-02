@@ -29,7 +29,7 @@ class GrokRequest(BaseModel):
     grok_result: dict
     user_cli_input: str
 
-#그록 실행 함수로 지정
+#그록으로 실행할 CLI
 @router.post("/grok_json")
 async def grok_json(request: Request):
     try:
@@ -88,6 +88,7 @@ async def grok_json(request: Request):
         return {"message":"error","error":str(e)}
 
 
+# Grok으로 JSON 실행
 @router.post("/grok_exe")
 def run_grok_exe(data: GrokRequest):
     result = data.grok_result

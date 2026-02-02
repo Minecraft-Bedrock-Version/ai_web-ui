@@ -185,14 +185,9 @@ function toggleServiceSelect(serviceId) {
 
 
         // Navigation
+        // 다음 버튼
         function nextStep() {
             if (currentStep < totalSteps - 1) {
-                // 스텝 0 열어 놓기
-                // if (currentStep === 0 && !validateStep0()) {
-                //     return;
-                // }
-                // 추가: 취약점 분석(2)에서 실행(3) 단계로 넘어갈 때 grokjson 실행
-        // (배열 인덱스: 0사용자설정, 1CLI생성, 2취약점분석, 3실행, 4로깅)
                 // step0 ->1로 갈 때 cli 요소 보기
                 if(currentStep === 0){
                     if(!hasStateFromURL){
@@ -204,16 +199,18 @@ function toggleServiceSelect(serviceId) {
                         return;
                     }
                     console.log("선택된 서비스:",config.selectedService);
-                    location.href= `/service/${config.selectedService}?region=${config.region}`;
+                    location.href= `/service/${config.selectedService}?region=${config.region}`; // 선택한 서비스 페이지로 이동(URL 파라미터에 리전 달아서)
                     return;
                 }
             }
 
+                // step2로 갈 때 Grok호출
                 if (currentStep === 2){
                     console.log("Grok Json 생성 시작")
                     grokjson();
                 }
 
+                // 스텝1로 갈 때 람다 호출
                 if (currentStep ===1){
                     console.log("사용자 입력 CLI:",config.customCLI);
                     //다음 스텝으로 넘어갈 때 람다 백엔드로 전달
@@ -226,8 +223,10 @@ function toggleServiceSelect(serviceId) {
             }
         }
 
+        // 이전 버튼
         function previousStep() {
             if (currentStep > 0) {
+                // 0보다 많으면 이전 스텝으로 이동
                 currentStep--;
                 updateSteps();
 
@@ -239,6 +238,7 @@ function toggleServiceSelect(serviceId) {
             }
         }
 
+        // 단계별로 페이지 보이게
         function updateSteps() {
             // Hide all steps
             for (let i = 0; i < totalSteps; i++) {
@@ -256,13 +256,14 @@ function toggleServiceSelect(serviceId) {
             }
         }
 
+        // 다음&이전 버튼 함수
         function updateNavigation() {
             const prevBtn = document.getElementById('prevBtn'); 
             const nextBtn = document.getElementById('nextBtn');
             
             prevBtn.disabled = currentStep === 0;
 
-            
+            // 현재 스텝이 마지막일 경우 다음 버튼이 보이지 않게
             if (currentStep === totalSteps - 1) {
                 // nextBtn.innerHTML = '새로 시작하기';
                 // nextBtn.className = 'btn btn-success btn-lg';
@@ -282,7 +283,7 @@ function toggleServiceSelect(serviceId) {
                 //     nextBtn.disabled = !validateStep0();
                 // }else 
                 if(currentStep ===1){ 
-                    //cli 입력 없을 시 다음 버튼 비활성화
+                    //스텝1에서 cli 입력 없을 시 다음 버튼 비활성화
                     nextBtn.disabled = !config.customCLI;
                 } 
                 else {
@@ -311,6 +312,7 @@ function toggleServiceSelect(serviceId) {
         textarea.disabled = true; // 생성 중 수정 방지
     }
             try {
+            // CLI 생성
             const response = await fetch("/cli_create", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -322,7 +324,7 @@ function toggleServiceSelect(serviceId) {
             }
 
 
-            const data = await response.json(); // JSON으로 변환
+            const data = await response.json(); // 반환 받은 CLI를 JSON으로 변환
             console.log("전체",data)
             console.log("받은 CLI:", data.cli);
 
@@ -388,6 +390,7 @@ async function lambda_invoke() {
     nextBtn.innerHTML = "통신 중...";
 
     try {
+        // 람다 호출
         console.log("람다 호출 시작...");
         const response = await fetch('/lambda_invoke', {
             method: 'POST',
@@ -420,7 +423,11 @@ async function lambda_invoke() {
 
 
 // Vulnerability Analysis
+// 취약점 분석
+        // 분석 시작
         function startAnalysis() {
+
+            // 디자인적인 부분
             document.getElementById('analysisIdle').style.display = 'none';
             document.getElementById('analysisProgress').classList.remove('hidden');
             document.getElementById('analysisResults').classList.add('hidden');
@@ -568,6 +575,7 @@ async function grokjson() {
     const readyToExecute = document.getElementById('readyToExecute');
 
     try {
+        // grok 호출
         const response = await fetch('/grok_json', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -606,6 +614,7 @@ async function grokjson() {
     }
 }
 
+// grok 반환 결과 UI
 async function executeProcess() {
     // 1. 초기 UI 설정
     document.getElementById('executionIdle').style.display = 'none';
@@ -641,7 +650,7 @@ async function executeProcess() {
         container.appendChild(stepDiv);
     });
 
-    // 2. 백엔드 API 호출 시작
+    // 2. 백엔드 API 호출
     const apiPromise = fetch('/grok_exe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

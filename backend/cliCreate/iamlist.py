@@ -41,6 +41,7 @@ async def get_detailed_inventory():
             policies = [p['PolicyName'] for p in p_resp.get('AttachedPolicies', [])]
             inventory["group"].append({"name": name, "policies": policies})
 
+        # 결과 데이터 반환
         return inventory
 
     except Exception as e:

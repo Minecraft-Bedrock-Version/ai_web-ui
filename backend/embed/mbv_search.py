@@ -28,6 +28,8 @@ COLLECTION_NAME = "pandyo"
 bedrock = boto3.client(service_name='bedrock-runtime', region_name=REGION)
 q_client = QdrantClient(url="http://localhost:6333")
 
+
+# 임베딩 함수
 def get_embedding(text):
     """Bedrock을 통해 데이터 구조를 벡터로 변환"""
     native_request = {
@@ -35,9 +37,9 @@ def get_embedding(text):
         "input_type": "search_query", 
         "truncate": "NONE"
     }
-    response = bedrock.invoke_model(modelId=MODEL_ID, body=json.dumps(native_request))
+    response = bedrock.invoke_model(modelId=MODEL_ID, body=json.dumps(native_request)) # 임베딩
     res_body = json.loads(response.get('body').read())
-    embeddings = res_body.get('embeddings')
+    embeddings = res_body.get('embeddings') # 임베딩 값
     return embeddings.get('float')[0] if isinstance(embeddings, dict) else embeddings[0]
 
 

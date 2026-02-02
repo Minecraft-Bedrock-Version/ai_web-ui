@@ -1,5 +1,7 @@
 
   // const mockResources = { user: ["admin", "dev-user", "hyeok"], role: ["EC2Role", "LambdaRole"], group: ["Admins", "Developers"] };
+
+  // 기본 더미 리소스 데이터 설정. -> 후에 json파일로 별도 관리
 let mockResources = { user: [], role: [], group: [] };
   const iamServices = {
     s3: { label: "Amazon S3", actions: ["GetObject", "PutObject", "ListBucket"] },
@@ -18,6 +20,7 @@ let mockResources = { user: [], role: [], group: [] };
 
   async function fetchIamResources() {
   try {
+    // IAM정보 불러오기
     const response = await fetch('/iam_list',{
       method: 'post',
       headers: {
@@ -28,7 +31,7 @@ let mockResources = { user: [], role: [], group: [] };
     
     const data = await response.json();
     
-    // 서버 응답 형식이 { user: [...], role: [...], group: [...] } 라고 가정
+    // 서버 응답 형식이 { user: [...], role: [...], group: [...] }
     mockResources = data;
     
     // 데이터를 다 받아온 후 리스트 렌더링
@@ -59,6 +62,7 @@ console.log("Region from URL:", state.region);
     renderResourceList();
   }
 
+  // 리스트 렌더링
 function renderResourceList() {
     const tbody = document.getElementById("resourceList");
     tbody.innerHTML = "";
@@ -199,7 +203,7 @@ function updatePolicyJson() {
   }
 }
 
-  // cli 구성을 json포맷에 담아 /경로로 전달.
+  // cli 구성을 json포맷에 담아 루트 경로로 전달.
   function goNext() {
     alert("다음 단계로 진행합니다."); 
     console.log(state); 
