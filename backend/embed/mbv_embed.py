@@ -1,3 +1,5 @@
+# 벡터db 저장용 임베딩
+# 라우팅x - 개별 실행. 사이트에 들어가지 않는 내용이라 굳이 라우팅 할 필요 없음.
 import boto3
 import json
 import os  # 경로 계산을 위해 추가
@@ -16,7 +18,7 @@ router = APIRouter()
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # 2. 파일 위치를 기준으로 json 파일의 절대 경로를 생성합니다.
-# mbv_embed.py 위치에서 한 단계 위(..)로 가서 json/pandyo/pandyo.json으로 이동
+# mbv_embed.py 위치에서 한 단계 위(..)로 가서 json/pandyo/pandyo.json 불러오기
 JSON_FILE_PATH = os.path.join(BASE_DIR, "..", "json", "pandyo", "pandyo.json")
 
 # --- 설정 ---
@@ -27,6 +29,7 @@ COLLECTION_NAME = "pandyo"
 bedrock = boto3.client(service_name='bedrock-runtime', region_name=REGION)
 q_client = QdrantClient(url="http://localhost:6333")
 
+# 임베딩 함수
 def get_embedding(text):
     """JSON 구조 문자열을 1536차원 벡터로 변환"""
     native_request = {
@@ -34,20 +37,21 @@ def get_embedding(text):
         "input_type": "search_document",
         "truncate": "NONE"
     }
-    response = bedrock.invoke_model(modelId=MODEL_ID, body=json.dumps(native_request))
-    response_body = json.loads(response.get('body').read())
-    embeddings = response_body.get('embeddings')
+    response = bedrock.invoke_model(modelId=MODEL_ID, body=json.dumps(native_request)) # 임베딩
+    response_body = json.loads(response.get('body').read()) # body정보 불러오기
+    embeddings = response_body.get('embeddings') # body에서 임베딩 결과물 추출
     return embeddings.get('float')[0] if isinstance(embeddings, dict) else embeddings[0]
 
+# 메인 함수
 def main():
-    # 1. 컬렉션 생성
+    # 컬렉션이 없을 때 컬렉션 생성
     if not q_client.collection_exists(COLLECTION_NAME):
         q_client.create_collection(
             collection_name=COLLECTION_NAME,
             vectors_config=VectorParams(size=1536, distance=Distance.COSINE),
         )
 
-    # 2. 데이터 로드 (수정된 절대 경로 사용)
+    # 데이터 로드(pandyo.json)
     if not os.path.exists(JSON_FILE_PATH):
         print(f"에러: 파일을 찾을 수 없습니다 -> {JSON_FILE_PATH}")
         return
@@ -55,7 +59,7 @@ def main():
     with open(JSON_FILE_PATH, "r", encoding="utf-8") as f:
         vuln_data = json.load(f)
 
-    # 3. 데이터 처리 및 임베딩
+    # 데이터 처리 및 임베딩
     points = []
     for item in vuln_data:
         print(f"[ID: {item['id']}] '{item['title']}' - 임베딩 중...")
@@ -71,7 +75,7 @@ def main():
             payload=item
         ))
 
-    # 4. Qdrant 업로드
+    # Qdrant 업로드
     q_client.upsert(collection_name=COLLECTION_NAME, points=points)
     print(f"\n완료. 총 {len(points)}개의 데이터가 저장되었습니다.")
 

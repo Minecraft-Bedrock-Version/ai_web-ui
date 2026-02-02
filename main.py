@@ -11,9 +11,13 @@ templates = Jinja2Templates(directory="templates")
 # static 라우트
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
+
+# 페이지 라우팅
+# 루트 경로
 @app.get("/", response_class=HTMLResponse) 
 async def root(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
+# IAM 페이지
 @app.get("/service/iam",response_class=HTMLResponse)
 async def service_iam(request: Request):
     return templates.TemplateResponse("/service/iam/iam.html",{"request":request})

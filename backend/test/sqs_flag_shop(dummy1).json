@@ -1,0 +1,224 @@
+{
+  "schema_version": "1.5",
+  "nodes": [
+    {
+      "node_id": "288528695623:us-east-1:lambda:cache-charge-cgidic93dfr9ab",
+      "type": "lambda",
+      "name": "cache-charge-cgidic93dfr9ab",
+      "properties": {
+        "event_source_arn": "arn:aws:sqs:us-east-1:288528695623:cash_charging_queue"
+      }
+    },
+    {
+      "node_id": "288528695623:iam_role:cg-sqs-lambda-cgidic93dfr9ab",
+      "type": "iam_role",
+      "name": "cg-sqs-lambda-cgidic93dfr9ab",
+      "properties": {
+        "assume_role_policy": {
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": "sts:AssumeRole",
+              "Principal": {
+                "Service": "lambda.amazonaws.com"
+              }
+            }
+          ]
+        },
+        "inline_policies": [],
+        "attached_policies": [
+          {
+            "PolicyName": "AWSLambdaSQSQueueExecutionRole",
+            "Statement": [
+              {
+                "Action": [
+                  "sqs:ReceiveMessage",
+                  "sqs:DeleteMessage",
+                  "sqs:GetQueueAttributes",
+                  "logs:CreateLogGroup",
+                  "logs:CreateLogStream",
+                  "logs:PutLogEvents"
+                ],
+                "Effect": "Allow",
+                "Resource": "*"
+              }
+            ]
+          },
+          {
+            "PolicyName": "AWSLambdaVPCAccessExecutionRole",
+            "Statement": [
+              {
+                "Action": [
+                  "logs:CreateLogGroup",
+                  "logs:CreateLogStream",
+                  "logs:PutLogEvents",
+                  "ec2:CreateNetworkInterface",
+                  "ec2:DescribeNetworkInterfaces",
+                  "ec2:DescribeSubnets",
+                  "ec2:DeleteNetworkInterface",
+                  "ec2:AssignPrivateIpAddresses",
+                  "ec2:UnassignPrivateIpAddresses"
+                ],
+                "Effect": "Allow",
+                "Resource": "*"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "node_id": "288528695623:us-east-1:sqs:cash_charging_queue",
+      "type": "sqs",
+      "name": "cash_charging_queue"
+    },
+    {
+      "node_id": "288528695623:iam_role:cg-sqs-send-message-cgidic93dfr9ab",
+      "type": "iam_role",
+      "name": "cg-sqs-send-message-cgidic93dfr9ab",
+      "properties": {
+        "assume_role_policy": {
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": "sts:AssumeRole",
+              "Principal": {
+                "AWS": "arn:aws:iam::288528695623:user/cg-sqs-user-cgidic93dfr9ab"
+              }
+            }
+          ]
+        },
+        "inline_policies": [
+          {
+            "PolicyName": "cg-sqs",
+            "Statement": [
+              {
+                "Action": [
+                  "sqs:GetQueueUrl",
+                  "sqs:SendMessage"
+                ],
+                "Effect": "Allow",
+                "Resource": "arn:aws:sqs:us-east-1:288528695623:cash_charging_queue"
+              }
+            ]
+          }
+        ],
+        "attached_policies": []
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge:cg-sqs-lambda-cgidic93dfr9ab:IAM_ROLE_ACCESS_EC2:i-073125a3321d8d939",
+      "src": "288528695623:iam_role:cg-sqs-lambda-cgidic93dfr9ab",
+      "dst": "288528695623:us-east-1:ec2:i-073125a3321d8d939",
+      "relation": "IAM_ROLE_ACCESS_EC2",
+      "directed": true,
+      "conditions": "This role gives you access to EC2."
+    },
+    {
+      "id": "edge:cg-sqs-send-message-cgidic93dfr9ab:IAM_ROLE_ACCESS_SQS:cash_charging_queue",
+      "src": "288528695623:iam_role:cg-sqs-send-message-cgidic93dfr9ab",
+      "dst": "288528695623:us-east-1:sqs:cash_charging_queue",
+      "relation": "IAM_ROLE_ACCESS_SQS",
+      "directed": true,
+      "conditions": "This role gives you access to SQS Queue."
+    },
+    {
+      "id": "edge:cash_charging_queue:SQS_TRIGGER_LAMBDA:cache-charge-cgidic93dfr9ab",
+      "src": "288528695623:us-east-1:sqs:cash_charging_queue",
+      "dst": "288528695623:us-east-1:lambda:cache-charge-cgidic93dfr9ab",
+      "relation": "SQS_TRIGGER_LAMBDA",
+      "directed": true,
+      "conditions": "I found the SQS Queue ARN in the Event Source Mapping of this Lambda function."
+    },
+    {
+      "id": "edge:cg-sqs-user-cgidic93dfr9ab:IAM_USER_ACCESS_IAM:scp_test",
+      "src": "288528695623:iam_user:cg-sqs-user-cgidic93dfr9ab",
+      "dst": "288528695623:iam_user:scp_test",
+      "relation": "IAM_USER_ACCESS_IAM",
+      "directed": true,
+      "conditions": "This User has access to IAM."
+    },
+    {
+      "id": "edge:scp_test:IAM_USER_ACCESS_IAM:cg-sqs-user-cgidic93dfr9ab",
+      "src": "288528695623:iam_user:scp_test",
+      "dst": "288528695623:iam_user:cg-sqs-user-cgidic93dfr9ab",
+      "relation": "IAM_USER_ACCESS_IAM",
+      "directed": true,
+      "conditions": "This User has access to IAM."
+    },
+    {
+      "id": "edge:cg-sqs-user-cgidic93dfr9ab:ASSUME_ROLE:cg-sqs-send-message-cgidic93dfr9ab",
+      "src": "288528695623:iam_user:cg-sqs-user-cgidic93dfr9ab",
+      "dst": "288528695623:iam_role:cg-sqs-send-message-cgidic93dfr9ab",
+      "relation": "ASSUME_ROLE",
+      "directed": true,
+      "conditions": "This is a role that an IAM User can assume."
+    },
+    {
+      "id": "edge:scp_test:IAM_USER_ACCESS_IAM:cg-sqs-send-message-cgidic93dfr9ab",
+      "src": "288528695623:iam_user:scp_test",
+      "dst": "288528695623:iam_role:cg-sqs-send-message-cgidic93dfr9ab",
+      "relation": "IAM_USER_ACCESS_IAM",
+      "directed": true,
+      "conditions": "This User has access to IAM."
+    },
+    {
+      "id": "edge:cg-sqs-user-cgidic93dfr9ab:IAM_USER_ASSUME_ROLE:cg-sqs-send-message-cgidic93dfr9ab",
+      "src": "288528695623:iam_user:cg-sqs-user-cgidic93dfr9ab",
+      "dst": "288528695623:iam_role:cg-sqs-send-message-cgidic93dfr9ab",
+      "relation": "IAM_USER_ASSUME_ROLE",
+      "directed": true,
+      "conditions": "This User can Assume Roles."
+    },
+    {
+      "id": "edge:cg-sqs-user-cgidic93dfr9ab:IAM_USER_ACCESS_IAM:cg-sqs-lambda-cgidic93dfr9ab",
+      "src": "288528695623:iam_user:cg-sqs-user-cgidic93dfr9ab",
+      "dst": "288528695623:iam_role:cg-sqs-lambda-cgidic93dfr9ab",
+      "relation": "IAM_USER_ACCESS_IAM",
+      "directed": true,
+      "conditions": "This User has access to IAM."
+    },
+    {
+      "id": "edge:scp_test:IAM_USER_ACCESS_IAM:cg-web-sqs-manager-cgidic93dfr9ab",
+      "src": "288528695623:iam_user:scp_test",
+      "dst": "288528695623:iam_user:cg-web-sqs-manager-cgidic93dfr9ab",
+      "relation": "IAM_USER_ACCESS_IAM",
+      "directed": true,
+      "conditions": "This User has access to IAM."
+    },
+    {
+      "id": "edge:cg-sqs-user-cgidic93dfr9ab:IAM_USER_ACCESS_IAM:cg-web-sqs-manager-cgidic93dfr9ab",
+      "src": "288528695623:iam_user:cg-sqs-user-cgidic93dfr9ab",
+      "dst": "288528695623:iam_user:cg-web-sqs-manager-cgidic93dfr9ab",
+      "relation": "IAM_USER_ACCESS_IAM",
+      "directed": true,
+      "conditions": "This User has access to IAM."
+    },
+    {
+      "id": "edge:cg-sqs-user-cgidic93dfr9ab:IAM_USER_ACCESS_IAM:cg-sqs-send-message-cgidic93dfr9ab",
+      "src": "288528695623:iam_user:cg-sqs-user-cgidic93dfr9ab",
+      "dst": "288528695623:iam_role:cg-sqs-send-message-cgidic93dfr9ab",
+      "relation": "IAM_USER_ACCESS_IAM",
+      "directed": true,
+      "conditions": "This User has access to IAM."
+    },
+    {
+      "id": "edge:scp_test:IAM_USER_ACCESS_IAM:cg-sqs-lambda-cgidic93dfr9ab",
+      "src": "288528695623:iam_user:scp_test",
+      "dst": "288528695623:iam_role:cg-sqs-lambda-cgidic93dfr9ab",
+      "relation": "IAM_USER_ACCESS_IAM",
+      "directed": true,
+      "conditions": "This User has access to IAM."
+    },
+    {
+      "id": "edge:cache-charge-cgidic93dfr9ab:ASSUME_ROLE:cg-sqs-lambda-cgidic93dfr9ab",
+      "src": "288528695623:us-east-1:lambda:cache-charge-cgidic93dfr9ab",
+      "dst": "288528695623:iam_role:cg-sqs-lambda-cgidic93dfr9ab",
+      "relation": "ASSUME_ROLE",
+      "directed": true,
+      "conditions": "A role that a Lambda function can assume."
+    }
+  ]
+}

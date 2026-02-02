@@ -1,3 +1,4 @@
+# 벡터DB 검색용 임베딩
 import boto3
 import json
 import os

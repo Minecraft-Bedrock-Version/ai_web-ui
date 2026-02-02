@@ -6,7 +6,7 @@ from qdrant_client import QdrantClient
 # --- 경로 설정 (사진의 backend/test/ 구조 기준) ---
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 # 같은 폴더(test)에 있는 local_debug_result.json 탐지
-SEARCH_TARGET_PATH = os.path.join(BASE_DIR, "local_debug_result.json")
+SEARCH_TARGET_PATH = os.path.join(BASE_DIR, "sqs_flag_shop.json")
 
 # --- 설정 ---
 REGION = "ap-northeast-1"

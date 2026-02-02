@@ -1,8 +1,10 @@
 // aws 서비스 및 정책 데이터 임포트
 
+// aws 서비스 임포트
 import awsServices from '../json/cliset/awsServices.json' with {type: 'json'};
 
 let currentStep = 0;
+        // 사이트 상단 step 설정
         const totalSteps = 5;
         const stepTitles = ['사용자 설정', 'CLI 생성', '취약점 분석', '실행', '완료'];
 
@@ -21,6 +23,7 @@ let currentStep = 0;
 
         window.config = config;
 
+        // 함수들 실행할 수 있게 강제로 전역화(html에서 타입을 모듈로 설정해서 접근할 수 없기 때문에)
         window.previousStep = previousStep;
         window.saveCLI = saveCLI;
         window.resetCLI = resetCLI;
@@ -38,12 +41,13 @@ let currentStep = 0;
         let hasStateFromURL = false;
         window.onload = function() {
 
+            // URL에서 state 파라미터 추출
             const params = new URLSearchParams(window.location.search);
-            if(params.has("state")){
+            if(params.has("state")){ // 파라미터가 있으면
                 try{
-                    const decoded = decodeURIComponent(params.get("state"));
+                    const decoded = decodeURIComponent(params.get("state")); // 디코딩
                     Object.assign(config, JSON.parse(decoded));
-                    currentStep=0
+                    currentStep=0 // 시작단계 초기화
                     hasStateFromURL = true
                 }catch(e){
                     console.error("State 파싱 오류:",e);
@@ -57,14 +61,14 @@ let currentStep = 0;
             renderServiceCards();
             setupRegionSelector();
             //previousStep();
-            if(hasStateFromURL){
+            if(hasStateFromURL){ // URL에 state가 있을 경우 다음 단계로 자동 이동
                 this.setTimeout(()=>{
                     nextStep()
                 },0)
             }
         };
 
-               // Region Selector
+        // 리전 선택
         function setupRegionSelector() {
             document.getElementById('region').addEventListener('change', function(e) {
                 config.region = e.target.value;
@@ -72,9 +76,10 @@ let currentStep = 0;
             });
         }
 
-        // Render Service Cards
+        // 서비스 카드 렌더링
+        // HTML 요소에 awsServices 불러와서 나열
         function renderServiceCards() {
-            const container = document.getElementById('servicesGrid');
+            const container = document.getElementById('servicesGrid'); 
             container.innerHTML = '';
 
             awsServices.forEach(service => {
@@ -84,16 +89,21 @@ let currentStep = 0;
         }
 
 function createServiceCard(service) {
+    // 카드 외곽 컨테이너 설정
   const card = document.createElement('div');
-  card.className = 'service-card';
-  card.id = `service-${service.id}`;
+  card.className = 'service-card'; //CSS 스타일링을 위한 클래스명
+  card.id = `service-${service.id}`; // 서비스 식별을 위한 id
 
+
+  //클릭 이벤트
   card.onclick = () => toggleServiceSelect(service.id);
 
+  // 서비스 아이콘 영역 
   const icon = document.createElement('div');
   icon.className = 'service-icon';
   icon.textContent = service.icon;
 
+  //서비스 정보 영역
   const info = document.createElement('div');
   info.className = 'service-info';
   info.innerHTML = `
@@ -101,11 +111,14 @@ function createServiceCard(service) {
     <div class="service-desc">${service.description}</div>
   `;
 
+  // 생성된 요소들 컨테이너에 삽입
   card.appendChild(icon);
   card.appendChild(info);
 
+  // servicesGrid에 추가
   return card;
 }
+
 function toggleServiceSelect(serviceId) {
   // 기존 선택된 서비스 카드 해제
   if (config.selectedService) {
@@ -133,12 +146,14 @@ function toggleServiceSelect(serviceId) {
 
 
 
-        // Progress Steps
+        // 서비스 상단 진행 표시바 렌더링
         function renderProgressSteps() {
             const container = document.getElementById('progressSteps');
-            container.innerHTML = '';
+            container.innerHTML = ''; // 기존에 그려진 단계 초기화
             
+            // 전체 단계 수만큼 반복하여 각 단계 요소 생성
             for (let i = 0; i < totalSteps; i++) {
+                // html 및 css 설정
                 const stepItem = document.createElement('div');
                 stepItem.className = 'step-item';
                 
@@ -152,7 +167,7 @@ function toggleServiceSelect(serviceId) {
                 const stepLabel = document.createElement('p');
                 stepLabel.className = `step-label ${i === currentStep ? 'active' : i < currentStep ? 'completed' : 'pending'}`;
                 stepLabel.textContent = stepTitles[i];
-                
+                // 요소 조랍
                 stepContent.appendChild(stepCircle);
                 stepContent.appendChild(stepLabel);
                 stepItem.appendChild(stepContent);
@@ -276,46 +291,6 @@ function toggleServiceSelect(serviceId) {
                 }
             }
         }
-
-        // // Form Validation
-        // function validateStep0() {
-        //     const region = document.getElementById('region').value;
-        //     const infrastructureType = document.getElementById('infrastructureType').value;
-        //     const description = document.getElementById('description').value;
-        //     const iamCredentials = document.getElementById('iamCredentials').value;
-            
-        //     return region && infrastructureType && description && iamCredentials;
-        // }
-
-
-        // function resetForm() {
-        //     document.getElementById('region').value = '';
-        //     document.getElementById('infrastructureType').value = '';
-        //     document.getElementById('description').value = '';
-        //     document.getElementById('iamCredentials').value = '';
-            
-        //     config.region = '';
-        //     config.infrastructureType = '';
-        //     config.description = '';
-        //     config.iamCredentials = '';
-            
-        //     // Reset CLI generation
-        //     document.getElementById('generateContainer').style.display = 'flex';
-        //     document.getElementById('generatedContent').classList.remove('show');
-            
-        //     // Reset analysis
-        //     document.getElementById('analysisIdle').style.display = 'block';
-        //     document.getElementById('analysisProgress').classList.add('hidden');
-        //     document.getElementById('analysisResults').classList.add('hidden');
-        //     document.getElementById('analysisProgressBar').style.width = '0%';
-            
-        //     // Reset execution
-        //     document.getElementById('executionIdle').style.display = 'block';
-        //     document.getElementById('executionSteps').classList.add('hidden');
-        // }
-
-        // CLI Generation
-
 
 
         // step-1로딩 시 cli가져오기
