@@ -4,217 +4,278 @@
         "title": "sqs_flag_shop",
         "description": "document/sqs_flag_shop.json",
         "resources": [
-  {
+          {
+  "schema_version": "1.5",
   "nodes": [
     {
-      "node_type": "lambda_function",
-      "node_id": "graph_node_id"
-    },
-    {
-      "node_type": "lambda_event_source_mapping",
-      "node_id": "graph_node_id",
-      "attributes": {
-        "state": "Enabled"
-      },
-      "relationships": {
-        "source_arn": "sqs"
-      }
-    },
-    {
-      "node_type": "route_table",
-      "node_id": "string",
-      "attributes": {
-        "type": "public"
-      }
-    },
-    {
-      "node_type": "internet_gateway",
-      "node_id": "graph_node_id",
-      "attributes": {
+      "node_id": "288528695623:us-east-1:igw:igw-0c177eff04906d5d1",
+      "type": "igw",
+      "name": "cg-cgidic93dfr9ab",
+      "properties": {
+        "attached_vpc_id": "vpc-0fbb125c943a6257e",
         "state": "available"
       }
     },
     {
-      "node_type": "iam_role",
-      "node_id": "string",
-      "attributes": {
+      "node_id": "288528695623:us-east-1:lambda:cache-charge-cgidic93dfr9ab",
+      "type": "lambda",
+      "name": "cache-charge-cgidic93dfr9ab",
+      "properties": {
+        "event_source_arn": "arn:aws:sqs:us-east-1:288528695623:cash_charging_queue"
+      }
+    },
+    {
+      "node_id": "288528695623:us-east-1:rds:terraform-20260131054208949500000003",
+      "type": "rds_instance",
+      "name": "cash"
+    },
+    {
+      "node_id": "288528695623:iam_role:cg-sqs-lambda-cgidic93dfr9ab",
+      "type": "iam_role",
+      "name": "cg-sqs-lambda-cgidic93dfr9ab",
+      "properties": {
         "assume_role_policy": {
           "Statement": [
             {
               "Effect": "Allow",
-              "Action": "sts:AssumeRole"
+              "Action": "sts:AssumeRole",
+              "Principal": {
+                "Service": "lambda.amazonaws.com"
+              }
+            }
+          ]
+        },
+        "inline_policies": [],
+        "attached_policies": [
+          {
+            "PolicyName": "AWSLambdaSQSQueueExecutionRole",
+            "Statement": [
+              {
+                "Action": [
+                  "sqs:ReceiveMessage",
+                  "sqs:DeleteMessage",
+                  "sqs:GetQueueAttributes",
+                  "logs:CreateLogGroup",
+                  "logs:CreateLogStream",
+                  "logs:PutLogEvents"
+                ],
+                "Effect": "Allow",
+                "Resource": "*"
+              }
+            ]
+          },
+          {
+            "PolicyName": "AWSLambdaVPCAccessExecutionRole",
+            "Statement": [
+              {
+                "Action": [
+                  "logs:CreateLogGroup",
+                  "logs:CreateLogStream",
+                  "logs:PutLogEvents",
+                  "ec2:CreateNetworkInterface",
+                  "ec2:DescribeNetworkInterfaces",
+                  "ec2:DescribeSubnets",
+                  "ec2:DeleteNetworkInterface",
+                  "ec2:AssignPrivateIpAddresses",
+                  "ec2:UnassignPrivateIpAddresses"
+                ],
+                "Effect": "Allow",
+                "Resource": "*"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "node_id": "288528695623:us-east-1:sqs:cash_charging_queue",
+      "type": "sqs",
+      "name": "cash_charging_queue"
+    },
+    {
+      "node_id": "288528695623:us-east-1:ec2:i-073125a3321d8d939",
+      "type": "ec2",
+      "name": "cg-linux-ec2-cgidic93dfr9ab"
+    },
+    {
+      "node_id": "288528695623:iam_role:cg-sqs-send-message-cgidic93dfr9ab",
+      "type": "iam_role",
+      "name": "cg-sqs-send-message-cgidic93dfr9ab",
+      "properties": {
+        "assume_role_policy": {
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": "sts:AssumeRole",
+              "Principal": {
+                "AWS": "arn:aws:iam::288528695623:user/cg-sqs-user-cgidic93dfr9ab"
+              }
             }
           ]
         },
         "inline_policies": [
           {
+            "PolicyName": "cg-sqs",
             "Statement": [
               {
-                "Action": ["sqs:GetQueueUrl", "sqs:SendMessage"],
-                "Effect": "Allow"
-              }
-            ]
-          }
-        ]
-      }
-    },
-    {
-      "node_type": "ec2",
-      "node_id": "string",
-      "attributes": {
-        "public": true,
-        "sqs_info": {
-          "detected": true
-        },
-        "rds_info": {
-          "detected": true
-        }
-      }
-    },
-    {
-      "node_type": "sqs",
-      "node_id": "graph_node_id"
-    },
-    {
-      "node_type": "iam_user",
-      "node_id": "string",
-      "attributes": {
-        "inline_policies": [
-          {
-            "Statement": [
-              {
+                "Action": [
+                  "sqs:GetQueueUrl",
+                  "sqs:SendMessage"
+                ],
                 "Effect": "Allow",
-                "Action": "sts:AssumeRole"
+                "Resource": "arn:aws:sqs:us-east-1:288528695623:cash_charging_queue"
               }
             ]
           }
-        ]
+        ],
+        "attached_policies": []
       }
-    },
-    {
-      "node_type": "rds_instance",
-      "node_id": "graph_node_id"
-    },
-    {
-      "node_type": "subnet",
-      "node_id": "string",
-      "attributes": {
-        "visibility": "public"
-      }
-    },
-    {
-      "node_type": "vpc",
-      "node_id": "string"
     }
   ],
   "edges": [
     {
-      "src": "ec2 node_id",
-      "dst": "sqs node_id",
+      "id": "edge:cg-sqs-lambda-cgidic93dfr9ab:IAM_ROLE_ACCESS_EC2:i-073125a3321d8d939",
+      "src": "288528695623:iam_role:cg-sqs-lambda-cgidic93dfr9ab",
+      "dst": "288528695623:us-east-1:ec2:i-073125a3321d8d939",
+      "relation": "IAM_ROLE_ACCESS_EC2",
       "directed": true,
-      "conditions": [
-        { 
-          "ec2" : {
-            "attributes": {
-              "sqs_info": { "detected": true }
-            }
-          } 
-        }
-      ]
+      "conditions": "This role gives you access to EC2."
     },
     {
-      "src": "iam_user node_id",
-      "dst": "iam_role node_id",
+      "id": "edge:cg-sqs-send-message-cgidic93dfr9ab:IAM_ROLE_ACCESS_SQS:cash_charging_queue",
+      "src": "288528695623:iam_role:cg-sqs-send-message-cgidic93dfr9ab",
+      "dst": "288528695623:us-east-1:sqs:cash_charging_queue",
+      "relation": "IAM_ROLE_ACCESS_SQS",
+      "directed": true,
+      "conditions": "This role gives you access to SQS Queue."
+    },
+    {
+      "id": "edge:cash_charging_queue:SQS_TRIGGER_LAMBDA:cache-charge-cgidic93dfr9ab",
+      "src": "288528695623:us-east-1:sqs:cash_charging_queue",
+      "dst": "288528695623:us-east-1:lambda:cache-charge-cgidic93dfr9ab",
+      "relation": "SQS_TRIGGER_LAMBDA",
+      "directed": true,
+      "conditions": "I found the SQS Queue ARN in the Event Source Mapping of this Lambda function."
+    },
+    {
+      "id": "edge:cg-sqs-user-cgidic93dfr9ab:IAM_USER_ACCESS_IAM:scp_test",
+      "src": "288528695623:iam_user:cg-sqs-user-cgidic93dfr9ab",
+      "dst": "288528695623:iam_user:scp_test",
+      "relation": "IAM_USER_ACCESS_IAM",
+      "directed": true,
+      "conditions": "This User has access to IAM."
+    },
+    {
+      "id": "edge:scp_test:IAM_USER_ACCESS_IAM:cg-sqs-user-cgidic93dfr9ab",
+      "src": "288528695623:iam_user:scp_test",
+      "dst": "288528695623:iam_user:cg-sqs-user-cgidic93dfr9ab",
+      "relation": "IAM_USER_ACCESS_IAM",
+      "directed": true,
+      "conditions": "This User has access to IAM."
+    },
+    {
+      "id": "edge:i-073125a3321d8d939:EC2_ACCESS_IGW:igw-0c177eff04906d5d1",
+      "src": "288528695623:us-east-1:ec2:i-073125a3321d8d939",
+      "dst": "288528695623:us-east-1:igw:igw-0c177eff04906d5d1",
+      "relation": "EC2_PUBLIC",
       "directed": false,
-      "conditions": [
-        {
-          "iam_user": {
-            "attributes": {
-              "inline_policies": [
-                {
-                  "Statement": [
-                    { "Effect": "Allow", "Action": "sts:AssumeRole" }
-                  ]
-                }
-              ]
-            }
-          }
-        }
-      ]
+      "conditions": "EC2 is assigned a public IP, and the subnet where EC2 is located is connected to an IGW that can communicate externally through the route table."
     },
     {
-      "src": "lambda_function node_id",
-      "dst": "ec2 node_id",
+      "id": "edge:cg-sqs-user-cgidic93dfr9ab:ASSUME_ROLE:cg-sqs-send-message-cgidic93dfr9ab",
+      "src": "288528695623:iam_user:cg-sqs-user-cgidic93dfr9ab",
+      "dst": "288528695623:iam_role:cg-sqs-send-message-cgidic93dfr9ab",
+      "relation": "ASSUME_ROLE",
       "directed": true,
-      "conditions": [
-        { "lambda_format_in_ec2_ip" : true }
-      ]
+      "conditions": "This is a role that an IAM User can assume."
     },
     {
-      "src": "sqs node_id",
-      "dst": "lambda_event_source_mapping node_id",
+      "id": "edge:cache-charge-cgidic93dfr9ab:LAMBDA_CALL_EC2:i-073125a3321d8d939",
+      "src": "288528695623:us-east-1:lambda:cache-charge-cgidic93dfr9ab",
+      "dst": "288528695623:us-east-1:ec2:i-073125a3321d8d939",
+      "relation": "LAMBDA_CALL_EC2",
       "directed": true,
-      "conditions": [
-        {
-          "lambda_event_source_mapping": {
-            "relationships": { "source_arn": "sqs" }
-          }
-        }
-      ]
+      "conditions": "This Lambda function's environment variables contain an EC2 public or private IP address. EC2 is accessible. For more information, check the role associated with the Lambda function."
     },
     {
-      "src": "iam_role node_id",
-      "dst": "sqs node_id",
+      "id": "edge:scp_test:IAM_USER_ACCESS_IAM:cg-sqs-send-message-cgidic93dfr9ab",
+      "src": "288528695623:iam_user:scp_test",
+      "dst": "288528695623:iam_role:cg-sqs-send-message-cgidic93dfr9ab",
+      "relation": "IAM_USER_ACCESS_IAM",
       "directed": true,
-      "conditions": [
-        {
-          "iam_role": {
-            "attributes": {
-              "assume_role_policy": {
-                "inline_policies": [
-                  {
-                    "Statement": [
-                      { "Action": ["sqs:GetQueueUrl", "sqs:SendMessage"], "Effect": "Allow" }
-                    ]
-                  }
-                ],
-                "attached_policies": [
-                  {
-                    "PolicyName": "AWSLambdaSQSQueueExecutionRole",
-                    "PolicyArn": "arn:aws:iam::aws:policy/service-role/AWSLambdaSQSQueueExecutionRole"
-                  }
-                ]
-              }
-            }
-          }
-        }
-      ]
+      "conditions": "This User has access to IAM."
     },
     {
-      "src": "ec2 node_id",
-      "dst": "igw node_id",
+      "id": "edge:cg-sqs-user-cgidic93dfr9ab:IAM_USER_ASSUME_ROLE:cg-sqs-send-message-cgidic93dfr9ab",
+      "src": "288528695623:iam_user:cg-sqs-user-cgidic93dfr9ab",
+      "dst": "288528695623:iam_role:cg-sqs-send-message-cgidic93dfr9ab",
+      "relation": "IAM_USER_ASSUME_ROLE",
+      "directed": true,
+      "conditions": "This User can Assume Roles."
+    },
+    {
+      "id": "edge:cg-sqs-user-cgidic93dfr9ab:IAM_USER_ACCESS_IAM:cg-sqs-lambda-cgidic93dfr9ab",
+      "src": "288528695623:iam_user:cg-sqs-user-cgidic93dfr9ab",
+      "dst": "288528695623:iam_role:cg-sqs-lambda-cgidic93dfr9ab",
+      "relation": "IAM_USER_ACCESS_IAM",
+      "directed": true,
+      "conditions": "This User has access to IAM."
+    },
+    {
+      "id": "edge:scp_test:IAM_USER_ACCESS_IAM:cg-web-sqs-manager-cgidic93dfr9ab",
+      "src": "288528695623:iam_user:scp_test",
+      "dst": "288528695623:iam_user:cg-web-sqs-manager-cgidic93dfr9ab",
+      "relation": "IAM_USER_ACCESS_IAM",
+      "directed": true,
+      "conditions": "This User has access to IAM."
+    },
+    {
+      "id": "edge:cg-sqs-user-cgidic93dfr9ab:IAM_USER_ACCESS_IAM:cg-web-sqs-manager-cgidic93dfr9ab",
+      "src": "288528695623:iam_user:cg-sqs-user-cgidic93dfr9ab",
+      "dst": "288528695623:iam_user:cg-web-sqs-manager-cgidic93dfr9ab",
+      "relation": "IAM_USER_ACCESS_IAM",
+      "directed": true,
+      "conditions": "This User has access to IAM."
+    },
+    {
+      "id": "edge:i-073125a3321d8d939:EC2_ACCESS_SQS:cash_charging_queue",
+      "src": "288528695623:us-east-1:ec2:i-073125a3321d8d939",
+      "dst": "288528695623:us-east-1:sqs:cash_charging_queue",
+      "relation": "EC2_ACCESS_SQS",
+      "directed": true,
+      "conditions": "The user data for the EC2 instance contains the URL of the SQS queue. You can call SQS from EC2. For more information, see Roles Associated with EC2."
+    },
+    {
+      "id": "edge:i-073125a3321d8d939:EC2_ACCESS_RDS:terraform-20260131054208949500000003",
+      "src": "288528695623:us-east-1:ec2:i-073125a3321d8d939",
+      "dst": "288528695623:us-east-1:rds:terraform-20260131054208949500000003",
+      "relation": "EC2_ACCESS_RDS",
       "directed": false,
-      "conditions": [
-        {
-          "ec2": {
-            "attributes": { "public": true }
-          }
-        }
-      ]
+      "conditions": "The user data for the EC2 instance contains the endpoint of the RDS. You can access RDS from EC2. For more information, see Roles Associated with EC2."
     },
     {
-      "src": "ec2 node_id",
-      "dst": "rds_instance node_id",
-      "directed": false,
-      "conditions": [
-        { 
-          "ec2" : {
-            "attributes": {
-              "rds_info": { "detected": true }
-            }
-          } 
-        }
-      ]
+      "id": "edge:cg-sqs-user-cgidic93dfr9ab:IAM_USER_ACCESS_IAM:cg-sqs-send-message-cgidic93dfr9ab",
+      "src": "288528695623:iam_user:cg-sqs-user-cgidic93dfr9ab",
+      "dst": "288528695623:iam_role:cg-sqs-send-message-cgidic93dfr9ab",
+      "relation": "IAM_USER_ACCESS_IAM",
+      "directed": true,
+      "conditions": "This User has access to IAM."
+    },
+    {
+      "id": "edge:scp_test:IAM_USER_ACCESS_IAM:cg-sqs-lambda-cgidic93dfr9ab",
+      "src": "288528695623:iam_user:scp_test",
+      "dst": "288528695623:iam_role:cg-sqs-lambda-cgidic93dfr9ab",
+      "relation": "IAM_USER_ACCESS_IAM",
+      "directed": true,
+      "conditions": "This User has access to IAM."
+    },
+    {
+      "id": "edge:cache-charge-cgidic93dfr9ab:ASSUME_ROLE:cg-sqs-lambda-cgidic93dfr9ab",
+      "src": "288528695623:us-east-1:lambda:cache-charge-cgidic93dfr9ab",
+      "dst": "288528695623:iam_role:cg-sqs-lambda-cgidic93dfr9ab",
+      "relation": "ASSUME_ROLE",
+      "directed": true,
+      "conditions": "A role that a Lambda function can assume."
     }
   ]
 }

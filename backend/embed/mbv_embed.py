@@ -66,6 +66,7 @@ def main():
         
         target_resources = item.get("resources", [])
         raw_resources_str = json.dumps(target_resources, indent=2, ensure_ascii=False)
+        print(target_resources)
         
         vector = get_embedding(raw_resources_str)
         
