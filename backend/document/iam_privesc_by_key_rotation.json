@@ -1,0 +1,37 @@
+{
+  "platform": {
+    "name": "CloudGoat",
+    "scenario": "iam_privesc_by_key_rotation",
+    "reference": "https://github.com/RhinoSecurityLabs/cloudgoat/tree/master/cloudgoat/scenarios/aws/iam_privesc_by_key_rotation"
+  },
+
+  "vulnerability_title": "권한 과다 부여를 통한 서비스 무단 접근",
+
+  "category": [
+    "Assume Role 권한 오남용",
+    "Tag 권한 오남용",
+    "Access Key 권한 오남용",
+    "MFA 권한 오남용"
+  ],
+
+  "vulnerability_detail": "본 시나리오는 AWS IAM(Identity and Access Management) User에게 연결된 Inline Policy 내 developer=true Tag가 부여된 AWS IAM User에 한하여 iam:EnableMFADevie, iam:CreateAccessKey 할 수 있는 권한과 iam:TagUser 권한을 통해 admin 이름의 AWS IAM User를 대상으로 Tag 부여 및 AccessKey를 생성하여 새로운 자격증명을 획득합니다. 해당 AWS IAM User에게 연결된 Inline Policy 내 MultiFactorAuthPresent=true 경우에 sts:AssumeRole 가능한 권한을 통해 secretsmanager:ListSecrets, secretmanager:GetsecretValue 권한을 가진 Role의 임시 자격증명을 획득하여 AWS Secrets Manager에 접근 후 민감한 Secrets를 조회할 수 있습니다.",
+
+  "attack_path": [
+    {
+      "step": "IAM User(normal) → IAM User(admin)",
+      "detail": "Inline Policy iam:EnableMFADevie, iam:CreateAccessKey, iam:TagUser"
+    },
+    {
+      "step": "IAM Role(normal) → IAM User(admin)",
+      "detail": "New Configure"
+    },
+    {
+      "step": "IAM User(admin) → IAM Role",
+      "detail": "Inline Policy  sts:AssumeRole"
+    },
+    {
+      "step": "IAM User(admin) → AWS SecretsManager",
+      "detail": "Role  secretsmanager:ListSecrets, secretsmanager:GetSecretValue"
+    }
+  ]
+}

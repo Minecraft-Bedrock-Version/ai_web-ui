@@ -441,33 +441,256 @@
   },
   {
     "id": 3,
-    "title": "더미3",
-    "description": "더미경로3",
+    "title": "iam_privesc_by_key_rotation",
+    "description": "document/iam_privesc_by_key_rotation.json",
     "resources": [
-      {
-        "fileName": "rds.json",
-        "content": {
-          "nodes": [
+ {
+  "nodes": [
+    {
+      "node_type": "iam_role",
+      "node_id": "iam_role_node_id",
+      "attributes": {
+        "assume_role_policy": {
+          "Statement": [
             {
-              "node_type": "rds_instance",
-              "node_id": "db_node",
-              "attributes": { "publicly_accessible": true, "storage_encrypted": true }
+              "Effect": "Allow",
+              "Action": ["sts:AssumeRole"]
             }
           ]
-        }
-      },
-      {
-        "fileName": "security_group.json",
-        "content": {
-          "nodes": [
-            {
-              "node_type": "security_group",
-              "node_id": "sg_open_3306",
-              "attributes": { "ingress": [{ "from_port": 3306, "to_port": 3306, "cidr_blocks": ["0.0.0.0/0"] }] }
-            }
-          ]
-        }
+        },
+        "inline_policies": [],
+        "attached_policies": [
+          {
+            "PolicyName": "cg_view_secrets_cgidm916lic95e",
+            "Statement": [
+              {
+                "Effect": "Allow",
+                "Action": ["secretsmanager:ListSecrets"]
+              },
+              {
+                "Effect": "Allow",
+                "Action": ["secretsmanager:GetSecretValue"]
+              }
+            ]
+          }
+        ]
       }
+    },
+    {
+      "node_type": "iam_user",
+      "node_id": "iam_user_node_id",
+      "attributes": {
+        "inline_policies": [
+          {
+            "Statement": [
+              {
+                "Effect": "Allow",
+                "Action": ["sts:AssumeRole"]
+              }
+            ]
+          }
+        ],
+        "attached_policies": [
+          {
+            "PolicyName": "IAMReadOnlyAccess",
+            "Statement": [
+              {
+                "Effect": "Allow",
+                "Action": [
+                  "iam:GenerateCredentialReport",
+                  "iam:GenerateServiceLastAccessedDetails",
+                  "iam:Get*",
+                  "iam:List*",
+                  "iam:SimulateCustomPolicy",
+                  "iam:SimulatePrincipalPolicy"
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "node_type": "iam_user",
+      "node_id": "907808569602:global:iam_user:AIDA5GXM3PEBGEDAWFXMI",
+      "attributes": {
+        "inline_policies": [
+          {
+            "Statement": [
+              {
+                "Effect": "Allow",
+                "Action": ["secretsmanager:ListSecrets"]
+              }
+            ]
+          }
+        ],
+        "attached_policies": []
+      }
+    },
+    {
+      "node_type": "iam_user",
+      "node_id": "907808569602:global:iam_user:AIDA5GXM3PEBG6WQCUMCN",
+      "attributes": {
+        "inline_policies": [
+          {
+            "Statement": [
+              {
+                "Effect": "Allow",
+                "Action": [
+                  "iam:DeactivateMFADevice",
+                  "iam:GetMFADevice",
+                  "iam:EnableMFADevice",
+                  "iam:ResyncMFADevice",
+                  "iam:DeleteAccessKey",
+                  "iam:UpdateAccessKey",
+                  "iam:CreateAccessKey"
+                ]
+              },
+              {
+                "Effect": "Allow",
+                "Action": [
+                  "iam:DeleteVirtualMFADevice",
+                  "iam:CreateVirtualMFADevice"
+                ]
+              }
+            ]
+          },
+          {
+            "Statement": [
+              {
+                "Effect": "Allow",
+                "Action": [
+                  "iam:UntagUser",
+                  "iam:UntagRole",
+                  "iam:TagRole",
+                  "iam:UntagMFADevice",
+                  "iam:UntagPolicy",
+                  "iam:TagMFADevice",
+                  "iam:TagPolicy",
+                  "iam:TagUser"
+                ]
+              }
+            ]
+          }
+        ],
+        "attached_policies": [
+          {
+            "PolicyName": "IAMReadOnlyAccess",
+            "Statement": [
+              {
+                "Effect": "Allow",
+                "Action": [
+                  "iam:GenerateCredentialReport",
+                  "iam:GenerateServiceLastAccessedDetails",
+                  "iam:Get*",
+                  "iam:List*",
+                  "iam:SimulateCustomPolicy",
+                  "iam:SimulatePrincipalPolicy"
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "node_type": "secretsmanager_secret",
+      "node_id": "secretsmanager_secret_node_id"
+    }
+  ],
+  "edges": [
+    {
+      "src": "iam_role_node_id",
+      "dst": "secretsmanager_secret_node_id",
+      "directed": true,
+      "conditions": [
+        {
+          "iam_role": {
+            "attributes": {
+              "assume_role_policy": {
+                "Statement": [
+                  {
+                    "Effect": "Allow",
+                    "Action": ["sts:AssumeRole"]
+                  }
+                ]
+              },
+              "attached_policies": [
+                {
+                  "Statement": [
+                    {
+                      "Effect": "Allow",
+                      "Action": ["secretsmanager:ListSecrets"]
+                    },
+                    {
+                      "Effect": "Allow",
+                      "Action": ["secretsmanager:GetSecretValue"]
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "src": "iam_user_node_id",
+      "dst": "iam_role_node_id",
+      "directed": true,
+      "conditions": [
+        {
+          "iam_user": {
+            "attributes": {
+              "inline_policies": [
+                {
+                  "Statement": [
+                    {
+                      "Effect": "Allow",
+                      "Action": "sts:AssumeRole"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "src": "907808569602:global:iam_user:AIDA5GXM3PEBG6WQCUMCN",
+      "dst": "907808569602:global:iam_user:AIDA5GXM3PEBGEDAWFXMI",
+      "directed": true,
+      "conditions": [
+        {
+          "iam_user": {
+            "attributes": {
+              "inline_policies": [
+                {
+                  "Statement": [
+                    {
+                      "Effect": "Allow",
+                      "Action": "iam:CreateAccessKey"
+                    }
+                  ]
+                },
+                {
+                  "Statement": [
+                    {
+                      "Effect": "Allow",
+                      "Action": "iam:TagUser"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
+
     ]
   },
   {
