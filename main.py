@@ -21,6 +21,10 @@ async def root(request: Request):
 @app.get("/service/iam",response_class=HTMLResponse)
 async def service_iam(request: Request):
     return templates.TemplateResponse("/service/iam/iam.html",{"request":request})
+# EC2 페이지
+@app.get("/service/ec2", response_class=HTMLResponse)
+async def service_ec2(request: Request):
+    return templates.TemplateResponse("/service/ec2/ec2.html",{"request":request})
 
 
 
