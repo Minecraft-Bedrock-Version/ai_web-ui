@@ -1,67 +1,67 @@
 
-  const title = document.getElementById('page-title');
-  const formArea = document.getElementById('form-area');
+const title = document.getElementById('page-title');
+const formArea = document.getElementById('form-area');
 
- // URL에서 리전 가져오기
-  const params = new URLSearchParams(window.location.search);
-  const region = params.get('region')
+// URL에서 리전 가져오기
+const params = new URLSearchParams(window.location.search);
+const region = params.get('region')
 
-  const mockApi = {
+const mockApi = {
   region: region,
 
   now_instances: []
 };
 
 
-  /* =========================
-     옵션 정의
-  ========================= */
-  const INSTANCE_OPTIONS = {
-    os: {
-      "amazon-linux": {
-        label: "Amazon Linux",
-        versions: ["2023", "2"],
-        arch: ["x86_64", "arm64"]
-      },
-      ubuntu: {
-        label: "Ubuntu",
-        versions: ["20.04", "22.04", "24.04"],
-        arch: ["x86_64", "arm64"]
-      }
+/* =========================
+   옵션 정의
+========================= */
+const INSTANCE_OPTIONS = {
+  os: {
+    "amazon-linux": {
+      label: "Amazon Linux",
+      versions: ["2023", "2"],
+      arch: ["x86_64", "arm64"]
     },
-    instanceTypes: {
-      x86_64: ["t3.micro", "t3.small"],
-      arm64: ["t4g.micro"]
-    },
-    keypairs: ["없음", "my-key"],
-    imds: [
-      { value: "optional", label: "IMDSv1 + v2 허용 (취약)" },
-      { value: "required", label: "IMDSv2만 허용" }
-    ]
-  };
-
-  /* =========================
-     단일 상태 모델 (SSOT)
-  ========================= */
-  const state = {
-    instance: {
-      name: "my-instance",
-      os: "amazon-linux",
-      osVersion: "2023",
-      arch: "x86_64",
-      instanceType: "t3.micro",
-      publicIp: "true",
-      keypair: "없음",
-      imds: "optional",
-      encrypted: "true"
+    ubuntu: {
+      label: "Ubuntu",
+      versions: ["20.04", "22.04", "24.04"],
+      arch: ["x86_64", "arm64"]
     }
-  };
+  },
+  instanceTypes: {
+    x86_64: ["t3.micro", "t3.small"],
+    arm64: ["t4g.micro"]
+  },
+  keypairs: ["없음", "my-key"],
+  imds: [
+    { value: "optional", label: "IMDSv1 + v2 허용 (취약)" },
+    { value: "required", label: "IMDSv2만 허용" }
+  ]
+};
 
-  /* =========================
-     템플릿
-  ========================= */
-  const templates = {
-    instance: () => `
+/* =========================
+   단일 상태 모델 (SSOT)
+========================= */
+const state = {
+  instance: {
+    name: "my-instance",
+    os: "amazon-linux",
+    osVersion: "2023",
+    arch: "x86_64",
+    instanceType: "t3.micro",
+    publicIp: "true",
+    keypair: "없음",
+    imds: "optional",
+    encrypted: "true"
+  }
+};
+
+/* =========================
+   템플릿
+========================= */
+const templates = {
+  instance: () => `
     <h3>인스턴스</h3>
 
         <div class="toolbar">
@@ -88,7 +88,7 @@
   </table>
     `,
 
-    instance_create: () => `
+  instance_create: () => `
       <h3>인스턴스 생성</h3>
 
       <div class="row"><label>이름</label><input id="i-name"/></div>
@@ -115,38 +115,38 @@
       </div>
 
     `,
-        keypair: () => `
+  keypair: () => `
       <h3>키 페어 생성</h3>
       <div class="row"><label>이름</label><input /></div>
       <div class="cli-preview">aws ec2 create-key-pair --key-name my-key</div>
     `,
 
-    volume: () => `
+  volume: () => `
       <h3>EBS 볼륨 생성</h3>
       <div class="row"><label>크기 (GiB)</label><input type="number" value="8" /></div>
       <div class="row"><label>AZ</label><select><option>ap-northeast-2a</option></select></div>
       <div class="cli-preview">aws ec2 create-volume --size 8</div>
     `,
 
-    ami: () => `
+  ami: () => `
       <h3>AMI 생성</h3>
       <div class="row"><label>소스 인스턴스</label><input /></div>
       <div class="row"><label>AMI 이름</label><input /></div>
       <div class="cli-preview">aws ec2 create-image --instance-id i-xxxx</div>
     `,
 
-    'launch-template': () => `
+  'launch-template': () => `
       <h3>Launch Template 생성</h3>
       <div class="row"><label>이름</label><input /></div>
       <div class="row"><label>AMI</label><input /></div>
       <div class="row"><label>타입</label><input /></div>
       <div class="cli-preview">aws ec2 create-launch-template --launch-template-name lt-demo</div>
     `
-  };
+};
 
-  function select(type, label) {
-    title.textContent = label + ' 생성';
-    formArea.innerHTML = templates[type]();
+function select(type, label) {
+  title.textContent = label + ' 생성';
+  formArea.innerHTML = templates[type]();
   if (type === 'instance') {
     renderInstances();
 
@@ -162,13 +162,13 @@
   if (type === 'instance_create') {
     initInstanceForm();
   }
-  }
+}
 
 
 
 
 function renderTopbar() {
- // document.getElementById("page-title").textContent = "인스턴스";
+  // document.getElementById("page-title").textContent = "인스턴스";
   document.getElementById("region").textContent =
     `리전: ${region}`;
 }
@@ -212,109 +212,112 @@ async function loadInstances() {
 
 
 
-  /* =========================
-     유틸
-  ========================= */
-  function fillSelect(el, options) {
-    el.innerHTML = '';
-    options.forEach(opt => {
-      if (typeof opt === 'string') {
-        el.append(new Option(opt, opt));
-      } else {
-        el.append(new Option(opt.label, opt.value));
+/* =========================
+   유틸
+========================= */
+function fillSelect(el, options) {
+  el.innerHTML = '';
+  options.forEach(opt => {
+    if (typeof opt === 'string') {
+      el.append(new Option(opt, opt));
+    } else {
+      el.append(new Option(opt.label, opt.value));
+    }
+  });
+}
+
+function renderJSON() {
+  document.getElementById('json-preview').value =
+    JSON.stringify(state.instance, null, 2);
+}
+
+/* =========================
+   초기화
+========================= */
+function initInstanceForm() {
+  const osEl = document.getElementById('i-os');
+  const verEl = document.getElementById('i-os-version');
+  const archEl = document.getElementById('i-arch');
+  const typeEl = document.getElementById('i-type');
+
+  // OS
+  Object.entries(INSTANCE_OPTIONS.os).forEach(([k, v]) => {
+    osEl.append(new Option(v.label, k));
+  });
+
+  fillSelect(verEl, INSTANCE_OPTIONS.os[state.instance.os].versions);
+  fillSelect(archEl, INSTANCE_OPTIONS.os[state.instance.os].arch);
+  fillSelect(typeEl, INSTANCE_OPTIONS.instanceTypes[state.instance.arch]);
+
+  fillSelect(document.getElementById('i-keypair'), INSTANCE_OPTIONS.keypairs);
+  fillSelect(document.getElementById('i-imds'), INSTANCE_OPTIONS.imds);
+  fillSelect(document.getElementById('i-public-ip'), [
+    { value: "true", label: "할당" },
+    { value: "false", label: "할당 안 함" }
+  ]);
+  fillSelect(document.getElementById('i-encrypted'), [
+    { value: "true", label: "활성화" },
+    { value: "false", label: "비활성화 (취약)" }
+  ]);
+
+  // 초기 값 주입 (1회)
+  document.getElementById('i-name').value = state.instance.name;
+  osEl.value = state.instance.os;
+  verEl.value = state.instance.osVersion;
+  archEl.value = state.instance.arch;
+  typeEl.value = state.instance.instanceType;
+  document.getElementById('i-public-ip').value = state.instance.publicIp;
+  document.getElementById('i-keypair').value = state.instance.keypair;
+  document.getElementById('i-imds').value = state.instance.imds;
+  document.getElementById('i-encrypted').value = state.instance.encrypted;
+
+  /* === UI → State === */
+  formArea.querySelectorAll('input, select').forEach(el => {
+    el.addEventListener('change', () => {
+      const key = el.id.replace('i-', '');
+      state.instance[key === 'type' ? 'instanceType' : key] = el.value;
+
+      if (el.id === 'i-os') {
+        const osData = INSTANCE_OPTIONS.os[el.value];
+        state.instance.osVersion = osData.versions[0];
+        state.instance.arch = osData.arch[0];
+
+        fillSelect(verEl, osData.versions);
+        fillSelect(archEl, osData.arch);
       }
+
+      if (el.id === 'i-arch') {
+        const types = INSTANCE_OPTIONS.instanceTypes[el.value];
+        state.instance.instanceType = types[0];
+        fillSelect(typeEl, types);
+      }
+
+      renderJSON();
     });
-  }
+  });
 
-  function renderJSON() {
-    document.getElementById('json-preview').value =
-      JSON.stringify(state.instance, null, 2);
-  }
-
-  /* =========================
-     초기화
-  ========================= */
-  function initInstanceForm() {
-    const osEl = document.getElementById('i-os');
-    const verEl = document.getElementById('i-os-version');
-    const archEl = document.getElementById('i-arch');
-    const typeEl = document.getElementById('i-type');
-
-    // OS
-    Object.entries(INSTANCE_OPTIONS.os).forEach(([k, v]) => {
-      osEl.append(new Option(v.label, k));
-    });
-
-    fillSelect(verEl, INSTANCE_OPTIONS.os[state.instance.os].versions);
-    fillSelect(archEl, INSTANCE_OPTIONS.os[state.instance.os].arch);
-    fillSelect(typeEl, INSTANCE_OPTIONS.instanceTypes[state.instance.arch]);
-
-    fillSelect(document.getElementById('i-keypair'), INSTANCE_OPTIONS.keypairs);
-    fillSelect(document.getElementById('i-imds'), INSTANCE_OPTIONS.imds);
-    fillSelect(document.getElementById('i-public-ip'), [
-      { value: "true", label: "할당" },
-      { value: "false", label: "할당 안 함" }
-    ]);
-    fillSelect(document.getElementById('i-encrypted'), [
-      { value: "true", label: "활성화" },
-      { value: "false", label: "비활성화 (취약)" }
-    ]);
-
-    // 초기 값 주입 (1회)
-    document.getElementById('i-name').value = state.instance.name;
-    osEl.value = state.instance.os;
-    verEl.value = state.instance.osVersion;
-    archEl.value = state.instance.arch;
-    typeEl.value = state.instance.instanceType;
-    document.getElementById('i-public-ip').value = state.instance.publicIp;
-    document.getElementById('i-keypair').value = state.instance.keypair;
-    document.getElementById('i-imds').value = state.instance.imds;
-    document.getElementById('i-encrypted').value = state.instance.encrypted;
-
-    /* === UI → State === */
-    formArea.querySelectorAll('input, select').forEach(el => {
-      el.addEventListener('change', () => {
-        const key = el.id.replace('i-', '');
-        state.instance[key === 'type' ? 'instanceType' : key] = el.value;
-
-        if (el.id === 'i-os') {
-          const osData = INSTANCE_OPTIONS.os[el.value];
-          state.instance.osVersion = osData.versions[0];
-          state.instance.arch = osData.arch[0];
-
-          fillSelect(verEl, osData.versions);
-          fillSelect(archEl, osData.arch);
-        }
-
-        if (el.id === 'i-arch') {
-          const types = INSTANCE_OPTIONS.instanceTypes[el.value];
-          state.instance.instanceType = types[0];
-          fillSelect(typeEl, types);
-        }
-
-        renderJSON();
-      });
-    });
-
-    //생성 버튼 + 취소 버튼 가져오기 
+  //생성 버튼 + 취소 버튼 가져오기 
   const createBtn = document.getElementById('create');
   const cancelBtn = document.getElementById('cancel');
 
-createBtn.addEventListener('click', () => {
-  // 현재 state.instance + region 합치기
-  const payload = {
-    instance: state.instance,
-    region: mockApi.region  // URL에서 읽은 region
-  };
+  createBtn.addEventListener('click', () => {
+    // 현재 state.instance + region 합치기
+    const payload = {
+      state: {
+        service: "ec2", // 서비스 식별자 추가
+        ...state.instance
+      },
+      region: mockApi.region  // URL에서 읽은 region
+    };
 
-  alert("다음 단계로 이동합니다.")
+    alert("다음 단계로 이동합니다.")
 
-  // URL에 state 전달
-  const url = `/?state=${encodeURIComponent(JSON.stringify(payload))}`;
-  console.log("Navigate to:", url);
+    // URL에 state 전달
+    const url = `/?state=${encodeURIComponent(JSON.stringify(payload))}`;
+    console.log("Navigate to:", url);
 
-  // 페이지 이동
-  location.href = url;
+    // 페이지 이동
+    location.href = url;
   });
 
   cancelBtn.addEventListener('click', () => {
@@ -322,20 +325,20 @@ createBtn.addEventListener('click', () => {
     renderInstances();
   });
 
-    renderJSON();
-  }
+  renderJSON();
+}
 
 
-  // 선택창
-    document.querySelectorAll('.menu-item').forEach(item => {
-    item.addEventListener('click', () => {
-      document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('active'));
-      item.classList.add('active');
-      select(item.dataset.type, item.textContent);
-    });
-  });  
-  /* =========================
-     시작
-  ========================= */
-  select('instance', '인스턴스');
-  loadInstances()
+// 선택창
+document.querySelectorAll('.menu-item').forEach(item => {
+  item.addEventListener('click', () => {
+    document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('active'));
+    item.classList.add('active');
+    select(item.dataset.type, item.textContent);
+  });
+});
+/* =========================
+   시작
+========================= */
+select('instance', '인스턴스');
+loadInstances()
