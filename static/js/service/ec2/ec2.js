@@ -110,8 +110,8 @@
 ></textarea>
 
       <div class="actions">
-        <button class="btn">생성</button>
-        <button class="btn secondary">취소</button>
+        <button class="btn" id="create">생성</button>
+        <button class="btn secondary" id="cancel">취소</button>
       </div>
 
     `,
@@ -296,7 +296,14 @@ async function loadInstances() {
       });
     });
 
-      // 취소 버튼
+    //생성 버튼 + 취소 버튼 가져오기 
+  const createBtn = document.getElementById('create');
+  const cancelBtn = document.getElementById('cancel');
+
+    createBtn.addEventListener('click', async () => {
+      console.log("create")
+  });
+
   cancelBtn.addEventListener('click', () => {
     select('instance', '인스턴스');
     renderInstances();
