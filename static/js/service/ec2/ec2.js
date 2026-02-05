@@ -300,8 +300,21 @@ async function loadInstances() {
   const createBtn = document.getElementById('create');
   const cancelBtn = document.getElementById('cancel');
 
-    createBtn.addEventListener('click', async () => {
-      console.log("create")
+createBtn.addEventListener('click', () => {
+  // 현재 state.instance + region 합치기
+  const payload = {
+    instance: state.instance,
+    region: mockApi.region  // URL에서 읽은 region
+  };
+
+  alert("다음 단계로 이동합니다.")
+
+  // URL에 state 전달
+  const url = `/?state=${encodeURIComponent(JSON.stringify(payload))}`;
+  console.log("Navigate to:", url);
+
+  // 페이지 이동
+  location.href = url;
   });
 
   cancelBtn.addEventListener('click', () => {
