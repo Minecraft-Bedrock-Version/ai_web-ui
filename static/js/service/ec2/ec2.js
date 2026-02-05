@@ -170,7 +170,7 @@
 function renderTopbar() {
  // document.getElementById("page-title").textContent = "인스턴스";
   document.getElementById("region").textContent =
-    `리전: ${mockApi.region}`;
+    `리전: ${region}`;
 }
 
 function renderInstances() {
