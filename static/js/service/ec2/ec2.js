@@ -1,5 +1,5 @@
 
-  const title = document.getElementById('title');
+  const title = document.getElementById('page-title');
   const formArea = document.getElementById('form-area');
 
  // URL에서 리전 가져오기
@@ -168,7 +168,7 @@
 
 
 function renderTopbar() {
-  document.getElementById("page-title").textContent = "인스턴스";
+ // document.getElementById("page-title").textContent = "인스턴스";
   document.getElementById("region").textContent =
     `리전: ${mockApi.region}`;
 }
