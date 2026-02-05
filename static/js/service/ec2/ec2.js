@@ -296,6 +296,12 @@ async function loadInstances() {
       });
     });
 
+      // 취소 버튼
+  cancelBtn.addEventListener('click', () => {
+    select('instance', '인스턴스');
+    renderInstances();
+  });
+
     renderJSON();
   }
 
