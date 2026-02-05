@@ -9,7 +9,7 @@
 
   <!-- Sidebar -->
   <aside class="sidebar">
-    <h2>EC2 제작</h2>
+    <h2>EC2</h2>
     <div class="menu-item active" data-type="instance">인스턴스</div>
     <div class="menu-item" data-type="security-group">보안 그룹</div>
     <div class="menu-item" data-type="keypair">키 페어</div>
@@ -18,14 +18,17 @@
     <div class="menu-item" data-type="launch-template">Launch Template</div>
   </aside>
 
-  <!-- Main -->
-  <div class="main">
-    <div class="topbar" id="title">EC2</div>
-    <div class="content">
-      <div class="card" id="form-area"></div>
-    </div>
-    
+<!-- Main -->
+<div class="main">
+  <div class="topbar">
+    <h1 id="page-title">EC2</h1>
+    <div id="region">리전: --</div>
   </div>
+
+  <div class="content">
+    <div class="card" id="form-area"></div>
+  </div>
+</div>
 
   
 <script src="/static/js/service/ec2/ec2.js">
