@@ -7,7 +7,7 @@ cliCreate 모듈의 모든 라우터를 한 곳에 모아서 관리합니다.
 
 from fastapi import APIRouter
 from .cliCreate import router as cli_create_router
-from .iamlist import router as iam_list_router
+from .list import router as list_router
 
 # CLI 도구 메인 라우터
 router = APIRouter(
@@ -16,7 +16,7 @@ router = APIRouter(
 
 # 서브 라우터들을 통합
 router.include_router(cli_create_router)
-router.include_router(iam_list_router)
+router.include_router(list_router)
 
 # 향후 추가 예시:
 # from .ec2Create import router as ec2_create_router

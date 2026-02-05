@@ -2,26 +2,16 @@
   const title = document.getElementById('title');
   const formArea = document.getElementById('form-area');
 
-  const mockApi = {
-  region: "ap-northeast-2",
+ // URL에서 리전 가져오기
+  const params = new URLSearchParams(window.location.search);
+  const region = params.get('region')
 
-  now_instances: [
-    {
-      id: "i-0a1234abcd",
-      name: "web-server",
-      state: "running",
-      type: "t3.micro",
-      publicIp: "3.38.xxx.xxx"
-    },
-    {
-      id: "i-0b5678efgh",
-      name: "db-server",
-      state: "stopped",
-      type: "t3.small",
-      publicIp: "-"
-    }
-  ]
+  const mockApi = {
+  region: region,
+
+  now_instances: []
 };
+
 
   /* =========================
      옵션 정의
@@ -175,6 +165,8 @@
   }
 
 
+
+
 function renderTopbar() {
   document.getElementById("page-title").textContent = "인스턴스";
   document.getElementById("region").textContent =
@@ -195,6 +187,29 @@ function renderInstances() {
     </tr>
   `).join("");
 }
+
+
+async function loadInstances() {
+  try {
+    const res = await fetch("/ec2_list", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ region }) // URL에서 읽은 값을 넘김
+    });
+    const data = await res.json();
+
+    // 화면 렌더링
+    mockApi.now_instances = data.instances;
+    mockApi.region = data.region;
+
+    renderTopbar();
+    renderInstances();
+  } catch (err) {
+    console.error("EC2 불러오기 실패", err);
+  }
+}
+
+
 
 
   /* =========================
@@ -297,3 +312,4 @@ function renderInstances() {
      시작
   ========================= */
   select('instance', '인스턴스');
+  loadInstances()

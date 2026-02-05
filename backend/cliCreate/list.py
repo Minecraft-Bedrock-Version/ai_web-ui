@@ -1,5 +1,5 @@
 import boto3
-from fastapi import APIRouter
+from fastapi import APIRouter, Request
 
 router = APIRouter()
 
@@ -47,3 +47,33 @@ async def get_detailed_inventory():
     except Exception as e:
         print(f"!!! AWS Error: {str(e)}")
         return {"error": str(e), "user": [], "role": [], "group": []}
+    
+
+
+@router.post("/ec2_list")
+async def ec2_list(request: Request):
+
+    print("EC2리스트 호출")
+    body = await request.json()
+    region = body.get("region")
+    
+
+
+    # boto3 EC2 클라이언트 생성
+    ec2_client = boto3.client('ec2', region_name=region)  # 필요 시 region 조정
+
+    # 모든 인스턴스 정보 가져오기
+    response = ec2_client.describe_instances()
+
+    instances = []
+    for reservation in response['Reservations']:
+        for instance in reservation['Instances']:
+            instances.append({
+                "id": instance.get("InstanceId"),
+                "name": next((t["Value"] for t in instance.get("Tags", []) if t["Key"] == "Name"), "-"),
+                "state": instance.get("State", {}).get("Name"),
+                "type": instance.get("InstanceType"),
+                "publicIp": instance.get("PublicIpAddress") or "-"
+            })
+
+    return {"instances": instances}
