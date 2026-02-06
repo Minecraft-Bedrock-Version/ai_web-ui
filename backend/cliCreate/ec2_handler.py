@@ -2,6 +2,7 @@
 EC2 핸들러
 
 EC2 인스턴스 및 관련 리소스에 대한 AWS CLI 명령어를 생성합니다.
+리전별 SSM Parameter를 사용하여 최신 AMI를 자동으로 해결합니다.
 """
 
 from .base_handler import BaseHandler
@@ -14,44 +15,47 @@ class EC2Handler(BaseHandler):
     def service_name(self) -> str:
         return "ec2"
     
-    # OS별 AMI 매핑 (서울 리전 기준 예시)
-    AMI_MAP = {
+    # OS/버전/아키텍처별 SSM Parameter Path 매핑
+    # 어느 리전에서든 해당 리전의 최신 AMI ID를 자동으로 가져옵니다.
+    SSM_PARAM_MAP = {
         "amazon-linux": {
             "2023": {
-                "x86_64": "ami-0c0b8e92e5e1d3f9e", # Amazon Linux 2023 AMI
-                "arm64": "ami-0a2569f1025732168"
+                "x86_64": "/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64",
+                "arm64": "/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-arm64"
             },
             "2": {
-                "x86_64": "ami-04cf8941fc226689d", # Amazon Linux 2 AMI
-                "arm64": "ami-0c7f8f9426fcd9f5a"
+                "x86_64": "/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2",
+                "arm64": "/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-arm64-gp2"
             }
         },
         "ubuntu": {
             "24.04": {
-                "x86_64": "ami-040c33c6a51fd5d96",
-                "arm64": "ami-07973030383182b8d"
+                "x86_64": "/aws/service/canonical/ubuntu/server/24.04/stable/current/amd64/hvm/ebs-gp3/ami-id",
+                "arm64": "/aws/service/canonical/ubuntu/server/24.04/stable/current/arm64/hvm/ebs-gp3/ami-id"
             },
             "22.04": {
-                "x86_64": "ami-0c4667a98848f3223",
-                "arm64": "ami-095a5f15d5fddcf41"
+                "x86_64": "/aws/service/canonical/ubuntu/server/22.04/stable/current/amd64/hvm/ebs-gp2/ami-id",
+                "arm64": "/aws/service/canonical/ubuntu/server/22.04/stable/current/arm64/hvm/ebs-gp2/ami-id"
             },
             "20.04": {
-                "x86_64": "ami-0e1ce011666e864b2",
-                "arm64": "ami-0bc30263f31742918"
+                "x86_64": "/aws/service/canonical/ubuntu/server/20.04/stable/current/amd64/hvm/ebs-gp2/ami-id",
+                "arm64": "/aws/service/canonical/ubuntu/server/20.04/stable/current/arm64/hvm/ebs-gp2/ami-id"
             }
         }
     }
 
-    def generate_commands(self, state: dict) -> str:
+    def generate_commands(self, state: dict, region: str = None) -> str:
         """
         EC2 리소스를 위한 AWS CLI 명령어를 생성합니다.
         
         Args:
             state: EC2 구성 정보
+            region: AWS 리전 (예: "ap-northeast-1")
+        
+        Returns:
+            str: 생성된 AWS CLI 명령어
         """
         # 프론트엔드에서 넘어오는 데이터 구조에 맞춰 추출
-        resource_type = "instance" # 현재는 인스턴스 생성만 지원
-        
         name = state.get("name", "my-instance")
         os_type = state.get("os", "amazon-linux")
         os_version = state.get("osVersion", "2023")
@@ -64,15 +68,25 @@ class EC2Handler(BaseHandler):
         
         commands = []
         
-        # 1. AMI ID 결정
-        ami_id = "ami-xxxxxxxxxxxxxxxxx" # 기본값
-        try:
-            ami_id = self.AMI_MAP.get(os_type, {}).get(os_version, {}).get(arch, ami_id)
-        except Exception:
-            pass
+        # 1. SSM Parameter Path 결정 (리전에 관계없이 최신 AMI 자동 해결)
+        ssm_path = self.SSM_PARAM_MAP.get(os_type, {}).get(os_version, {}).get(arch)
+        
+        if not ssm_path:
+            # 매핑이 없는 경우 기본 Amazon Linux 2023 경로 사용
+            ssm_path = "/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64"
 
         # 2. run-instances 명령어 조립
-        cmd = f"aws ec2 run-instances --image-id {ami_id} --instance-type {instance_type}"
+        cmd = "aws ec2 run-instances"
+        
+        # 리전 옵션 추가 (프론트엔드에서 전달된 경우)
+        if region:
+            cmd += f" --region {region}"
+        
+        # AMI ID (SSM Parameter resolve 방식)
+        cmd += f" --image-id resolve:ssm:{ssm_path}"
+        
+        # 인스턴스 타입
+        cmd += f" --instance-type {instance_type}"
         
         # 태그 설정 (이름)
         cmd += f" --tag-specifications 'ResourceType=instance,Tags=[{{Key=Name,Value={name}}}]'"
@@ -89,13 +103,11 @@ class EC2Handler(BaseHandler):
             
         # IMDS 설정
         if imds == "required":
-            cmd += " --metadata-options \"HttpTokens=required\""
+            cmd += ' --metadata-options "HttpTokens=required"'
         
-        # 암호화 (간단하게 플래그로 표현, 실제로는 BlockDeviceMappings 필요)
+        # 암호화 설정 (EBS 볼륨)
         if encrypted == "true":
-            # 실제 AWS CLI에서는 블록 디바이스 매핑에서 설정해야 하지만, 
-            # 시각화/데모용으로 간단한 형태를 유지하거나 주석을 달 수 있습니다.
-            pass
+            cmd += " --block-device-mappings '[{\"DeviceName\":\"/dev/xvda\",\"Ebs\":{\"Encrypted\":true}}]'"
 
         commands.append(cmd)
         

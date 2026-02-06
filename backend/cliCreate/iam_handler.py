@@ -15,7 +15,7 @@ class IAMHandler(BaseHandler):
     def service_name(self) -> str:
         return "iam"
     
-    def generate_commands(self, state: dict) -> str:
+    def generate_commands(self, state: dict, region: str = None) -> str:
         """
         IAM 리소스를 위한 AWS CLI 명령어를 생성합니다.
         
@@ -24,6 +24,7 @@ class IAMHandler(BaseHandler):
                 - resource: 리소스 타입 ("user", "role", "group")
                 - selectedEntity: 리소스 이름
                 - activePolicies: 서비스별 허용할 액션 목록
+            region: AWS 리전 (IAM은 글로벌 서비스이므로 사용하지 않음)
         
         Returns:
             str: 생성된 AWS CLI 명령어

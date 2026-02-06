@@ -29,12 +29,13 @@ class BaseHandler(ABC):
         pass
     
     @abstractmethod
-    def generate_commands(self, state: dict) -> str:
+    def generate_commands(self, state: dict, region: str = None) -> str:
         """
         프론트엔드에서 받은 정보(state)를 바탕으로 AWS CLI 명령어를 생성합니다.
         
         Args:
             state: 프론트엔드 구성 데이터
+            region: AWS 리전 (예: "ap-northeast-1"). 서비스에 따라 사용 여부 결정
         
         Returns:
             str: 생성된 AWS CLI 명령어 (줄바꿈으로 구분)

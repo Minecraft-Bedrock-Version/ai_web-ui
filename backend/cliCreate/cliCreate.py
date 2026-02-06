@@ -44,6 +44,10 @@ async def cli_create(request: Request):
     
     print("받은 상태(state):", state)
     
+    # 리전 정보 추출 (프론트엔드에서 전송)
+    region = data.get("region", None)
+    print("받은 리전(region):", region)
+    
     # 서비스 타입 결정 (없으면 "iam"을 기본값으로 사용)
     service = state.get("service", "iam")
     
@@ -51,14 +55,15 @@ async def cli_create(request: Request):
         # 1. 해당 서비스를 담당하는 핸들러를 가져옵니다.
         handler = get_handler(service)
         
-        # 2. 핸들러에게 명령어를 만들어달라고 시킵니다.
-        cli_commands = handler.generate_commands(state)
+        # 2. 핸들러에게 명령어를 만들어달라고 시킵니다. (리전 정보 포함)
+        cli_commands = handler.generate_commands(state, region)
         
         response = {
             "message": "CLI 생성완료",
             "cli": cli_commands,
             "state_echo": state,
-            "service": service
+            "service": service,
+            "region": region
         }
         
         return response
