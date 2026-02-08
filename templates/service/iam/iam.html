@@ -17,6 +17,7 @@
   <div class="main">
     <div class="section">
       <h2 id="resourceTitle">Users</h2>
+      <button class="primary" onclick="createNewUser()">+ 사용자 생성</button>
       <table>
         <tbody id="resourceList"></tbody>
       </table>
@@ -26,7 +27,6 @@
       <h3>연결된 정책</h3>
       <div id="policyList" style="margin-bottom: 15px;"></div>
       <button class="primary" onclick="openInlinePolicy()">+ 인라인 정책 추가</button>
-      <button class="primary" onclick="createNewUser()">+사용자 생성</button>
     </div>
 
     <div class="section" id="inlineBuilder" style="display:none;">
