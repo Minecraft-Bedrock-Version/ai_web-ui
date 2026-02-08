@@ -20,7 +20,7 @@ let mockResources = { user: [], role: [], group: [] };
 
   
 // 1. 사용자 생성 창 열기
-window.createNewUser = function() {
+  function createNewUser(){
     console.log("createNewUser function called"); // 동작 확인용
 
     // 다른 섹션들 숨기기
@@ -40,7 +40,7 @@ window.createNewUser = function() {
 };
 
 // 2. 취소/닫기
-window.hideCreateUser = function() {
+function hideCreateUser(){
     const createSection = document.getElementById("createUserSection");
     if(createSection) createSection.style.display = "none";
     document.getElementById("newUserName").value = "";
@@ -70,7 +70,7 @@ function renderPolicySelector() {
 }
 
 // 4. 생성 완료 버튼 클릭 시
-window.submitCreateUser = async function() {
+async function submitCreateUser(){
 const name = document.getElementById("newUserName").value;
     const selectedCheckboxes = document.querySelectorAll(".policy-create-chk:checked");
     const selectedPolicies = Array.from(selectedCheckboxes).map(cb => cb.value);
@@ -86,20 +86,21 @@ const name = document.getElementById("newUserName").value;
     };
 
     try {
-        // 서버에 사용자 생성 요청 (예시 경로: /create_user)
-        const response = await fetch('/create_user', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(newUser)
-        });
+      alert("사용자 생성 정보:",newUser.name)
+        // // 서버에 사용자 생성 요청 (예시 경로: /create_user)
+        // const response = await fetch('/create_user', {
+        //     method: 'POST',
+        //     headers: { 'Content-Type': 'application/json' },
+        //     body: JSON.stringify(newUser)
+        // });
 
-        if (response.ok) {
-            alert(`${name} 사용자가 생성되었습니다.`);
-            hideCreateUser();
-            await fetchIamResources(); // 목록 새로고침
-        } else {
-            throw new Error("생성 실패");
-        }
+        // if (response.ok) {
+        //     alert(`${name} 사용자가 생성되었습니다.`);
+        //     hideCreateUser();
+        //     await fetchIamResources(); // 목록 새로고침
+        // } else {
+        //     throw new Error("생성 실패");
+        // }
     } catch (error) {
         console.error("Error creating user:", error);
         // 서버가 아직 준비 안 됐다면 로컬 mock에 강제 추가해서 테스트 가능
