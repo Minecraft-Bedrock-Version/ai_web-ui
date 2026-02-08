@@ -18,6 +18,100 @@ let mockResources = { user: [], role: [], group: [] };
   let isEditingJson = false;
 
 
+  
+// 1. 사용자 생성 창 열기
+window.createNewUser = function() {
+    console.log("createNewUser function called"); // 동작 확인용
+
+    // 다른 섹션들 숨기기
+    const policySection = document.getElementById("policySection");
+    const inlineBuilder = document.getElementById("inlineBuilder");
+    if(policySection) policySection.style.display = "none";
+    if(inlineBuilder) inlineBuilder.style.display = "none";
+    
+    // 생성 섹션 보이기
+    const createSection = document.getElementById("createUserSection");
+    if(createSection) {
+        createSection.style.display = "block";
+        renderPolicySelector();
+    } else {
+        console.error("ID 'createUserSection'을 찾을 수 없습니다.");
+    }
+};
+
+// 2. 취소/닫기
+window.hideCreateUser = function() {
+    const createSection = document.getElementById("createUserSection");
+    if(createSection) createSection.style.display = "none";
+    document.getElementById("newUserName").value = "";
+};
+
+// 3. 선택 가능한 정책(권한) 목록 렌더링
+function renderPolicySelector() {
+    const container = document.getElementById("policySelectorList");
+    container.innerHTML = "";
+
+    // iamServices에 정의된 서비스들을 선택 가능한 정책으로 표시
+    Object.entries(iamServices).forEach(([key, svc]) => {
+        const div = document.createElement("div");
+        div.style.padding = "10px";
+        div.style.borderBottom = "1px solid #eee";
+        div.innerHTML = `
+            <label style="display: flex; align-items: center; cursor: pointer;">
+                <input type="checkbox" class="policy-create-chk" value="${key}FullAccess" style="margin-right: 10px;">
+                <div>
+                    <strong>${svc.label}FullAccess</strong><br>
+                    <small style="color: #666;">${svc.actions.join(", ")} 권한을 포함합니다.</small>
+                </div>
+            </label>
+        `;
+        container.appendChild(div);
+    });
+}
+
+// 4. 생성 완료 버튼 클릭 시
+window.submitCreateUser = async function() {
+const name = document.getElementById("newUserName").value;
+    const selectedCheckboxes = document.querySelectorAll(".policy-create-chk:checked");
+    const selectedPolicies = Array.from(selectedCheckboxes).map(cb => cb.value);
+
+    if (!name) {
+        alert("사용자 이름을 입력해주세요.");
+        return;
+    }
+
+    const newUser = {
+        name: name,
+        policies: selectedPolicies
+    };
+
+    try {
+        // 서버에 사용자 생성 요청 (예시 경로: /create_user)
+        const response = await fetch('/create_user', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(newUser)
+        });
+
+        if (response.ok) {
+            alert(`${name} 사용자가 생성되었습니다.`);
+            hideCreateUser();
+            await fetchIamResources(); // 목록 새로고침
+        } else {
+            throw new Error("생성 실패");
+        }
+    } catch (error) {
+        console.error("Error creating user:", error);
+        // 서버가 아직 준비 안 됐다면 로컬 mock에 강제 추가해서 테스트 가능
+        mockResources.user.push(newUser);
+        renderResourceList();
+        hideCreateUser();
+        alert("서버 연결 실패로 로컬 목록에 임시 추가되었습니다.");
+    }
+}
+
+
+
   async function fetchIamResources() {
   try {
     // IAM정보 불러오기
@@ -183,97 +277,6 @@ function updatePolicyJson() {
   document.getElementById("policyJson").value = JSON.stringify(policy, null, 2);
 }
 
-
-// 1. 사용자 생성 창 열기
-window.createNewUser = function() {
-    console.log("createNewUser function called"); // 동작 확인용
-
-    // 다른 섹션들 숨기기
-    const policySection = document.getElementById("policySection");
-    const inlineBuilder = document.getElementById("inlineBuilder");
-    if(policySection) policySection.style.display = "none";
-    if(inlineBuilder) inlineBuilder.style.display = "none";
-    
-    // 생성 섹션 보이기
-    const createSection = document.getElementById("createUserSection");
-    if(createSection) {
-        createSection.style.display = "block";
-        renderPolicySelector();
-    } else {
-        console.error("ID 'createUserSection'을 찾을 수 없습니다.");
-    }
-};
-
-// 2. 취소/닫기
-window.hideCreateUser = function() {
-    const createSection = document.getElementById("createUserSection");
-    if(createSection) createSection.style.display = "none";
-    document.getElementById("newUserName").value = "";
-};
-
-// 3. 선택 가능한 정책(권한) 목록 렌더링
-function renderPolicySelector() {
-    const container = document.getElementById("policySelectorList");
-    container.innerHTML = "";
-
-    // iamServices에 정의된 서비스들을 선택 가능한 정책으로 표시
-    Object.entries(iamServices).forEach(([key, svc]) => {
-        const div = document.createElement("div");
-        div.style.padding = "10px";
-        div.style.borderBottom = "1px solid #eee";
-        div.innerHTML = `
-            <label style="display: flex; align-items: center; cursor: pointer;">
-                <input type="checkbox" class="policy-create-chk" value="${key}FullAccess" style="margin-right: 10px;">
-                <div>
-                    <strong>${svc.label}FullAccess</strong><br>
-                    <small style="color: #666;">${svc.actions.join(", ")} 권한을 포함합니다.</small>
-                </div>
-            </label>
-        `;
-        container.appendChild(div);
-    });
-}
-
-// 4. 생성 완료 버튼 클릭 시
-window.submitCreateUser = async function() {
-const name = document.getElementById("newUserName").value;
-    const selectedCheckboxes = document.querySelectorAll(".policy-create-chk:checked");
-    const selectedPolicies = Array.from(selectedCheckboxes).map(cb => cb.value);
-
-    if (!name) {
-        alert("사용자 이름을 입력해주세요.");
-        return;
-    }
-
-    const newUser = {
-        name: name,
-        policies: selectedPolicies
-    };
-
-    try {
-        // 서버에 사용자 생성 요청 (예시 경로: /create_user)
-        const response = await fetch('/create_user', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(newUser)
-        });
-
-        if (response.ok) {
-            alert(`${name} 사용자가 생성되었습니다.`);
-            hideCreateUser();
-            await fetchIamResources(); // 목록 새로고침
-        } else {
-            throw new Error("생성 실패");
-        }
-    } catch (error) {
-        console.error("Error creating user:", error);
-        // 서버가 아직 준비 안 됐다면 로컬 mock에 강제 추가해서 테스트 가능
-        mockResources.user.push(newUser);
-        renderResourceList();
-        hideCreateUser();
-        alert("서버 연결 실패로 로컬 목록에 임시 추가되었습니다.");
-    }
-}
 
   function handleJsonKeydown(e) {
   if (e.key === "Tab") {
