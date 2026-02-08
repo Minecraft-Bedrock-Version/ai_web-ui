@@ -308,7 +308,7 @@ function initInstanceForm() {
         service: "ec2", // 서비스 식별자 추가
         ...state.instance
       },
-      region: mockApi.region  // URL에서 읽은 region
+      region: region  // URL에서 읽은 region
     };
 
     alert("다음 단계로 이동합니다.")
