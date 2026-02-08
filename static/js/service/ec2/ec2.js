@@ -314,11 +314,11 @@ function initInstanceForm() {
     alert("다음 단계로 이동합니다.")
 
     // URL에 state 전달
-    const url = `/?state=${encodeURIComponent(JSON.stringify(payload))}`;
+    const url = `/?state=${encodeURIComponent(JSON.stringify(payload))}&region=${encodeURIComponent(mockApi.region)}`;
     console.log("Navigate to:", url);
 
     // 페이지 이동
-    location.href = url;
+    location.href = url;  
   });
 
   cancelBtn.addEventListener('click', () => {
