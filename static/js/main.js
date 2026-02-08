@@ -307,6 +307,8 @@ function toggleServiceSelect(serviceId) {
             }
             const payload = JSON.parse(decodeURIComponent(params.get("state")));
             const textarea = document.getElementById("inputCLI");
+            console.log("state:", payload.state)
+            console.log("region:", payload.region)
     if (textarea) {
         textarea.value = "CLI를 생성 중입니다... 잠시만 기다려 주세요.";
         textarea.disabled = true; // 생성 중 수정 방지
