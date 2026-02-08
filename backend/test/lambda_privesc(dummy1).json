@@ -1,0 +1,73 @@
+{
+  "schema_version": "1.5",
+  "nodes": [
+    {
+      "node_id": "288528695623:iam_user:chris-cgidpsfdmder8l",
+      "type": "iam_user",
+      "name": "chris-cgidpsfdmder8l",
+      "properties": {
+        "inline_policies": [
+          {
+            "Effect": "Allow",
+            "Action": [
+              "sts:AssumeRole"
+            ],
+            "Resource": "*"
+          }
+        ],
+        "attached_policies": [
+          {
+            "Effect": "Allow",
+            "Action": [
+              "iam:List*",
+              "iam:Get*"
+            ],
+            "Resource": "*"
+          }
+        ],
+        "group_policies": []
+      }
+    },
+    {
+      "node_id": "288528695623:iam_role:cg-debug-role-cgidpsfdmder8l",
+      "type": "iam_role",
+      "name": "cg-debug-role-cgidpsfdmder8l",
+      "properties": {
+        "assume_role_policy": {
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": "sts:AssumeRole",
+              "Principal": {
+                "Service": "lambda.amazonaws.com"
+              }
+            }
+          ]
+        },
+        "inline_policies": [],
+        "attached_policies": [
+          {
+            "PolicyName": "AdministratorAccess",
+            "Statement": [
+              {
+                "Action": "*",
+                "Effect": "Allow",
+                "Resource": "*"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge:chris-cgidpsfdmder8l:IAM_USER_CAN_ASSUME_ROLE:cg-debug-role-cgidpsfdmder8l",
+      "src": "288528695623:iam_user:chris-cgidpsfdmder8l",
+      "dst": "288528695623:iam_role:cg-debug-role-cgidpsfdmder8l",
+      "relation": "IAM_USER_CAN_ASSUME_ROLE",
+      "directed": true,
+      "conditions": "This user can call sts:AssumeRole on the target role."
+    }
+  ]
+}

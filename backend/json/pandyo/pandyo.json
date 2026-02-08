@@ -284,18 +284,82 @@
     "id": 2,
     "title": "lambda_privesc",
     "description": "document/lambda_privesc.json",
-    "resources": [
-      {
+    "resources": [{
   "nodes": [
     {
-      "node_type": "iam_role",
-      "node_id": "string",
-      "attributes": {
+      "node_id": "iam_role node id",
+      "type": "iam_role",
+      "name": "string",
+      "properties": {
         "assume_role_policy": {
           "Statement": [
             {
               "Effect": "Allow",
-              "Action": ["sts:AssumeRole"]
+              "Action": "sts:AssumeRole",
+              "Principal": {
+                "AWS": "iam_user arn"
+              }
+            }
+          ]
+        },
+        "inline_policies": [],
+        "attached_policies": [
+          {
+            "PolicyName": "string",
+            "Statement": [
+              {
+                "Action": [
+                  "lambda:*",
+                  "iam:PassRole"
+                ],
+                "Effect": "Allow",
+                "Resource": "*"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "node_id": "iam_user node id",
+      "type": "iam_user",
+      "name": "string",
+      "properties": {
+        "inline_policies": [
+          {
+            "Effect": "Allow",
+            "Action": [
+              "sts:AssumeRole"
+            ],
+            "Resource": "*"
+          }
+        ],
+        "attached_policies": [
+          {
+            "Effect": "Allow",
+            "Action": [
+              "iam:List*",
+              "iam:Get*"
+            ],
+            "Resource": "*"
+          }
+        ],
+        "group_policies": []
+      }
+    },
+    {
+      "node_id": "iam_role node id",
+      "type": "iam_role",
+      "name": "string",
+      "properties": {
+        "assume_role_policy": {
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": "sts:AssumeRole",
+              "Principal": {
+                "Service": "lambda.amazonaws.com"
+              }
             }
           ]
         },
@@ -305,135 +369,64 @@
             "PolicyName": "AdministratorAccess",
             "Statement": [
               {
+                "Action": "*",
                 "Effect": "Allow",
-                "Action": ["*"]
+                "Resource": "*"
               }
             ]
           }
         ]
       }
-    },
-    {
-      "node_type": "iam_role",
-      "node_id": "string",
-      "attributes": {
-        "assume_role_policy": {
-          "Statement": [
-            {
-              "Effect": "Allow",
-              "Action": ["sts:AssumeRole"]
-            }
-          ]
-        },
-        "inline_policies": [],
-        "attached_policies": [
-          {
-            "PolicyName": "string",
-            "Statement": [
-              {
-                "Effect": "Allow",
-                "Action": ["lambda:*", "iam:PassRole"]
-              }
-            ]
-          }
-        ]
-      }
-    },
-    {
-      "node_type": "iam_user",
-      "node_id": "string",
-      "attributes": {
-        "inline_policies": [],
-        "attached_policies": [
-          {
-            "PolicyName": "string",
-            "Statement": [
-              {
-                "Effect": "Allow",
-                "Action": ["sts:AssumeRole", "iam:List*", "iam:Get*"]
-              }
-            ]
-          }
-        ]
-      }
-    },
-    {
-      "node_type": "lambda_service",
-      "node_id": "string"
     }
   ],
   "edges": [
     {
-      "src": "iam_role node_id",
-      "dst": "iam_role node_id",
-      "directed": false,
-      "conditions": [
-        {
-          "iam_role": {
-            "attributes": {
-              "attached_policies": [
-                {
-                  "Statement": [
-                    {
-                      "Effect": "Allow",
-                      "Action": ["iam:PassRole"]
-                    }
-                  ]
-                }
-              ]
-            }
-          }
-        }
-      ]
+      "id": "edge id",
+      "src": "iam_user node id",
+      "dst": "iam_role node id",
+      "relation": "ASSUME_ROLE",
+      "directed": true,
+      "conditions": "This is a role that an IAM User can assume."
     },
     {
-      "src": "iam_role node_id",
-      "dst": "lambda_service node_id",
-      "directed": false,
-      "conditions": [
-        {
-          "iam_role": {
-            "attributes": {
-              "assume_role_policy": [
-                {
-                  "Statement": [
-                    {
-                      "Effect": "Allow",
-                      "Action": ["sts:AssumeRole"],
-                      "Principal": {
-                        "Service": "lambda.amazonaws.com"
-                      }
-                    }
-                  ]
-                }
-              ]
-            }
-          }
-        }
-      ]
+      "id": "edge id",
+      "src": "iam_role node id",
+      "dst": "iam_role node id",
+      "relation": "IAM_ROLE_CAN_PASS_ROLE",
+      "directed": true,
+      "conditions": "This role can pass the target IAM Role (iam:PassRole)."
     },
     {
-      "src": "iam_user node_id",
-      "dst": "iam_role node_id",
-      "directed": false,
-      "conditions": [
-        {
-          "iam_user": {
-            "attributes": {
-              "attached_policies": [
-                {
-                  "Statement": [
-                    {
-                      "Effect": "Allow",
-                      "Action": "sts:AssumeRole"
-                    }
-                  ]
-                }
-              ]
-            }
-          }
-        }
-      ]
+      "id": "edge id",
+      "src": "iam_role node id",
+      "dst": "iam_user node id",
+      "relation": "IAM_ROLE_ACCESS_IAM",
+      "directed": true,
+      "conditions": "This role gives you access to IAM."
+    },
+    {
+      "id": "edge id",
+      "src": "iam_user node id",
+      "dst": "iam_role node id",
+      "relation": "IAM_USER_CAN_ASSUME_ROLE",
+      "directed": true,
+      "conditions": "This user can call sts:AssumeRole on the target role."
+    },
+    {
+      "id": "edge id",
+      "src": "iam_user node id",
+      "dst": "iam_role node id",
+      "relation": "IAM_USER_CAN_ASSUME_ROLE",
+      "directed": true,
+      "conditions": "This user can call sts:AssumeRole on the target role."
+    },
+    {
+      "id": "edge id",
+      "src": "iam_role node id",
+      "dst": "iam_role node id",
+      "relation": "IAM_ROLE_ACCESS_IAM",
+      "directed": true,
+      "conditions": "This role gives you access to IAM."
     }
   ]
 }
