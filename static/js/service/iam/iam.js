@@ -185,23 +185,31 @@ function updatePolicyJson() {
 
 
 // 1. 사용자 생성 창 열기
-function createNewUser() {
+window.createNewUser = function() {
+    console.log("createNewUser function called"); // 동작 확인용
+
     // 다른 섹션들 숨기기
-    document.getElementById("policySection").style.display = "none";
-    document.getElementById("inlineBuilder").style.display = "none";
+    const policySection = document.getElementById("policySection");
+    const inlineBuilder = document.getElementById("inlineBuilder");
+    if(policySection) policySection.style.display = "none";
+    if(inlineBuilder) inlineBuilder.style.display = "none";
     
     // 생성 섹션 보이기
     const createSection = document.getElementById("createUserSection");
-    createSection.style.display = "block";
-    
-    renderPolicySelector();
-}
+    if(createSection) {
+        createSection.style.display = "block";
+        renderPolicySelector();
+    } else {
+        console.error("ID 'createUserSection'을 찾을 수 없습니다.");
+    }
+};
 
 // 2. 취소/닫기
-function hideCreateUser() {
-    document.getElementById("createUserSection").style.display = "none";
+window.hideCreateUser = function() {
+    const createSection = document.getElementById("createUserSection");
+    if(createSection) createSection.style.display = "none";
     document.getElementById("newUserName").value = "";
-}
+};
 
 // 3. 선택 가능한 정책(권한) 목록 렌더링
 function renderPolicySelector() {
@@ -227,8 +235,8 @@ function renderPolicySelector() {
 }
 
 // 4. 생성 완료 버튼 클릭 시
-async function submitCreateUser() {
-    const name = document.getElementById("newUserName").value;
+window.submitCreateUser = async function() {
+const name = document.getElementById("newUserName").value;
     const selectedCheckboxes = document.querySelectorAll(".policy-create-chk:checked");
     const selectedPolicies = Array.from(selectedCheckboxes).map(cb => cb.value);
 
