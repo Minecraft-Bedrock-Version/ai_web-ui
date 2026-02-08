@@ -9,7 +9,7 @@ from qdrant_client import QdrantClient
 # =================================================================
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 # 대상 파일: sqs_flag_shop으로 시작하는 모든 JSON
-SEARCH_PATTERN = os.path.join(BASE_DIR, "lambda_privesc*.json")
+SEARCH_PATTERN = os.path.join(BASE_DIR, "sqs_flag_shop*.json")
 
 REGION = "ap-northeast-1"
 MODEL_ID = "cohere.embed-v4:0"
@@ -47,14 +47,14 @@ def run_local_debug_search():
     file_list = sorted(glob.glob(SEARCH_PATTERN))
     
     if not file_list:
-        print(f"❗ [에러] '{SEARCH_PATTERN}' 패턴의 파일을 찾을 수 없습니다.")
+        print(f"[에러] '{SEARCH_PATTERN}' 패턴의 파일을 찾을 수 없습니다.")
         return
 
     print(f"🚀 총 {len(file_list)}개의 파일을 순차적으로 분석합니다 (전체 데이터 모드).")
 
     for target_file in file_list:
         file_name = os.path.basename(target_file)
-        print(f"\n📂 파일 분석 중: {file_name}")
+        print(f"\n 파일 분석 중: {file_name}")
 
         try:
             # [핵심] 정제 없이 파일 내용 전체를 텍스트로 읽어옴
