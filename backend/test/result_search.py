@@ -9,7 +9,7 @@ from qdrant_client import QdrantClient
 # =================================================================
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 # 대상 파일: sqs_flag_shop으로 시작하는 모든 JSON
-SEARCH_PATTERN = os.path.join(BASE_DIR, "sqs_flag_shop*.json")
+SEARCH_PATTERN = os.path.join(BASE_DIR, "lambda_privesc*.json")
 
 REGION = "ap-northeast-1"
 MODEL_ID = "cohere.embed-v4:0"
