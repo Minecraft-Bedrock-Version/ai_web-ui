@@ -26,6 +26,7 @@
       <h3>연결된 정책</h3>
       <div id="policyList" style="margin-bottom: 15px;"></div>
       <button class="primary" onclick="openInlinePolicy()">+ 인라인 정책 추가</button>
+      <button class="primary" onclick="createNewUser()">+사용자 생성</button>
     </div>
 
     <div class="section" id="inlineBuilder" style="display:none;">
@@ -51,6 +52,28 @@
       <div class="btn-group">
         <button onclick="cancelInline()">취소</button>
         <button class="primary" onclick="goNext()">정책 검토 및 생성</button>
+      </div>
+    </div>
+
+        <div class="section" id="createUserSection" style="display:none;">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h2>새 사용자 생성</h2>
+        <button onclick="hideCreateUser()">닫기</button>
+      </div>
+      
+      <div class="control-group">
+        <label>사용자 이름</label>
+        <input type="text" id="newUserName" placeholder="예: admin-hyeok" style="width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd;">
+      </div>
+
+      <div class="control-group">
+        <label>권한 설정 (정책 연결)</label>
+        <div id="policySelectorList" style="border: 1px solid #ddd; height: 250px; overflow-y: auto; margin-top: 10px; background: #fff;">
+          </div>
+      </div>
+
+      <div class="btn-group" style="margin-top: 20px;">
+        <button class="primary" onclick="submitCreateUser()" style="width: 100%;">사용자 생성 완료</button>
       </div>
     </div>
   </div>
