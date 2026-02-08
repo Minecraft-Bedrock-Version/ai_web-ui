@@ -1,0 +1,216 @@
+{
+  "schema_version": "1.5",
+  "nodes": [
+    {
+      "node_id": "288528695623:iam_user:developer_cgiddd7ga7gjim",
+      "type": "iam_user",
+      "name": "developer_cgiddd7ga7gjim",
+      "properties": {
+        "inline_policies": [
+          {
+            "Effect": "Allow",
+            "Action": "secretsmanager:ListSecrets",
+            "Resource": "*"
+          }
+        ],
+        "attached_policies": [],
+        "group_policies": []
+      }
+    },
+    {
+      "node_type": "secretsmanager",
+      "node_id": "288528695623:us-east-1:secretsmanager:cg_secret_cgiddd7ga7gjim"
+    },
+    {
+      "node_id": "288528695623:iam_user:admin_cgiddd7ga7gjim",
+      "type": "iam_user",
+      "name": "admin_cgiddd7ga7gjim",
+      "properties": {
+        "inline_policies": [
+          {
+            "Effect": "Allow",
+            "Action": "sts:AssumeRole",
+            "Resource": "arn:aws:iam::288528695623:role/cg_secretsmanager_cgiddd7ga7gjim"
+          }
+        ],
+        "attached_policies": [
+          {
+            "Effect": "Allow",
+            "Action": [
+              "iam:GenerateCredentialReport",
+              "iam:GenerateServiceLastAccessedDetails",
+              "iam:Get*",
+              "iam:List*",
+              "iam:SimulateCustomPolicy",
+              "iam:SimulatePrincipalPolicy"
+            ],
+            "Resource": "*"
+          }
+        ],
+        "group_policies": []
+      }
+    },
+    {
+      "node_id": "288528695623:iam_role:cg_secretsmanager_cgiddd7ga7gjim",
+      "type": "iam_role",
+      "name": "cg_secretsmanager_cgiddd7ga7gjim",
+      "properties": {
+        "assume_role_policy": {
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": "sts:AssumeRole",
+              "Principal": {
+                "AWS": "arn:aws:iam::288528695623:root"
+              }
+            }
+          ]
+        },
+        "inline_policies": [],
+        "attached_policies": [
+          {
+            "PolicyName": "cg_view_secrets_cgiddd7ga7gjim",
+            "Statement": [
+              {
+                "Action": "secretsmanager:ListSecrets",
+                "Effect": "Allow",
+                "Resource": "*"
+              },
+              {
+                "Action": "secretsmanager:GetSecretValue",
+                "Effect": "Allow",
+                "Resource": "arn:aws:secretsmanager:us-east-1:288528695623:secret:cg_secret_cgiddd7ga7gjim-pV2fqF"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "node_id": "288528695623:iam_user:manager_cgiddd7ga7gjim",
+      "type": "iam_user",
+      "name": "manager_cgiddd7ga7gjim",
+      "properties": {
+        "inline_policies": [
+          {
+            "Effect": "Allow",
+            "Action": [
+              "iam:DeactivateMFADevice",
+              "iam:GetMFADevice",
+              "iam:EnableMFADevice",
+              "iam:ResyncMFADevice",
+              "iam:UpdateAccessKey"
+            ],
+            "Resource": [
+              "arn:aws:iam::288528695623:user/*",
+              "arn:aws:iam::288528695623:mfa/*"
+            ]
+          },
+          {
+            "Effect": "Allow",
+            "Action": [
+              "iam:DeleteVirtualMFADevice",
+              "iam:CreateVirtualMFADevice"
+            ],
+            "Resource": "arn:aws:iam::288528695623:mfa/*"
+          },
+          {
+            "Effect": "Allow",
+            "Action": [
+              "iam:UntagUser",
+              "iam:UntagRole",
+              "iam:TagRole",
+              "iam:UntagMFADevice",
+              "iam:UntagPolicy",
+              "iam:TagMFADevice",
+              "iam:TagPolicy",
+              "iam:TagUser"
+            ],
+            "Resource": "*"
+          },
+          {
+            "Effect": "Allow",
+            "Action": [
+              "iam:CreateAccessKey",
+              "iam:DeleteAccessKey"
+            ],
+            "Resource": "*"
+          }
+        ],
+        "attached_policies": [
+          {
+            "Effect": "Allow",
+            "Action": [
+              "iam:GenerateCredentialReport",
+              "iam:GenerateServiceLastAccessedDetails",
+              "iam:Get*",
+              "iam:List*",
+              "iam:SimulateCustomPolicy",
+              "iam:SimulatePrincipalPolicy"
+            ],
+            "Resource": "*"
+          }
+        ],
+        "group_policies": []
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge:manager_cgiddd7ga7gjim:IAM_USER_ACCESS_IAM:admin_cgiddd7ga7gjim",
+      "src": "288528695623:iam_user:manager_cgiddd7ga7gjim",
+      "dst": "288528695623:iam_user:admin_cgiddd7ga7gjim",
+      "relation": "IAM_USER_ACCESS_IAM",
+      "directed": true,
+      "conditions": "This User has access to IAM."
+    },
+    {
+      "id": "edge:manager_cgiddd7ga7gjim:IAM_USER_ACCESS_IAM:developer_cgiddd7ga7gjim",
+      "src": "288528695623:iam_user:manager_cgiddd7ga7gjim",
+      "dst": "288528695623:iam_user:developer_cgiddd7ga7gjim",
+      "relation": "IAM_USER_ACCESS_IAM",
+      "directed": true,
+      "conditions": "This User has access to IAM."
+    },
+    {
+      "id": "edge:admin_cgiddd7ga7gjim:IAM_USER_ASSUME_ROLE:cg_secretsmanager_cgiddd7ga7gjim",
+      "src": "288528695623:iam_user:admin_cgiddd7ga7gjim",
+      "dst": "288528695623:iam_role:cg_secretsmanager_cgiddd7ga7gjim",
+      "relation": "IAM_USER_ASSUME_ROLE",
+      "directed": true,
+      "conditions": "This User can Assume Roles."
+    },
+    {
+      "id": "edge:manager_cgiddd7ga7gjim:IAM_USER_ACCESS_IAM:cg_secretsmanager_cgiddd7ga7gjim",
+      "src": "288528695623:iam_user:manager_cgiddd7ga7gjim",
+      "dst": "288528695623:iam_role:cg_secretsmanager_cgiddd7ga7gjim",
+      "relation": "IAM_USER_ACCESS_IAM",
+      "directed": true,
+      "conditions": "This User has access to IAM."
+    },
+    {
+      "id": "edge:admin_cgiddd7ga7gjim:IAM_USER_CAN_ASSUME_ROLE:cg_secretsmanager_cgiddd7ga7gjim",
+      "src": "288528695623:iam_user:admin_cgiddd7ga7gjim",
+      "dst": "288528695623:iam_role:cg_secretsmanager_cgiddd7ga7gjim",
+      "relation": "IAM_USER_CAN_ASSUME_ROLE",
+      "directed": true,
+      "conditions": "This user can call sts:AssumeRole on the target role."
+    },
+    {
+      "id": "edge:cg_secretsmanager_cgiddd7ga7gjim:IAM_ROLE_ACCESS_SECRETSMANAGER:cg_secret_cgiddd7ga7gjim",
+      "src": "288528695623:iam_role:cg_secretsmanager_cgiddd7ga7gjim",
+      "dst": "288528695623:us-east-1:secretsmanager:cg_secret_cgiddd7ga7gjim",
+      "relation": "IAM_ROLE_ACCESS_SECRETSMANAGER",
+      "directed": true,
+      "conditions": "This role gives you access to Secrets Manager."
+    },
+    {
+      "id": "edge:developer_cgiddd7ga7gjim:IAM_USER_ACCESS_SECRETSMANAGER:cg_secret_cgiddd7ga7gjim",
+      "src": "288528695623:iam_user:developer_cgiddd7ga7gjim",
+      "dst": "288528695623:us-east-1:secretsmanager:cg_secret_cgiddd7ga7gjim",
+      "relation": "IAM_USER_ACCESS_SECRETSMANAGER",
+      "directed": true,
+      "conditions": "This User has access to Secrets Manager."
+    }
+  ]
+}

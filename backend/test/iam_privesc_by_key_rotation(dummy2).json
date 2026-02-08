@@ -1,0 +1,138 @@
+{
+  "schema_version": "1.5",
+  "nodes": [
+    {
+      "node_id": "288528695623:iam_user:developer_cgiddd7ga7gjim",
+      "type": "iam_user",
+      "name": "developer_cgiddd7ga7gjim",
+      "properties": {
+        "inline_policies": [
+          {
+            "Effect": "Allow",
+            "Action": "iam:List*",
+            "Resource": "*"
+          }
+        ],
+        "attached_policies": [],
+        "group_policies": []
+      }
+    },
+    {
+      "node_id": "288528695623:iam_user:admin_cgiddd7ga7gjim",
+      "type": "iam_user",
+      "name": "admin_cgiddd7ga7gjim",
+      "properties": {
+        "inline_policies": [],
+        "attached_policies": [
+          {
+            "Effect": "Allow",
+            "Action": [
+              "iam:GenerateCredentialReport",
+              "iam:GenerateServiceLastAccessedDetails",
+              "iam:Get*",
+              "iam:List*",
+              "iam:SimulateCustomPolicy",
+              "iam:SimulatePrincipalPolicy"
+            ],
+            "Resource": "*"
+          }
+        ],
+        "group_policies": []
+      }
+    },
+    {
+      "node_id": "288528695623:iam_user:manager_cgiddd7ga7gjim",
+      "type": "iam_user",
+      "name": "manager_cgiddd7ga7gjim",
+      "properties": {
+        "inline_policies": [
+          {
+            "Effect": "Allow",
+            "Action": [
+              "iam:DeactivateMFADevice",
+              "iam:GetMFADevice",
+              "iam:EnableMFADevice",
+              "iam:ResyncMFADevice",
+              "iam:UpdateAccessKey"
+            ],
+            "Resource": [
+              "arn:aws:iam::288528695623:user/*",
+              "arn:aws:iam::288528695623:mfa/*"
+            ]
+          },
+          {
+            "Effect": "Allow",
+            "Action": [
+              "iam:DeleteVirtualMFADevice",
+              "iam:CreateVirtualMFADevice"
+            ],
+            "Resource": "arn:aws:iam::288528695623:mfa/*"
+          },
+          {
+            "Effect": "Allow",
+            "Action": [
+              "iam:UntagUser",
+              "iam:UntagRole",
+              "iam:TagRole",
+              "iam:UntagMFADevice",
+              "iam:UntagPolicy",
+              "iam:TagMFADevice",
+              "iam:TagPolicy",
+              "iam:TagUser"
+            ],
+            "Resource": "*"
+          },
+          {
+            "Effect": "Allow",
+            "Action": [
+              "iam:CreateAccessKey",
+              "iam:DeleteAccessKey"
+            ],
+            "Resource": "*"
+          }
+        ],
+        "attached_policies": [
+          {
+            "Effect": "Allow",
+            "Action": [
+              "iam:GenerateCredentialReport",
+              "iam:GenerateServiceLastAccessedDetails",
+              "iam:Get*",
+              "iam:List*",
+              "iam:SimulateCustomPolicy",
+              "iam:SimulatePrincipalPolicy"
+            ],
+            "Resource": "*"
+          }
+        ],
+        "group_policies": []
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge:manager_cgiddd7ga7gjim:IAM_USER_ACCESS_IAM:admin_cgiddd7ga7gjim",
+      "src": "288528695623:iam_user:manager_cgiddd7ga7gjim",
+      "dst": "288528695623:iam_user:admin_cgiddd7ga7gjim",
+      "relation": "IAM_USER_ACCESS_IAM",
+      "directed": true,
+      "conditions": "This User has access to IAM."
+    },
+    {
+      "id": "edge:manager_cgiddd7ga7gjim:IAM_USER_ACCESS_IAM:developer_cgiddd7ga7gjim",
+      "src": "288528695623:iam_user:manager_cgiddd7ga7gjim",
+      "dst": "288528695623:iam_user:developer_cgiddd7ga7gjim",
+      "relation": "IAM_USER_ACCESS_IAM",
+      "directed": true,
+      "conditions": "This User has access to IAM."
+    },
+    {
+      "id": "edge:manager_cgiddd7ga7gjim:IAM_USER_ACCESS_IAM:cg_secretsmanager_cgiddd7ga7gjim",
+      "src": "288528695623:iam_user:manager_cgiddd7ga7gjim",
+      "dst": "288528695623:iam_role:cg_secretsmanager_cgiddd7ga7gjim",
+      "relation": "IAM_USER_ACCESS_IAM",
+      "directed": true,
+      "conditions": "This User has access to IAM."
+    }
+  ]
+}

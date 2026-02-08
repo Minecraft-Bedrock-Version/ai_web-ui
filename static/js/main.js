@@ -305,7 +305,7 @@ function toggleServiceSelect(serviceId) {
                 alert("URL에 인프라 정보가 없습니다.")
                 return;
             }
-            const stateFromURL = decodeURIComponent(params.get("state"));
+            const payload = JSON.parse(decodeURIComponent(params.get("state")));
             const textarea = document.getElementById("inputCLI");
     if (textarea) {
         textarea.value = "CLI를 생성 중입니다... 잠시만 기다려 주세요.";
@@ -316,7 +316,10 @@ function toggleServiceSelect(serviceId) {
             const response = await fetch("/cli_create", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ state: config }) // <-- stringify
+            body: JSON.stringify({ 
+                state: payload.state,
+                region: payload.region
+             }) // <-- stringify
             });
 
             if (!response.ok){
@@ -325,7 +328,7 @@ function toggleServiceSelect(serviceId) {
 
 
             const data = await response.json(); // 반환 받은 CLI를 JSON으로 변환
-            console.log("전체",data)
+            console.log("전체",data)    
             console.log("받은 CLI:", data.cli);
 
 

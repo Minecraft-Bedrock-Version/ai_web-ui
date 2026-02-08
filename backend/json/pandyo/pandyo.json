@@ -440,29 +440,80 @@
  {
   "nodes": [
     {
-      "node_type": "iam_role",
-      "node_id": "iam_role_node_id",
-      "attributes": {
+      "node_id": "node_id",
+      "type": "iam_user",
+      "name": "string",
+      "properties": {
+        "inline_policies": [
+          {
+            "Effect": "Allow",
+            "Action": "secretsmanager:ListSecrets",
+            "Resource": "*"
+          }
+        ],
+        "attached_policies": [],
+        "group_policies": []
+      }
+    },
+    {
+      "node_type": "secretsmanager",
+      "node_id": "node_id"
+    },
+    {
+      "node_id": "node_id",
+      "type": "iam_user",
+      "name": "string",
+      "properties": {
+        "inline_policies": [
+          {
+            "Effect": "Allow",
+            "Action": "sts:AssumeRole",
+            "Resource": "*"
+          }
+        ],
+        "attached_policies": [
+          {
+            "Effect": "Allow",
+            "Action": [
+              "iam:Get*",
+              "iam:List*"
+            ],
+            "Resource": "*"
+          }
+        ],
+        "group_policies": []
+      }
+    },
+    {
+      "node_id": "node_id",
+      "type": "iam_role",
+      "name": "string",
+      "properties": {
         "assume_role_policy": {
           "Statement": [
             {
               "Effect": "Allow",
-              "Action": ["sts:AssumeRole"]
+              "Action": "sts:AssumeRole",
+              "Principal": {
+                "AWS": "arn:aws:iam::288528695623:root"
+              }
             }
           ]
         },
         "inline_policies": [],
         "attached_policies": [
           {
-            "PolicyName": "cg_view_secrets_cgidm916lic95e",
+            "PolicyName": "string",
             "Statement": [
               {
+                "Action": "secretsmanager:ListSecrets",
                 "Effect": "Allow",
-                "Action": ["secretsmanager:ListSecrets"]
+                "Resource": "*"
               },
               {
+                "Action": "secretsmanager:GetSecretValue",
                 "Effect": "Allow",
-                "Action": ["secretsmanager:GetSecretValue"]
+                "Resource": "*"
               }
             ]
           }
@@ -470,220 +521,133 @@
       }
     },
     {
-      "node_type": "iam_user",
-      "node_id": "iam_user_node_id",
-      "attributes": {
+      "node_id": "node_id",
+      "type": "iam_user",
+      "name": "string",
+      "properties": {
         "inline_policies": [
           {
-            "Statement": [
-              {
-                "Effect": "Allow",
-                "Action": ["sts:AssumeRole"]
-              }
-            ]
-          }
-        ],
-        "attached_policies": [
-          {
-            "PolicyName": "IAMReadOnlyAccess",
-            "Statement": [
-              {
-                "Effect": "Allow",
-                "Action": [
-                  "iam:GenerateCredentialReport",
-                  "iam:GenerateServiceLastAccessedDetails",
-                  "iam:Get*",
-                  "iam:List*",
-                  "iam:SimulateCustomPolicy",
-                  "iam:SimulatePrincipalPolicy"
-                ]
-              }
-            ]
-          }
-        ]
-      }
-    },
-    {
-      "node_type": "iam_user",
-      "node_id": "907808569602:global:iam_user:AIDA5GXM3PEBGEDAWFXMI",
-      "attributes": {
-        "inline_policies": [
-          {
-            "Statement": [
-              {
-                "Effect": "Allow",
-                "Action": ["secretsmanager:ListSecrets"]
-              }
-            ]
-          }
-        ],
-        "attached_policies": []
-      }
-    },
-    {
-      "node_type": "iam_user",
-      "node_id": "907808569602:global:iam_user:AIDA5GXM3PEBG6WQCUMCN",
-      "attributes": {
-        "inline_policies": [
-          {
-            "Statement": [
-              {
-                "Effect": "Allow",
-                "Action": [
-                  "iam:DeactivateMFADevice",
-                  "iam:GetMFADevice",
-                  "iam:EnableMFADevice",
-                  "iam:ResyncMFADevice",
-                  "iam:DeleteAccessKey",
-                  "iam:UpdateAccessKey",
-                  "iam:CreateAccessKey"
-                ]
-              },
-              {
-                "Effect": "Allow",
-                "Action": [
-                  "iam:DeleteVirtualMFADevice",
-                  "iam:CreateVirtualMFADevice"
-                ]
-              }
+            "Effect": "Allow",
+            "Action": [
+              "iam:DeactivateMFADevice",
+              "iam:GetMFADevice",
+              "iam:EnableMFADevice",
+              "iam:ResyncMFADevice",
+              "iam:UpdateAccessKey"
+            ],
+            "Resource": [
+              "arn:aws:iam::288528695623:user/*",
+              "arn:aws:iam::288528695623:mfa/*"
             ]
           },
           {
-            "Statement": [
-              {
-                "Effect": "Allow",
-                "Action": [
-                  "iam:UntagUser",
-                  "iam:UntagRole",
-                  "iam:TagRole",
-                  "iam:UntagMFADevice",
-                  "iam:UntagPolicy",
-                  "iam:TagMFADevice",
-                  "iam:TagPolicy",
-                  "iam:TagUser"
-                ]
-              }
-            ]
+            "Effect": "Allow",
+            "Action": [
+              "iam:DeleteVirtualMFADevice",
+              "iam:CreateVirtualMFADevice"
+            ],
+            "Resource": "arn:aws:iam::288528695623:mfa/*"
+          },
+          {
+            "Effect": "Allow",
+            "Action": [
+              "iam:UntagUser",
+              "iam:UntagRole",
+              "iam:TagRole",
+              "iam:UntagMFADevice",
+              "iam:UntagPolicy",
+              "iam:TagMFADevice",
+              "iam:TagPolicy",
+              "iam:TagUser"
+            ],
+            "Resource": "*"
+          },
+          {
+            "Effect": "Allow",
+            "Action": [
+              "iam:CreateAccessKey",
+              "iam:DeleteAccessKey"
+            ],
+            "Resource": "*"
           }
         ],
         "attached_policies": [
           {
-            "PolicyName": "IAMReadOnlyAccess",
-            "Statement": [
-              {
-                "Effect": "Allow",
-                "Action": [
-                  "iam:GenerateCredentialReport",
-                  "iam:GenerateServiceLastAccessedDetails",
-                  "iam:Get*",
-                  "iam:List*",
-                  "iam:SimulateCustomPolicy",
-                  "iam:SimulatePrincipalPolicy"
-                ]
-              }
-            ]
+            "Effect": "Allow",
+            "Action": [
+              "iam:GenerateCredentialReport",
+              "iam:GenerateServiceLastAccessedDetails",
+              "iam:Get*",
+              "iam:List*",
+              "iam:SimulateCustomPolicy",
+              "iam:SimulatePrincipalPolicy"
+            ],
+            "Resource": "*"
           }
-        ]
+        ],
+        "group_policies": []
       }
-    },
-    {
-      "node_type": "secretsmanager_secret",
-      "node_id": "secretsmanager_secret_node_id"
     }
   ],
   "edges": [
     {
-      "src": "iam_role_node_id",
-      "dst": "secretsmanager_secret_node_id",
+      "id": "edge id",
+      "src": "iam_user node id",
+      "dst": "iam_user node id",
+      "relation": "IAM_USER_ACCESS_IAM",
       "directed": true,
-      "conditions": [
-        {
-          "iam_role": {
-            "attributes": {
-              "assume_role_policy": {
-                "Statement": [
-                  {
-                    "Effect": "Allow",
-                    "Action": ["sts:AssumeRole"]
-                  }
-                ]
-              },
-              "attached_policies": [
-                {
-                  "Statement": [
-                    {
-                      "Effect": "Allow",
-                      "Action": ["secretsmanager:ListSecrets"]
-                    },
-                    {
-                      "Effect": "Allow",
-                      "Action": ["secretsmanager:GetSecretValue"]
-                    }
-                  ]
-                }
-              ]
-            }
-          }
-        }
-      ]
+      "conditions": "This User has access to IAM."
     },
     {
-      "src": "iam_user_node_id",
-      "dst": "iam_role_node_id",
+      "id": "edge id",
+      "src": "iam_user node id",
+      "dst": "iam_user node id",
+      "relation": "IAM_USER_ACCESS_IAM",
       "directed": true,
-      "conditions": [
-        {
-          "iam_user": {
-            "attributes": {
-              "inline_policies": [
-                {
-                  "Statement": [
-                    {
-                      "Effect": "Allow",
-                      "Action": "sts:AssumeRole"
-                    }
-                  ]
-                }
-              ]
-            }
-          }
-        }
-      ]
+      "conditions": "This User has access to IAM."
     },
     {
-      "src": "907808569602:global:iam_user:AIDA5GXM3PEBG6WQCUMCN",
-      "dst": "907808569602:global:iam_user:AIDA5GXM3PEBGEDAWFXMI",
+      "id": "edge id",
+      "src": "iam_user node id",
+      "dst": "iam_role node id",
+      "relation": "IAM_USER_ASSUME_ROLE",
       "directed": true,
-      "conditions": [
-        {
-          "iam_user": {
-            "attributes": {
-              "inline_policies": [
-                {
-                  "Statement": [
-                    {
-                      "Effect": "Allow",
-                      "Action": "iam:CreateAccessKey"
-                    }
-                  ]
-                },
-                {
-                  "Statement": [
-                    {
-                      "Effect": "Allow",
-                      "Action": "iam:TagUser"
-                    }
-                  ]
-                }
-              ]
-            }
-          }
-        }
-      ]
+      "conditions": "This User can Assume Roles."
+    },
+    {
+      "id": "edge id",
+      "src": "iam_user node id",
+      "dst": "iam_role node id",
+      "relation": "IAM_USER_ACCESS_IAM",
+      "directed": true,
+      "conditions": "This User has access to IAM."
+    },
+    {
+      "id": "edge id",
+      "src": "iam_user node id",
+      "dst": "iam_role node id",
+      "relation": "IAM_USER_CAN_ASSUME_ROLE",
+      "directed": true,
+      "conditions": "This user can call sts:AssumeRole on the target role."
+    },
+    {
+      "id": "edge id",
+      "src": "iam_role node id",
+      "dst": "secretsmanager node id",
+      "relation": "IAM_ROLE_ACCESS_SECRETSMANAGER",
+      "directed": true,
+      "conditions": "This role gives you access to Secrets Manager."
+    },
+    {
+      "id": "edge id",
+      "src": "iam_user node id",
+      "dst": "secretsmanager node id",
+      "relation": "IAM_USER_ACCESS_SECRETSMANAGER",
+      "directed": true,
+      "conditions": "This User has access to Secrets Manager."
     }
   ]
 }
-
     ]
   },
   {

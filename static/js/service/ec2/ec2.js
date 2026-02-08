@@ -11,6 +11,7 @@ const mockApi = {
 
   now_instances: []
 };
+console.log(region)
 
 
 /* =========================
