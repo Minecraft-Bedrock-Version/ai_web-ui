@@ -303,8 +303,17 @@ function updatePolicyJson() {
   function goNext() {
     alert("다음 단계로 진행합니다."); 
     console.log(state); 
+    const payload = {
+      state: {
+        service: "iam",
+        resource: state.resource,
+        selectedEntity: state.selectedEntity,
+        activePolicies: state.activePolicies
+      },
+      region: state.region
+    };
 
-    location.href = `/?state=${encodeURIComponent(JSON.stringify(state))}`;
+    location.href = `/?state=${encodeURIComponent(JSON.stringify(payload))}&region=${encodeURIComponent(state.region)}`;
 
 }
 
