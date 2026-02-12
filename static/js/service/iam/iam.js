@@ -45,40 +45,28 @@ function openCreateModal() {
     document.getElementById("createResourceSection").style.display = "block";
     
     // 3) Role 전용 UI 처리
-    const trustField = document.getElementById("trustPolicyField");
-    if (type === "role") {
-        const trustField = document.getElementById("trustPolicyField");
-        trustField.innerHTML = `
-            <label>신뢰할 서비스 선택</label>
-            <select id="trustServiceSelect" onchange="applyTrustTemplate(this.value)">
-                ${Object.entries(trustTemplates).map(([key, val]) => 
-                    `<option value="${key}">${val.label}</option>`
-                ).join('')}
-            </select>
-        `;
-        trustField.style.display = "block";
+    // const trustField = document.getElementById("trustPolicyField");
+    // if (type === "role") {
+    //     const trustField = document.getElementById("trustPolicyField");
+    //     trustField.innerHTML = `
+    //         <label>신뢰할 서비스 선택</label>
+    //         <select id="trustServiceSelect" onchange="applyTrustTemplate(this.value)">
+    //             ${Object.entries(trustTemplates).map(([key, val]) => 
+    //                 `<option value="${key}">${val.label}</option>`
+    //             ).join('')}
+    //         </select>
+    //     `;
+    //     trustField.style.display = "block";
         
-        // 초기값 설정
-        applyTrustTemplate(Object.keys(trustTemplates)[0]);
-    }else {
-        trustField.style.display = "none";
-    }
+    //     // 초기값 설정
+    //     applyTrustTemplate(Object.keys(trustTemplates)[0]);
+    // }
+    // else {
+    //     trustField.style.display = "none";
+    // }
 
     // 4) 핵심: 관리형 정책 목록 렌더링 함수 실행
     renderPolicySelector(); 
-}
-
-function applyTrustTemplate(key) {
-    const template = trustTemplates[key];
-    state.trustPolicy = {
-        Version: "2012-10-17",
-        Statement: [{ 
-            Effect: "Allow", 
-            Principal: { Service: template.service }, 
-            Action: "sts:AssumeRole" 
-        }]
-    };
-    console.log("신뢰 정책 내부 적용 완료:", template.service);
 }
 
 // 3. 선택 가능한 정책(권한) 목록 렌더링 함수 (이 함수가 정확히 있는지 확인하세요)
