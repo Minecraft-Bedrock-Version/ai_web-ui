@@ -44,25 +44,6 @@ function openCreateModal() {
 
 
   
-// 1. 사용자 생성 창 열기
-  function createNewUser(){
-    console.log("createNewUser function called"); // 동작 확인용
-
-    // 다른 섹션들 숨기기
-    const policySection = document.getElementById("policySection");
-    const inlineBuilder = document.getElementById("inlineBuilder");
-    if(policySection) policySection.style.display = "none";
-    if(inlineBuilder) inlineBuilder.style.display = "none";
-    
-    // 생성 섹션 보이기
-    const createSection = document.getElementById("createUserSection");
-    if(createSection) {
-        createSection.style.display = "block";
-        renderPolicySelector();
-    } else {
-        console.error("ID 'createUserSection'을 찾을 수 없습니다.");
-    }
-};
 
 // 3. 선택 가능한 정책(권한) 목록 렌더링
 function renderPolicySelector() {
