@@ -55,12 +55,12 @@
       </div>
     </div>
 
-<div id="createResourceSection" style="display:none; border: 1px solid #ccc; padding: 20px;">
+<div id="createResourceSection" style="display:none;">
     <h2 id="createSectionTitle">리소스 생성</h2>
     
-    <div>
-        <label>이름: </label>
-        <input type="text" id="newResourceName" placeholder="이름을 입력하세요">
+    <div class="create-input-group">
+        <label>이름</label>
+        <input type="text" id="newResourceName" placeholder="예: my-iam-resource">
     </div>
 
     <div id="trustPolicyField" style="display:none; margin-top:10px;">
@@ -68,15 +68,16 @@
         <!-- <textarea id="trustPolicyJson" style="width:100%; height:100px;"></textarea> -->
     </div>
 
-    <div id="policySelectorContainer" style="margin-top:20px;">
+
+    <div id="policySelectorContainer">
         <h3>정책 연결 (Managed Policies)</h3>
-        <div id="policySelectorList" style="max-height: 200px; overflow-y: auto; border: 1px solid #eee;">
+        <div id="policySelectorList">
             </div>
     </div>
 
-    <div style="margin-top:20px;">
-        <button onclick="submitCreateResource()">생성 완료</button>
+    <div class="button-row">
         <button onclick="hideCreateResource()">취소</button>
+        <button class="primary" onclick="submitCreateResource()">생성 완료</button>
     </div>
 </div>
 
