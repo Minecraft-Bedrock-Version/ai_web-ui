@@ -17,6 +17,31 @@ let mockResources = { user: [], role: [], group: [] };
     };
   let isEditingJson = false;
 
+  // 생성 창 열기 (통합)
+function openCreateModal() {
+    const type = state.resource; // 현재 선택된 사이드바 탭 (user, group, role)
+    const titleMap = { user: "사용자 생성", group: "그룹 생성", role: "역할(Role) 생성" };
+    
+    document.getElementById("createSectionTitle").innerText = titleMap[type];
+    document.getElementById("newResourceName").value = "";
+    document.getElementById("createResourceSection").style.display = "block";
+    
+    // Role일 경우 신뢰 정책 입력창 보이기
+    const trustField = document.getElementById("trustPolicyField");
+    if (type === "role") {
+        trustField.style.display = "block";
+        // 기본 신뢰 정책 템플릿 세팅 (예: EC2)
+        document.getElementById("trustPolicyJson").value = JSON.stringify({
+            Version: "2012-10-17",
+            Statement: [{ Effect: "Allow", Principal: { Service: "ec2.amazonaws.com" }, Action: "sts:AssumeRole" }]
+        }, null, 2);
+    } else {
+        trustField.style.display = "none";
+    }
+
+    renderPolicySelector();
+}
+
 
   
 // 1. 사용자 생성 창 열기
@@ -37,13 +62,6 @@ let mockResources = { user: [], role: [], group: [] };
     } else {
         console.error("ID 'createUserSection'을 찾을 수 없습니다.");
     }
-};
-
-// 2. 취소/닫기
-function hideCreateUser(){
-    const createSection = document.getElementById("createUserSection");
-    if(createSection) createSection.style.display = "none";
-    document.getElementById("newUserName").value = "";
 };
 
 // 3. 선택 가능한 정책(권한) 목록 렌더링
@@ -69,46 +87,56 @@ function renderPolicySelector() {
     });
 }
 
-// 4. 생성 완료 버튼 클릭 시
-async function submitCreateUser(){
-const name = document.getElementById("newUserName").value;
+async function submitCreateResource() {
+    const type = state.resource; // user, group, role
+    const name = document.getElementById("newResourceName").value;
     const selectedCheckboxes = document.querySelectorAll(".policy-create-chk:checked");
     const selectedPolicies = Array.from(selectedCheckboxes).map(cb => cb.value);
+    
+    if (!name) return alert("이름을 입력해주세요.");
 
-    if (!name) {
-        alert("사용자 이름을 입력해주세요.");
-        return;
-    }
-
-    const newUser = {
+    const payload = {
+        type: type, // 서버에서 user, group, role을 구분할 키
         name: name,
         policies: selectedPolicies
     };
 
-    try {
-      alert("사용자 생성 정보:",newUser.name)
-        // // 서버에 사용자 생성 요청 (예시 경로: /create_user)
-        // const response = await fetch('/create_user', {
-        //     method: 'POST',
-        //     headers: { 'Content-Type': 'application/json' },
-        //     body: JSON.stringify(newUser)
-        // });
-
-        // if (response.ok) {
-        //     alert(`${name} 사용자가 생성되었습니다.`);
-        //     hideCreateUser();
-        //     await fetchIamResources(); // 목록 새로고침
-        // } else {
-        //     throw new Error("생성 실패");
-        // }
-    } catch (error) {
-        console.error("Error creating user:", error);
-        // 서버가 아직 준비 안 됐다면 로컬 mock에 강제 추가해서 테스트 가능
-        mockResources.user.push(newUser);
-        renderResourceList();
-        hideCreateUser();
-        alert("서버 연결 실패로 로컬 목록에 임시 추가되었습니다.");
+    // Role의 경우 신뢰 정책 추가
+    if (type === "role") {
+        try {
+            payload.trustPolicy = JSON.parse(document.getElementById("trustPolicyJson").value);
+        } catch(e) {
+            return alert("신뢰 정책 JSON 형식이 올바르지 않습니다.");
+        }
     }
+
+    try {
+        console.log(`${type} 생성 요청:`, payload);
+        
+        // 실제 서버 통신 부분 (주석 해제하여 사용)
+        /*
+        const response = await fetch(`/create_${type}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        if (!response.ok) throw new Error("생성 실패");
+        */
+
+        alert(`${name} ${type}(이)가 성공적으로 생성되었습니다.`);
+        
+        // 로컬 테스트용 mock 업데이트
+        mockResources[type].push({ name: name, policies: selectedPolicies });
+        renderResourceList();
+        hideCreateResource();
+
+    } catch (error) {
+        console.error("Error:", error);
+    }
+}
+
+function hideCreateResource() {
+    document.getElementById("createResourceSection").style.display = "none";
 }
 
 
