@@ -20,22 +20,21 @@ let mockResources = { user: [], role: [], group: [] };
   // 생성 창 열기 (통합)
 // 1. 생성 창 열기 (통합 모달)
 function openCreateModal() {
-    console.log("openCreateModal called for:", state.resource);
+    console.log("openCreateModal 호출됨. 현재 타입:", state.resource);
 
-    // 다른 섹션(인라인 빌더 등) 닫기
-    const policySection = document.getElementById("policySection");
-    const inlineBuilder = document.getElementById("inlineBuilder");
-    if(policySection) policySection.style.display = "none";
-    if(inlineBuilder) inlineBuilder.style.display = "none";
+    // 1) 다른 섹션 닫기
+    document.getElementById("policySection").style.display = "none";
+    document.getElementById("inlineBuilder").style.display = "none";
 
-    const type = state.resource; // 'user', 'role', 'group' 중 하나
+    // 2) 데이터 초기화 및 보이기
+    const type = state.resource;
     const titleMap = { user: "사용자 생성", group: "그룹 생성", role: "역할(Role) 생성" };
     
     document.getElementById("createSectionTitle").innerText = titleMap[type] || "리소스 생성";
     document.getElementById("newResourceName").value = "";
     document.getElementById("createResourceSection").style.display = "block";
     
-    // Role일 경우에만 신뢰 정책(Trust Policy) 입력창 보이기
+    // 3) Role 전용 UI 처리
     const trustField = document.getElementById("trustPolicyField");
     if (type === "role") {
         trustField.style.display = "block";
@@ -51,7 +50,33 @@ function openCreateModal() {
         trustField.style.display = "none";
     }
 
-    renderPolicySelector(); // 정책 목록 렌더링
+    // 4) 핵심: 관리형 정책 목록 렌더링 함수 실행
+    renderPolicySelector(); 
+}
+
+// 3. 선택 가능한 정책(권한) 목록 렌더링 함수 (이 함수가 정확히 있는지 확인하세요)
+function renderPolicySelector() {
+    const container = document.getElementById("policySelectorList");
+    if (!container) return;
+    
+    container.innerHTML = "";
+
+    // iamServices에 정의된 서비스들을 'FullAccess' 관리형 정책처럼 표시
+    Object.entries(iamServices).forEach(([key, svc]) => {
+        const div = document.createElement("div");
+        div.style.padding = "10px";
+        div.style.borderBottom = "1px solid #eee";
+        div.innerHTML = `
+            <label style="display: flex; align-items: center; cursor: pointer; font-weight: normal;">
+                <input type="checkbox" class="policy-create-chk" value="${key}FullAccess" style="margin-right: 10px; width: auto;">
+                <div>
+                    <strong>${svc.label}FullAccess</strong><br>
+                    <small style="color: #666;">${svc.actions.join(", ")} 권한을 포함합니다.</small>
+                </div>
+            </label>
+        `;
+        container.appendChild(div);
+    });
 }
 
 // 2. 생성 완료 버튼 클릭 시 (통합 제출)
