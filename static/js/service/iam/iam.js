@@ -94,47 +94,32 @@ function renderPolicySelector() {
 async function submitCreateResource() {
     const type = state.resource; 
     const name = document.getElementById("newResourceName").value;
+    
+    // 1. 선택된 관리형 정책들 가져오기
     const selectedCheckboxes = document.querySelectorAll(".policy-create-chk:checked");
-    const selectedPolicies = Array.from(selectedCheckboxes).map(cb => cb.value);
+    const managedPolicies = Array.from(selectedCheckboxes).map(cb => cb.value);
     
     if (!name) return alert("이름을 입력해주세요.");
 
+    // 2. goNext와 동일한 형식의 Payload 구성
     const payload = {
-        type: type, 
-        name: name,
-        policies: selectedPolicies
+        state: {
+            action: "create",       // 리소스 생성을 위한 액션 플래그
+            service: "iam",
+            resource: type,         // 'user', 'role', 'group'
+            name: name,             // 생성할 리소스 이름
+            policies: managedPolicies, // 선택한 정책 리스트
+            region: state.region
+        },
+        region: state.region
     };
+    console.log("🚀 생성 페이로드 전송:", payload);
 
-    if (type === "role") {
-        try {
-            payload.trustPolicy = JSON.parse(document.getElementById("trustPolicyJson").value);
-        } catch(e) {
-            return alert("신뢰 정책 JSON 형식이 올바르지 않습니다.");
-        }
-    }
-
-    try {
-        console.log(`${type} 생성 데이터:`, payload);
-        
-        // 서버 통신 부분 (필요 시 주석 해제)
-        /*
-        const response = await fetch(`/create_${type}`, { ... });
-        if (!response.ok) throw new Error("Server Error");
-        */
-
-        alert(`${name} ${type}(이)가 성공적으로 생성되었습니다.`);
-        
-        // 로컬 데이터 갱신 및 리스트 리렌더링
-        if (!mockResources[type]) mockResources[type] = [];
-        mockResources[type].push({ name: name, policies: selectedPolicies });
-        
-        renderResourceList(); // 메인 리스트 갱신
-        hideCreateResource(); // 생성창 닫기
-
-    } catch (error) {
-        console.error("생성 중 오류 발생:", error);
-        alert("생성에 실패했습니다.");
-    }
+    // goNext와 동일한 방식으로 리다이렉트
+    const encodedState = encodeURIComponent(JSON.stringify(payload));
+    const encodedRegion = encodeURIComponent(state.region);
+    
+    location.href = `/?state=${encodedState}&region=${encodedRegion}`;
 }
 
 // 3. 취소 함수 확인
