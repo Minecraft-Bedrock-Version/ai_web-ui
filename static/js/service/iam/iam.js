@@ -18,58 +18,45 @@ let mockResources = { user: [], role: [], group: [] };
   let isEditingJson = false;
 
   // 생성 창 열기 (통합)
+// 1. 생성 창 열기 (통합 모달)
 function openCreateModal() {
-    const type = state.resource; // 현재 선택된 사이드바 탭 (user, group, role)
+    console.log("openCreateModal called for:", state.resource);
+
+    // 다른 섹션(인라인 빌더 등) 닫기
+    const policySection = document.getElementById("policySection");
+    const inlineBuilder = document.getElementById("inlineBuilder");
+    if(policySection) policySection.style.display = "none";
+    if(inlineBuilder) inlineBuilder.style.display = "none";
+
+    const type = state.resource; // 'user', 'role', 'group' 중 하나
     const titleMap = { user: "사용자 생성", group: "그룹 생성", role: "역할(Role) 생성" };
     
-    document.getElementById("createSectionTitle").innerText = titleMap[type];
+    document.getElementById("createSectionTitle").innerText = titleMap[type] || "리소스 생성";
     document.getElementById("newResourceName").value = "";
     document.getElementById("createResourceSection").style.display = "block";
     
-    // Role일 경우 신뢰 정책 입력창 보이기
+    // Role일 경우에만 신뢰 정책(Trust Policy) 입력창 보이기
     const trustField = document.getElementById("trustPolicyField");
     if (type === "role") {
         trustField.style.display = "block";
-        // 기본 신뢰 정책 템플릿 세팅 (예: EC2)
         document.getElementById("trustPolicyJson").value = JSON.stringify({
             Version: "2012-10-17",
-            Statement: [{ Effect: "Allow", Principal: { Service: "ec2.amazonaws.com" }, Action: "sts:AssumeRole" }]
+            Statement: [{ 
+                Effect: "Allow", 
+                Principal: { Service: "ec2.amazonaws.com" }, 
+                Action: "sts:AssumeRole" 
+            }]
         }, null, 2);
     } else {
         trustField.style.display = "none";
     }
 
-    renderPolicySelector();
+    renderPolicySelector(); // 정책 목록 렌더링
 }
 
-
-  
-
-// 3. 선택 가능한 정책(권한) 목록 렌더링
-function renderPolicySelector() {
-    const container = document.getElementById("policySelectorList");
-    container.innerHTML = "";
-
-    // iamServices에 정의된 서비스들을 선택 가능한 정책으로 표시
-    Object.entries(iamServices).forEach(([key, svc]) => {
-        const div = document.createElement("div");
-        div.style.padding = "10px";
-        div.style.borderBottom = "1px solid #eee";
-        div.innerHTML = `
-            <label style="display: flex; align-items: center; cursor: pointer;">
-                <input type="checkbox" class="policy-create-chk" value="${key}FullAccess" style="margin-right: 10px;">
-                <div>
-                    <strong>${svc.label}FullAccess</strong><br>
-                    <small style="color: #666;">${svc.actions.join(", ")} 권한을 포함합니다.</small>
-                </div>
-            </label>
-        `;
-        container.appendChild(div);
-    });
-}
-
+// 2. 생성 완료 버튼 클릭 시 (통합 제출)
 async function submitCreateResource() {
-    const type = state.resource; // user, group, role
+    const type = state.resource; 
     const name = document.getElementById("newResourceName").value;
     const selectedCheckboxes = document.querySelectorAll(".policy-create-chk:checked");
     const selectedPolicies = Array.from(selectedCheckboxes).map(cb => cb.value);
@@ -77,12 +64,11 @@ async function submitCreateResource() {
     if (!name) return alert("이름을 입력해주세요.");
 
     const payload = {
-        type: type, // 서버에서 user, group, role을 구분할 키
+        type: type, 
         name: name,
         policies: selectedPolicies
     };
 
-    // Role의 경우 신뢰 정책 추가
     if (type === "role") {
         try {
             payload.trustPolicy = JSON.parse(document.getElementById("trustPolicyJson").value);
@@ -92,30 +78,30 @@ async function submitCreateResource() {
     }
 
     try {
-        console.log(`${type} 생성 요청:`, payload);
+        console.log(`${type} 생성 데이터:`, payload);
         
-        // 실제 서버 통신 부분 (주석 해제하여 사용)
+        // 서버 통신 부분 (필요 시 주석 해제)
         /*
-        const response = await fetch(`/create_${type}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-        });
-        if (!response.ok) throw new Error("생성 실패");
+        const response = await fetch(`/create_${type}`, { ... });
+        if (!response.ok) throw new Error("Server Error");
         */
 
         alert(`${name} ${type}(이)가 성공적으로 생성되었습니다.`);
         
-        // 로컬 테스트용 mock 업데이트
+        // 로컬 데이터 갱신 및 리스트 리렌더링
+        if (!mockResources[type]) mockResources[type] = [];
         mockResources[type].push({ name: name, policies: selectedPolicies });
-        renderResourceList();
-        hideCreateResource();
+        
+        renderResourceList(); // 메인 리스트 갱신
+        hideCreateResource(); // 생성창 닫기
 
     } catch (error) {
-        console.error("Error:", error);
+        console.error("생성 중 오류 발생:", error);
+        alert("생성에 실패했습니다.");
     }
 }
 
+// 3. 취소 함수 확인
 function hideCreateResource() {
     document.getElementById("createResourceSection").style.display = "none";
 }
