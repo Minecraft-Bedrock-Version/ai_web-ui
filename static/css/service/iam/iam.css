@@ -212,104 +212,6 @@ select, button, input {
 }
 
 
-/* 리소스 생성 섹션 스타일링 */
-#createResourceSection {
-  background: white;
-  padding: 30px;
-  margin-top: 20px;
-  border-radius: 8px;
-  border: 1px solid var(--border-color) !important; /* 인라인 border 제거 후 사용 추천 */
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  animation: fadeIn 0.3s ease-in-out;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-#createResourceSection h2 {
-  color: var(--aws-dark);
-  font-size: 1.4rem;
-  margin-bottom: 25px;
-  border-bottom: 2px solid var(--aws-blue);
-  padding-bottom: 10px;
-}
-
-/* 입력 필드 그룹 */
-.create-input-group {
-  margin-bottom: 20px;
-}
-
-.create-input-group input[type="text"] {
-  width: 100%;
-  padding: 12px;
-  border: 1px solid #aab7c4;
-  border-radius: 4px;
-  box-sizing: border-box;
-  font-size: 14px;
-  transition: border-color 0.2s;
-}
-
-.create-input-group input[type="text"]:focus {
-  border-color: var(--aws-blue);
-  outline: none;
-  box-shadow: 0 0 0 1px var(--aws-blue);
-}
-
-/* 신뢰 정책 및 관리형 정책 영역 */
-#trustPolicyField, #policySelectorContainer {
-  background: #fcfcfc;
-  padding: 15px;
-  border: 1px solid #eaeded;
-  border-radius: 6px;
-  margin-top: 15px;
-}
-
-#policySelectorList {
-  background: white;
-  border: 1px solid #d5dbdb;
-  border-radius: 4px;
-  margin-top: 10px;
-}
-
-/* 정책 항목 개별 스타일 */
-.policy-item-row {
-  padding: 12px;
-  border-bottom: 1px solid #f2f3f3;
-  transition: background 0.2s;
-}
-
-.policy-item-row:hover {
-  background: #f1faff;
-}
-
-.policy-item-row label {
-  cursor: pointer;
-  margin-bottom: 0; /* 기존 label 마진 초기화 */
-}
-
-.policy-item-row strong {
-  color: var(--aws-blue);
-  font-size: 14px;
-}
-
-.policy-item-row small {
-  display: block;
-  margin-top: 4px;
-  color: #666;
-}
-
-/* 생성 섹션 버튼 그룹 */
-#createResourceSection .button-row {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  margin-top: 30px;
-  padding-top: 20px;
-  border-top: 1px solid #eaeded;
-}
-
 /* 6. JSON 에디터 반응형 높이 */
 @media (max-width: 480px) {
   textarea {
@@ -324,3 +226,101 @@ select, button, input {
   }
 }
   }
+
+
+/* --- 리소스 생성 섹션 (IAM Create Modal) --- */
+#createResourceSection {
+    background: #ffffff;
+    padding: 30px;
+    margin-top: 20px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color) !important;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    display: none; /* 기본 숨김 */
+}
+
+#createResourceSection h2 {
+    color: var(--aws-dark);
+    font-size: 1.3rem;
+    margin-bottom: 25px;
+    border-bottom: 2px solid var(--aws-blue);
+    padding-bottom: 12px;
+}
+
+/* 입력 필드 레이아웃 */
+.create-input-group {
+    margin-bottom: 25px;
+}
+
+.create-input-group label {
+    display: block;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: var(--text-main);
+}
+
+.create-input-group input[type="text"] {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid #aab7c4;
+    border-radius: 4px;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+
+/* 정책 컨테이너 박스 */
+#policySelectorContainer {
+    margin-top: 30px;
+}
+
+#policySelectorList {
+    background: #fbfbfb;
+    border: 1px solid #d5dbdb;
+    border-radius: 4px;
+    max-height: 300px;
+    overflow-y: auto;
+    margin-top: 10px;
+}
+
+/* 정책 리스트 개별 항목 (JS에서 생성됨) */
+.policy-item-row {
+    display: flex;
+    align-items: flex-start;
+    padding: 12px 15px;
+    border-bottom: 1px solid #eaeded;
+    transition: background 0.2s;
+}
+
+.policy-item-row:hover {
+    background: #f1faff;
+}
+
+.policy-item-row input[type="checkbox"] {
+    margin-top: 4px;
+    margin-right: 12px;
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+
+.policy-item-row strong {
+    font-size: 14px;
+    color: var(--aws-blue);
+}
+
+.policy-item-row small {
+    display: block;
+    margin-top: 3px;
+    color: #545b64;
+    font-size: 12px;
+}
+
+/* 하단 버튼 정렬 */
+.button-row {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-color);
+}

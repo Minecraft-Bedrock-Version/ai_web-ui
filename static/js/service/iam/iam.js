@@ -76,18 +76,14 @@ function renderPolicySelector() {
     
     container.innerHTML = "";
 
-    // iamServices에 정의된 서비스들을 'FullAccess' 관리형 정책처럼 표시
     Object.entries(iamServices).forEach(([key, svc]) => {
         const div = document.createElement("div");
-        div.style.padding = "10px";
-        div.style.borderBottom = "1px solid #eee";
+        div.className = "policy-item-row"; // CSS와 연결되는 클래스명 추가
         div.innerHTML = `
-            <label style="display: flex; align-items: center; cursor: pointer; font-weight: normal;">
-                <input type="checkbox" class="policy-create-chk" value="${key}FullAccess" style="margin-right: 10px; width: auto;">
-                <div>
-                    <strong>${svc.label}FullAccess</strong><br>
-                    <small style="color: #666;">${svc.actions.join(", ")} 권한을 포함합니다.</small>
-                </div>
+            <input type="checkbox" class="policy-create-chk" id="chk-${key}" value="${key}FullAccess">
+            <label for="chk-${key}" style="cursor: pointer; flex: 1;">
+                <strong>${svc.label}FullAccess</strong>
+                <small>${svc.actions.join(", ")} 권한을 포함합니다.</small>
             </label>
         `;
         container.appendChild(div);
