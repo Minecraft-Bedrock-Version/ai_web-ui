@@ -462,55 +462,42 @@ def step3a_auto_verdict(llm_result, dummy_name):
 # =================================================================
 def step3b_save_for_review(llm_result, dummy_name, timestamp):
     """
-    방법 B: 프로덕션 프롬프트 응답을 파일로 저장하여 수동 분석 가능.
+    방법 B: 프로덕션 프롬프트 응답을 터미널에 출력하여 수동 분석.
     """
     log("")
     log("=" * 60)
-    log("STEP 3B: 수동 분석용 저장 (프로덕션 프롬프트 결과)", "TEST")
+    log("STEP 3B: 수동 분석 (프로덕션 프롬프트 결과)", "TEST")
     log("=" * 60)
 
     parsed = llm_result.get("parsed")
     raw_text = llm_result.get("raw_text", "")
 
-    # 파싱 결과 간단 요약 출력
     if parsed:
         vulns = parsed.get("vulnerabilities", [])
         summary = parsed.get("summary", {})
         log(f"취약점 수: {len(vulns)}")
         log(f"심각도: High={summary.get('high',0)} Medium={summary.get('medium',0)} Low={summary.get('low',0)}")
-        for v in vulns:
-            log(f"  → [{v.get('severity','')}] {v.get('title','')}")
+        log("")
+        for i, v in enumerate(vulns, 1):
+            log(f"  [{i}] [{v.get('severity','')}] {v.get('title','')}")
+            log(f"      설명: {v.get('description','')}")
+            if v.get("attackPath"):
+                log(f"      공격 경로: {' → '.join(v['attackPath'])}")
+            log(f"      영향: {v.get('impact','')}")
+            log(f"      권장 사항: {v.get('recommendation','')}")
+            log("")
     else:
-        log("JSON 파싱 실패 - 원문 그대로 저장", "WARN")
+        log("JSON 파싱 실패 - LLM 원문 응답:", "WARN")
+        log(raw_text[:1000])
 
-    # 파일 저장
-    safe_name = dummy_name.replace(" ", "_").replace("(", "").replace(")", "")
-    result_data = {
-        "test_info": {
-            "method": "B (프로덕션 프롬프트 - 수동 분석용)",
-            "dummy_name": dummy_name,
-            "timestamp": timestamp,
-            "note": "이 결과는 실제 프로덕션 코드(mbv_llm_gpt.py)와 동일한 프롬프트로 생성됨"
-        },
-        "raw_text": raw_text,
-        "parsed_json": parsed
-    }
-
-    filename = f"method_B_{safe_name}_{timestamp}.json"
-    filepath = save_results(result_data, filename)
-
-    log("")
-    log("📄 수동 분석 안내:", "INFO")
-    log(f"  파일: {filepath}")
-    log("  확인 포인트:")
-    log("    1. LLM이 RAG 시나리오(iam_privesc_by_key_rotation) 재현 불가를 언급했는가?")
-    log("    2. secretsmanager, GetSecretValue 관련 분석이 '부재'로 언급되었는가?")
-    log("    3. Secondary Task(일반 보안 점검) 결과가 포함되었는가?")
+    log("📄 확인 포인트:")
+    log("  1. LLM이 RAG 시나리오(iam_privesc_by_key_rotation) 재현 불가를 언급했는가?")
+    log("  2. secretsmanager, GetSecretValue 관련 분석이 '부재'로 언급되었는가?")
+    log("  3. Secondary Task(일반 보안 점검) 결과가 포함되었는가?")
 
     return {
         "method": "B (수동 분석용)",
         "dummy_name": dummy_name,
-        "saved_to": filepath,
         "vuln_count": len(parsed.get("vulnerabilities", [])) if parsed else 0,
         "verdict": "MANUAL_REVIEW_REQUIRED"
     }
@@ -682,8 +669,7 @@ def main():
         if mb:
             r = mb.get("review", {})
             if isinstance(r, dict):
-                log(f"  방법 B: 📄 수동 분석 필요 (취약점 {r.get('vuln_count', 0)}개)")
-                log(f"         저장: {r.get('saved_to', 'N/A')}")
+                log(f"  방법 B: 📄 수동 분석 완료 (취약점 {r.get('vuln_count', 0)}개)")
             else:
                 log(f"  방법 B: ⚠️ {mb}")
 
