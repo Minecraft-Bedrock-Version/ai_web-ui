@@ -8,11 +8,13 @@
 방법 B: 프로덕션 프롬프트 그대로 사용 → LLM 원문 응답 저장 → 수동 분석
 
 실행 방법 (backend 폴더에서):
-  python test/test_llm_verification.py          → 방법 A + B 모두 실행
-  python test/test_llm_verification.py --method A  → 방법 A만
-  python test/test_llm_verification.py --method B  → 방법 B만
-  python test/test_llm_verification.py --dummy 1   → dummy1만 테스트
-  python test/test_llm_verification.py --dummy 2   → dummy2만 테스트
+  python test/test_llm_verification.py                  → 방법 A + B 모두 실행
+  python test/test_llm_verification.py --method A        → 방법 A만
+  python test/test_llm_verification.py --method B        → 방법 B만
+  python test/test_llm_verification.py --dummy 1         → dummy1만 테스트
+  python test/test_llm_verification.py --dummy 2         → dummy2만 테스트
+  python test/test_llm_verification.py --skip-rag        → RAG 검색 건너뛰기 (qdrant 불필요)
+  python test/test_llm_verification.py --skip-rag --method A --dummy 1  → 조합 가능
 
 ⚠️ 사전 조건:
   1. Qdrant 서버 실행 중 (http://localhost:6333)
@@ -517,12 +519,14 @@ def step3b_save_for_review(llm_result, dummy_name, timestamp):
 # =================================================================
 # 단일 더미 테스트 실행
 # =================================================================
-def run_test(dummy_path, dummy_name, methods):
+def run_test(dummy_path, dummy_name, methods, skip_rag=False):
     """하나의 dummy 파일에 대해 선택된 방법으로 테스트 실행"""
     log(f"\n{'#'*60}")
     log(f"테스트 시작: {dummy_name}")
     log(f"파일: {os.path.basename(dummy_path)}")
     log(f"실행 방법: {', '.join(methods)}")
+    if skip_rag:
+        log("모드: --skip-rag (RAG 검색 건너뛰기, LLM 분석만 실행)", "WARN")
     log(f"{'#'*60}\n")
 
     # 데이터 로드
@@ -535,11 +539,6 @@ def run_test(dummy_path, dummy_name, methods):
     target_infra_json = json.dumps(dummy_data, ensure_ascii=False)
     ts = datetime.now().strftime("%Y%m%d_%H%M%S")
 
-    # 클라이언트 초기화
-    from qdrant_client import QdrantClient
-    bedrock = boto3.client(service_name='bedrock-runtime', region_name=REGION)
-    q_client = QdrantClient(url="http://localhost:6333")
-
     test_result = {
         "dummy_file": os.path.basename(dummy_path),
         "dummy_name": dummy_name,
@@ -548,17 +547,34 @@ def run_test(dummy_path, dummy_name, methods):
     }
 
     # --- Step 1: RAG 검색 ---
-    try:
-        rag_result = step1_rag_search(dummy_data, bedrock, q_client)
-        test_result["steps"]["step1_rag"] = rag_result
-    except Exception as e:
-        log(f"Step 1 실패: {e}", "FAIL")
-        test_result["steps"]["step1_rag"] = {"error": str(e)}
-        return test_result
+    if skip_rag:
+        log("=" * 60)
+        log("STEP 1: RAG 벡터 검색 [SKIPPED]", "TEST")
+        log("=" * 60)
+        log("--skip-rag 모드: RAG 검색 건너뛰고 컨텍스트 문서 직접 사용", "WARN")
+        log(f"컨텍스트 문서: {os.path.basename(CONTEXT_PATH)}")
+        test_result["steps"]["step1_rag"] = {
+            "skipped": True,
+            "reason": "--skip-rag 옵션 사용",
+            "context_file": os.path.basename(CONTEXT_PATH)
+        }
+    else:
+        # 클라이언트 초기화
+        from qdrant_client import QdrantClient
+        bedrock = boto3.client(service_name='bedrock-runtime', region_name=REGION)
+        q_client = QdrantClient(url="http://localhost:6333")
 
-    if not rag_result.get("passed_threshold"):
-        log("RAG 유사도 임계값 미달 - LLM 테스트 스킵", "WARN")
-        return test_result
+        try:
+            rag_result = step1_rag_search(dummy_data, bedrock, q_client)
+            test_result["steps"]["step1_rag"] = rag_result
+        except Exception as e:
+            log(f"Step 1 실패: {e}", "FAIL")
+            test_result["steps"]["step1_rag"] = {"error": str(e)}
+            return test_result
+
+        if not rag_result.get("passed_threshold"):
+            log("RAG 유사도 임계값 미달 - LLM 테스트 스킵", "WARN")
+            return test_result
 
     # --- 방법 A ---
     if "A" in methods:
@@ -600,6 +616,8 @@ def main():
                         help="테스트 방법 선택: A(스키마 자동판정), B(수동분석), AB(둘다)")
     parser.add_argument("--dummy", choices=["1", "2", "all"], default="all",
                         help="테스트 대상: 1(dummy1), 2(dummy2), all(둘다)")
+    parser.add_argument("--skip-rag", action="store_true",
+                        help="RAG 검색(Step1) 건너뛰기: qdrant 없이 LLM 분석(Step2+3)만 실행")
     args = parser.parse_args()
 
     methods = list(args.method.upper())  # "AB" → ["A", "B"]
@@ -607,6 +625,8 @@ def main():
     log("=" * 60)
     log("LLM 검증 동작 테스트", "TEST")
     log(f"실행 방법: {methods}")
+    if args.skip_rag:
+        log("모드: RAG 검색 건너뛰기 (--skip-rag)", "WARN")
     log("=" * 60)
 
     targets = []
@@ -627,7 +647,7 @@ def main():
             log(f"파일 없음: {dummy_path}", "FAIL")
             continue
 
-        result = run_test(dummy_path, dummy_name, methods)
+        result = run_test(dummy_path, dummy_name, methods, skip_rag=args.skip_rag)
         all_results["tests"].append(result)
 
     # 전체 결과 저장
