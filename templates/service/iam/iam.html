@@ -26,8 +26,22 @@
     <div class="section" id="policySection" style="display:none;">
       <h3>연결된 정책</h3>
       <div id="policyList" style="margin-bottom: 15px;"></div>
+      <button class="primary" onclick="openAttachManagedPolicyModal()">+ 관리형 정책 연결</button>
       <button class="primary" onclick="openInlinePolicy()">+ 인라인 정책 추가</button>
     </div>
+
+    <div id="attachPolicyModal" class="modal" style="display:none; position:fixed; z-index:100; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.5);">
+    <div style="background:#fff; margin:10% auto; padding:20px; width:450px; border-radius:8px;">
+        <h3>관리형 정책 연결</h3>
+        <p style="font-size: 13px; color: #666;">연결할 정책을 선택하세요 (다중 선택 가능)</p>
+        <div id="managedPolicySelectorList" style="max-height: 300px; overflow-y: auto; margin: 15px 0; border: 1px solid #ddd; padding: 10px;">
+            </div>
+        <div class="btn-group" style="text-align: right;">
+            <button onclick="closeAttachPolicyModal()">취소</button>
+            <button class="primary" onclick="submitAttachManagedPolicies()">정책 연결 완료</button>
+        </div>
+    </div>
+</div>
 
     <div class="section" id="inlineBuilder" style="display:none;">
       <h3>인라인 정책 생성기</h3>
