@@ -285,25 +285,38 @@ async function submitAddUsersToGroup() {
     });
   }
 
-  // 1. 관리형 정책 연결 모달 열기
+
+  // 관리형 정책  
+  // 관리형 정책 데이터 (ARN 기반)
+const MANAGED_POLICIES_DATA = [
+    { name: "AdministratorAccess", arn: "arn:aws:iam::aws:policy/AdministratorAccess", desc: "모든 리소스 전체 권한" },
+    { name: "AmazonS3FullAccess", arn: "arn:aws:iam::aws:policy/AmazonS3FullAccess", desc: "S3 서비스 전체 권한" },
+    { name: "AmazonEC2FullAccess", arn: "arn:aws:iam::aws:policy/AmazonEC2FullAccess", desc: "EC2 서비스 전체 권한" },
+    { name: "ReadOnlyAccess", arn: "arn:aws:iam::aws:policy/ReadOnlyAccess", desc: "전체 서비스 읽기 전용 권한" },
+    { name: "IAMFullAccess", arn: "arn:aws:iam::aws:policy/IAMFullAccess", desc: "IAM 리소스 관리 권한" }
+];
+
+// 1. 관리형 정책 연결 모달 열기
 function openAttachManagedPolicyModal() {
     const container = document.getElementById("managedPolicySelectorList");
     if (!container) return;
     
     container.innerHTML = "";
 
-    // iamServices를 순회하며 체크박스 생성 (이미 연결된 정책은 체크 표시하고 싶다면 logic 추가 가능)
-    Object.entries(iamServices).forEach(([key, svc]) => {
+    // 상수로 정의한 MANAGED_POLICIES_DATA를 순회하며 렌더링
+    MANAGED_POLICIES_DATA.forEach(policy => {
         const div = document.createElement("div");
-        div.style.padding = "8px";
+        div.className = "policy-item-row"; // 기존 CSS 활용
+        div.style.padding = "10px";
         div.style.borderBottom = "1px solid #eee";
         
         div.innerHTML = `
-            <label style="display: flex; align-items: center; cursor: pointer;">
-                <input type="checkbox" class="attach-managed-chk" value="${key}FullAccess" style="margin-right: 10px;">
+            <label style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer;">
+                <input type="checkbox" class="attach-managed-chk" value="${policy.arn}">
                 <div>
-                    <strong style="display:block;">${svc.label}FullAccess</strong>
-                    <small style="color: #888;">${svc.actions.join(", ")}</small>
+                    <strong style="display:block; color: #333;">${policy.name}</strong>
+                    <small style="color: #666; display:block;">${policy.desc}</small>
+                    <code style="font-size: 10px; color: #aaa;">${policy.arn}</code>
                 </div>
             </label>
         `;
@@ -318,34 +331,37 @@ function closeAttachPolicyModal() {
     document.getElementById("attachPolicyModal").style.display = "none";
 }
 
-// 3. 선택된 정책들을 서버로 제출
+// 3. 선택된 모든 ARN을 한 번에 서버로 제출
 async function submitAttachManagedPolicies() {
+    // 체크박스에서 선택된 모든 value(ARN)를 수집
     const selectedCheckboxes = document.querySelectorAll(".attach-managed-chk:checked");
-    const selectedPolicies = Array.from(selectedCheckboxes).map(cb => cb.value);
+    const selectedArns = Array.from(selectedCheckboxes).map(cb => cb.value);
     
-    if (selectedPolicies.length === 0) {
+    if (selectedArns.length === 0) {
         return alert("연결할 정책을 하나 이상 선택해주세요.");
     }
 
     const payload = {
         state: {
-            action: "attach_policy", // 정책 연결 액션 플래그
+            action: "attach_policy",
             service: "iam",
             resource: state.resource,      // 'user', 'role', 'group'
-            name: state.selectedEntity,    // 현재 선택된 리소스 이름
-            policies: selectedPolicies,    // 선택된 정책 리스트
+            name: state.selectedEntity,    // 현재 선택된 리소스 이름 (예: admin-user)
+            policies: selectedArns,        // 선택된 ARN 리스트 배열
             region: state.region
         },
         region: state.region
     };
 
-    console.log("🚀 관리형 정책 연결 페이로드 전송:", payload);
+    console.log("🚀 관리형 정책(ARN) 일괄 전송 페이로드:", payload);
 
     // 공통 리다이렉트 로직
     const encodedState = encodeURIComponent(JSON.stringify(payload));
     const encodedRegion = encodeURIComponent(state.region);
     location.href = `/?state=${encodedState}&region=${encodedRegion}`;
 }
+
+
 
   // 액션 선택 영역 UI 개선
 function selectService(serviceKey) {
