@@ -6,7 +6,7 @@
 import boto3
 import json
 import os
-import numpy as np
+import math
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 PANDYO_PATH = os.path.join(BASE_DIR, "..", "json", "pandyo", "pandyo.json")
@@ -30,9 +30,11 @@ def get_embedding(text, input_type="search_document"):
 
 
 def cosine_sim(a, b):
-    """두 벡터의 코사인 유사도 계산"""
-    a, b = np.array(a), np.array(b)
-    return float(np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b)))
+    """두 벡터의 코사인 유사도 계산 (순수 Python)"""
+    dot = sum(x * y for x, y in zip(a, b))
+    norm_a = math.sqrt(sum(x * x for x in a))
+    norm_b = math.sqrt(sum(x * x for x in b))
+    return dot / (norm_a * norm_b) if norm_a and norm_b else 0.0
 
 
 def main():
@@ -107,13 +109,16 @@ def main():
     print("📈 벡터 통계")
     print("=" * 70)
     for title, vec in vectors.items():
-        v = np.array(vec)
+        n = len(vec)
+        l2_norm = math.sqrt(sum(x * x for x in vec))
+        mean_val = sum(vec) / n
+        std_val = math.sqrt(sum((x - mean_val) ** 2 for x in vec) / n)
         print(f"\n📄 {title}")
-        print(f"   L2 노름: {np.linalg.norm(v):.4f}")
-        print(f"   평균: {np.mean(v):.6f}")
-        print(f"   표준편차: {np.std(v):.6f}")
-        print(f"   최대값: {np.max(v):.6f}")
-        print(f"   최소값: {np.min(v):.6f}")
+        print(f"   L2 노름: {l2_norm:.4f}")
+        print(f"   평균: {mean_val:.6f}")
+        print(f"   표준편차: {std_val:.6f}")
+        print(f"   최대값: {max(vec):.6f}")
+        print(f"   최소값: {min(vec):.6f}")
 
     # =============================================
     # 5. 결론

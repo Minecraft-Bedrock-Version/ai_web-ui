@@ -8,7 +8,7 @@ import boto3
 import json
 import os
 import copy
-import numpy as np
+import math
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 PANDYO_PATH = os.path.join(BASE_DIR, "..", "json", "pandyo", "pandyo.json")
@@ -32,9 +32,11 @@ def get_embedding(text, input_type="search_document"):
 
 
 def cosine_sim(a, b):
-    """두 벡터의 코사인 유사도 계산"""
-    a, b = np.array(a), np.array(b)
-    return float(np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b)))
+    """두 벡터의 코사인 유사도 계산 (순수 Python)"""
+    dot = sum(x * y for x, y in zip(a, b))
+    norm_a = math.sqrt(sum(x * x for x in a))
+    norm_b = math.sqrt(sum(x * x for x in b))
+    return dot / (norm_a * norm_b) if norm_a and norm_b else 0.0
 
 
 def embed_resources(resources):
