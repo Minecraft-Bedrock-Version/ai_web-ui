@@ -55,6 +55,27 @@
       </div>
     </div>
 
+    <div class="section" id="groupMemberSection" style="display:none; margin-top: 20px;">
+    <h3>그룹 멤버 관리</h3>
+    <div id="memberList" style="margin-bottom: 10px;">
+        </div>
+    <button class="primary" onclick="openAddUserToGroupModal()">+ 사용자 추가</button>
+</div>
+
+
+<div id="addUserModal" class="modal" style="display:none; position:fixed; z-index:100; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.5);">
+    <div style="background:#fff; margin:10% auto; padding:20px; width:300px; border-radius:8px;">
+        <h3>그룹에 사용자 추가</h3>
+        <div id="availableUserList" style="max-height: 200px; overflow-y: auto; margin-bottom: 15px;">
+            </div>
+        <div class="btn-group">
+            <button onclick="closeAddUserModal()">취소</button>
+            <button class="primary" onclick="submitAddUsersToGroup()">추가 완료</button>
+        </div>
+    </div>
+</div>
+
+
 <div id="createResourceSection" style="display:none;">
     <h2 id="createSectionTitle">리소스 생성</h2>
     

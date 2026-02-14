@@ -196,13 +196,81 @@ function selectEntity(name, policies) {
     state.selectedEntity = name;
     document.getElementById("policySection").style.display = "block";
     
-    // 기존 AdministratorAccess 하드코딩 대신 실제 정책 리스트를 렌더링
+    // 1. 정책 렌더링 (기존 로직)
     const policyListEl = document.getElementById("policyList");
     if (policies && policies.length > 0) {
         policyListEl.innerHTML = policies.map(p => `<span class="policy-tag">${p}</span>`).join("");
     } else {
         policyListEl.innerHTML = `<span style="color: #666; font-size: 12px;">No attached policies</span>`;
     }
+
+    // 2. 그룹인 경우 사용자 관리 섹션 노출
+    const memberSection = document.getElementById("groupMemberSection");
+    if (state.resource === 'group') {
+        memberSection.style.display = "block";
+        renderGroupMembers(name);
+    } else {
+        memberSection.style.display = "none";
+    }
+}
+
+// 현재 그룹의 멤버 표시 (mockResources 구조에 따라 조정 필요)
+function renderGroupMembers(groupName) {
+    const memberListEl = document.getElementById("memberList");
+    // mockResources에서 해당 그룹의 members 데이터를 찾는다고 가정
+    const groupData = mockResources.group.find(g => g.name === groupName);
+    const members = groupData?.members || []; 
+
+    if (members.length > 0) {
+        memberListEl.innerHTML = members.map(m => `<div class="member-item">👤 ${m}</div>`).join("");
+    } else {
+        memberListEl.innerHTML = `<p style="color:#999; font-size:12px;">멤버가 없습니다.</p>`;
+    }
+}
+
+// 모달 열기
+function openAddUserToGroupModal() {
+    const container = document.getElementById("availableUserList");
+    container.innerHTML = "";
+
+    // 전체 사용자 목록(mockResources.user)에서 선택 가능하게 표시
+    mockResources.user.forEach(user => {
+        const div = document.createElement("div");
+        div.innerHTML = `
+            <label>
+                <input type="checkbox" class="user-to-add-chk" value="${user.name}"> ${user.name}
+            </label>
+        `;
+        container.appendChild(div);
+    });
+
+    document.getElementById("addUserModal").style.display = "block";
+}
+
+function closeAddUserModal() {
+    document.getElementById("addUserModal").style.display = "none";
+}
+
+// 서버로 데이터 전송
+async function submitAddUsersToGroup() {
+    const selectedUsers = Array.from(document.querySelectorAll(".user-to-add-chk:checked")).map(cb => cb.value);
+    
+    if (selectedUsers.length === 0) return alert("추가할 사용자를 선택해주세요.");
+
+    const payload = {
+        state: {
+            action: "add_user_to_group",
+            groupName: state.selectedEntity,
+            users: selectedUsers,
+            region: state.region
+        }
+    };
+
+    console.log("🚀 그룹 사용자 추가 페이로드:", payload);
+    
+    // 기존 goNext와 동일한 방식으로 리다이렉트 (백엔드에서 처리)
+    const encodedState = encodeURIComponent(JSON.stringify(payload));
+    location.href = `/?state=${encodedState}&region=${encodeURIComponent(state.region)}`;
 }
 
   
