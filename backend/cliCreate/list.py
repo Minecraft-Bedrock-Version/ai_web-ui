@@ -57,6 +57,7 @@ async def get_detailed_inventory():
             })
 
         # 결과 데이터 반환
+        print(inventory)
         return inventory
 
     except Exception as e:
