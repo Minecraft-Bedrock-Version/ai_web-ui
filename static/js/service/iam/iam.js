@@ -178,39 +178,54 @@ function renderResourceList() {
     const tbody = document.getElementById("resourceList");
     tbody.innerHTML = "";
     
-    // mockResources[state.resource]는 이제 객체 배열입니다. [{name: '...', policies: []}, ...]
     mockResources[state.resource].forEach(item => {
         const tr = document.createElement("tr");
         tr.innerHTML = `<td>${item.name}</td>`;
         tr.onclick = () => {
             document.querySelectorAll("#resourceList tr").forEach(r => r.classList.remove("selected"));
             tr.classList.add("selected");
-            // 이름과 해당 아이템의 정책 리스트를 같이 넘깁니다.
-            selectEntity(item.name, item.policies);
+            
+            // item 객체 전체(name, policies, members 등)를 활용하도록 수정 가능
+            // 여기서는 selectEntity에 members도 함께 인자로 보냅니다.
+            selectEntity(item.name, item.policies, item.members); 
         };
         tbody.appendChild(tr);
     });
 }
-
-function selectEntity(name, policies) {
+function selectEntity(name, policies, members) {
     state.selectedEntity = name;
     document.getElementById("policySection").style.display = "block";
     
-    // 1. 정책 렌더링 (기존 로직)
+    // 1. 정책 렌더링
     const policyListEl = document.getElementById("policyList");
-    if (policies && policies.length > 0) {
-        policyListEl.innerHTML = policies.map(p => `<span class="policy-tag">${p}</span>`).join("");
-    } else {
-        policyListEl.innerHTML = `<span style="color: #666; font-size: 12px;">No attached policies</span>`;
-    }
+    policyListEl.innerHTML = (policies && policies.length > 0) 
+        ? policies.map(p => `<span class="policy-tag">${p}</span>`).join("")
+        : `<span style="color: #666; font-size: 12px;">No attached policies</span>`;
 
     // 2. 그룹인 경우 사용자 관리 섹션 노출
     const memberSection = document.getElementById("groupMemberSection");
     if (state.resource === 'group') {
         memberSection.style.display = "block";
-        renderGroupMembers(name);
+        // 이미 받아온 members 정보를 직접 사용하여 렌더링
+        renderGroupMembersDirectly(members);
     } else {
         memberSection.style.display = "none";
+    }
+}
+
+// 명단을 직접 받아서 그리는 보조 함수 (가장 확실한 방법)
+function renderGroupMembersDirectly(members) {
+    const memberListEl = document.getElementById("memberList");
+    if (!memberListEl) return;
+
+    if (members && members.length > 0) {
+        memberListEl.innerHTML = members.map(m => `
+            <div class="member-item" style="padding: 5px; border-bottom: 1px solid #eee;">
+                👤 ${m}
+            </div>
+        `).join("");
+    } else {
+        memberListEl.innerHTML = `<p style="color:#999; font-size:12px; padding: 10px;">멤버가 없습니다.</p>`;
     }
 }
 

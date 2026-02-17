@@ -33,13 +33,28 @@ async def get_detailed_inventory():
             policies = [p['PolicyName'] for p in p_resp.get('AttachedPolicies', [])]
             inventory["role"].append({"name": name, "policies": policies})
 
-        # 3. Groups + Policies 조회
+        # 3. Groups + Policies + Members 조회
         groups_data = iam.list_groups()
         for g in groups_data.get('Groups', []):
             name = g['GroupName']
+            
+            # 3-1. 그룹에 연결된 '관리형 정책' 조회
             p_resp = iam.list_attached_group_policies(GroupName=name)
             policies = [p['PolicyName'] for p in p_resp.get('AttachedPolicies', [])]
-            inventory["group"].append({"name": name, "policies": policies})
+
+            # 3-2. 핵심: 그룹에 속한 '사용자 리스트' 조회 추가
+            try:
+                # get_group은 해당 그룹의 정보와 멤버 리스트를 반환합니다.
+                g_resp = iam.get_group(GroupName=name)
+                members = [u['UserName'] for u in g_resp.get('Users', [])]
+            except Exception:
+                members = []
+
+            inventory["group"].append({
+                "name": name, 
+                "policies": policies,
+                "members": members  # <--- 프론트엔드로 멤버 정보 전달
+            })
 
         # 결과 데이터 반환
         return inventory
