@@ -178,38 +178,57 @@ function renderResourceList() {
     const tbody = document.getElementById("resourceList");
     tbody.innerHTML = "";
     
-    mockResources[state.resource].forEach(item => {
+    // 현재 선택된 리소스 타입(user, group, role)의 데이터 배열
+    const items = mockResources[state.resource] || [];
+
+    items.forEach(item => {
         const tr = document.createElement("tr");
         tr.innerHTML = `<td>${item.name}</td>`;
+        
         tr.onclick = () => {
+            // 선택 효과
             document.querySelectorAll("#resourceList tr").forEach(r => r.classList.remove("selected"));
             tr.classList.add("selected");
             
-            // item 객체 전체(name, policies, members 등)를 활용하도록 수정 가능
-            // 여기서는 selectEntity에 members도 함께 인자로 보냅니다.
-            selectEntity(item.name, item.policies, item.members); 
+            // [중요] 세 번째 인자로 item.members를 넘깁니다.
+            // 데이터가 없을 경우를 대비해 기본값 []를 설정합니다.
+            selectEntity(item.name, item.policies || [], item.members || []);
         };
         tbody.appendChild(tr);
     });
 }
+
 function selectEntity(name, policies, members) {
     state.selectedEntity = name;
-    document.getElementById("policySection").style.display = "block";
     
-    // 1. 정책 렌더링
+    // 1. 정책 섹션 노출 및 렌더링
+    document.getElementById("policySection").style.display = "block";
     const policyListEl = document.getElementById("policyList");
     policyListEl.innerHTML = (policies && policies.length > 0) 
         ? policies.map(p => `<span class="policy-tag">${p}</span>`).join("")
-        : `<span style="color: #666; font-size: 12px;">No attached policies</span>`;
+        : `<span style="color: #666; font-size: 12px;">연결된 정책이 없습니다.</span>`;
 
-    // 2. 그룹인 경우 사용자 관리 섹션 노출
+    // 2. 그룹인 경우 멤버 관리 섹션 처리
     const memberSection = document.getElementById("groupMemberSection");
+    const memberListEl = document.getElementById("memberList");
+
     if (state.resource === 'group') {
-        memberSection.style.display = "block";
-        // 이미 받아온 members 정보를 직접 사용하여 렌더링
-        renderGroupMembersDirectly(members);
+        memberSection.style.display = "block"; // 섹션 보이기
+        
+        if (members && members.length > 0) {
+            // 멤버가 있을 때: 리스트 생성
+            memberListEl.innerHTML = members.map(m => `
+                <div class="member-item" style="padding: 10px; border-bottom: 1px solid #eee; display: flex; align-items: center;">
+                    <span style="margin-right: 10px;">👤</span>
+                    <strong>${m}</strong>
+                </div>
+            `).join("");
+        } else {
+            // 멤버가 없을 때
+            memberListEl.innerHTML = `<p style="color:#999; font-size:12px; padding: 15px; background: #f9f9f9; border-radius: 4px;">이 그룹에 소속된 사용자가 없습니다.</p>`;
+        }
     } else {
-        memberSection.style.display = "none";
+        memberSection.style.display = "none"; // 유저나 역할일 때는 숨김
     }
 }
 
