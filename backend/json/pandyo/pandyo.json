@@ -649,5 +649,276 @@
   ]
 }
     ]
+  },
+    {
+    "id": 4,
+    "title": "ecs_take_over",
+    "description": "document/ecs_take_over.json",
+    "resources": [
+      {
+  "schema_version": "1.5",
+  "nodes": [
+    {
+      "node_id": "288528695623:us-east-1:ecs_task:0f6353dd0a8b4128899f715db6724cab",
+      "type": "ecs_task",
+      "name": "privd",
+      "properties": {
+        "cluster_name": "ecs-takeover-cgid33k7dvei2d-cluster",
+        "host_instance_id": "i-0eb52e49428733ca0",
+        "launch_type": "EC2",
+        "has_docker_socket": false,
+        "containers": [
+          {
+            "name": "privd",
+            "image": "busybox:latest",
+            "cpu": "50",
+            "memory": "50"
+          }
+        ]
+      }
+    },
+    {
+      "node_id": "288528695623:us-east-1:ecs_task:60342375896846f2a61a6cb1ba28039a",
+      "type": "ecs_task",
+      "name": "vault",
+      "properties": {
+        "cluster_name": "ecs-takeover-cgid33k7dvei2d-cluster",
+        "host_instance_id": "i-0eb52e49428733ca0",
+        "launch_type": "EC2",
+        "has_docker_socket": false,
+        "containers": [
+          {
+            "name": "vault",
+            "image": "busybox:latest",
+            "cpu": "50",
+            "memory": "50"
+          }
+        ]
+      }
+    },
+    {
+      "node_id": "288528695623:us-east-1:ec2_instance:i-0eb52e49428733ca0",
+      "type": "ec2",
+      "name": "cg-ecs-takeover-cgid33k7dvei2d-vault"
+    },
+    {
+      "node_id": "288528695623:iam_role:AROA5GXM3PEBDYX56YGFS",
+      "type": "iam_role",
+      "name": "cg-ecs-takeover-cgid33k7dvei2d-privd",
+      "properties": {
+        "assume_role_policy": {
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": "sts:AssumeRole",
+              "Principal": {
+                "Service": "ecs-tasks.amazonaws.com"
+              }
+            }
+          ]
+        },
+        "inline_policies": [],
+        "attached_policies": [
+          {
+            "PolicyName": "cg-ecs-takeover-cgid33k7dvei2d-privd",
+            "Statement": [
+              {
+                "Action": [
+                  "ecs:ListServices",
+                  "ecs:ListTasks",
+                  "ecs:DescribeServices",
+                  "ecs:ListContainerInstances",
+                  "ecs:DescribeContainerInstances",
+                  "ecs:DescribeTasks",
+                  "ecs:ListTaskDefinitions",
+                  "ecs:DescribeClusters",
+                  "ecs:ListClusters",
+                  "iam:GetPolicyVersion",
+                  "iam:GetPolicy",
+                  "iam:ListAttachedRolePolicies",
+                  "iam:GetRolePolicy"
+                ],
+                "Effect": "Allow",
+                "Resource": "*"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "node_id": "288528695623:us-east-1:ecs_task:d66e62968799454da932464fa93aab0d",
+      "type": "ecs_task",
+      "name": "privd",
+      "properties": {
+        "cluster_name": "ecs-takeover-cgid33k7dvei2d-cluster",
+        "host_instance_id": "i-0856ceb64ac199e09",
+        "launch_type": "EC2",
+        "has_docker_socket": false,
+        "containers": [
+          {
+            "name": "privd",
+            "image": "busybox:latest",
+            "cpu": "50",
+            "memory": "50"
+          }
+        ]
+      }
+    },
+    {
+      "node_id": "288528695623:iam_role:AROA5GXM3PEBICPNGAVNZ",
+      "type": "iam_role",
+      "name": "cg-ecs-takeover-cgid33k7dvei2d-ecs-agent",
+      "properties": {
+        "assume_role_policy": {
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": "sts:AssumeRole",
+              "Principal": {
+                "Service": "ec2.amazonaws.com"
+              }
+            }
+          ]
+        },
+        "inline_policies": [],
+        "attached_policies": [
+          {
+            "PolicyName": "AmazonEC2ContainerServiceforEC2Role",
+            "Statement": [
+              {
+                "Action": [
+                  "ec2:DescribeTags",
+                  "ecs:CreateCluster",
+                  "ecs:DeregisterContainerInstance",
+                  "ecs:DiscoverPollEndpoint",
+                  "ecs:Poll",
+                  "ecs:RegisterContainerInstance",
+                  "ecs:StartTelemetrySession",
+                  "ecs:UpdateContainerInstancesState",
+                  "ecs:Submit*",
+                  "ecr:GetAuthorizationToken",
+                  "ecr:BatchCheckLayerAvailability",
+                  "ecr:GetDownloadUrlForLayer",
+                  "ecr:BatchGetImage",
+                  "logs:CreateLogStream",
+                  "logs:PutLogEvents"
+                ],
+                "Effect": "Allow",
+                "Resource": "*"
+              },
+              {
+                "Action": "ecs:TagResource",
+                "Effect": "Allow",
+                "Resource": "*"
+              },
+              {
+                "Action": [
+                  "ecs:ListTagsForResource"
+                ],
+                "Effect": "Allow",
+                "Resource": [
+                  "arn:aws:ecs:*:*:task/*/*",
+                  "arn:aws:ecs:*:*:container-instance/*/*"
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "node_id": "288528695623:us-east-1:ec2_instance:i-0856ceb64ac199e09",
+      "type": "ec2",
+      "name": "cg-ecs-takeover-cgid33k7dvei2d-vulnsite"
+    },
+    {
+      "node_id": "288528695623:us-east-1:ecs_task:aa159ebd8a4f49e88535ece9be6b99f3",
+      "type": "ecs_task",
+      "name": "vulnsite",
+      "properties": {
+        "cluster_name": "ecs-takeover-cgid33k7dvei2d-cluster",
+        "host_instance_id": "i-0856ceb64ac199e09",
+        "launch_type": "EC2",
+        "has_docker_socket": true,
+        "containers": [
+          {
+            "name": "vulnsite",
+            "image": "cloudgoat/ecs-takeover-vulnsite:latest",
+            "cpu": "256",
+            "memory": "256"
+          }
+        ]
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge_3",
+      "src": "288528695623:us-east-1:ecs_task:0f6353dd0a8b4128899f715db6724cab",
+      "dst": "288528695623:us-east-1:ec2_instance:i-0eb52e49428733ca0",
+      "relation": "runs_on",
+      "directed": true,
+      "conditions": []
+    },
+    {
+      "id": "edge_4",
+      "src": "288528695623:us-east-1:ecs_task:0f6353dd0a8b4128899f715db6724cab",
+      "dst": "288528695623:iam_role:AROA5GXM3PEBDYX56YGFS",
+      "relation": "has_task_role",
+      "directed": true,
+      "conditions": []
+    },
+    {
+      "id": "edge_5",
+      "src": "288528695623:us-east-1:ecs_task:60342375896846f2a61a6cb1ba28039a",
+      "dst": "288528695623:us-east-1:ec2_instance:i-0eb52e49428733ca0",
+      "relation": "runs_on",
+      "directed": true,
+      "conditions": []
+    },
+    {
+      "id": "edge_7",
+      "src": "288528695623:us-east-1:ecs_task:d66e62968799454da932464fa93aab0d",
+      "dst": "288528695623:us-east-1:ec2_instance:i-0856ceb64ac199e09",
+      "relation": "runs_on",
+      "directed": true,
+      "conditions": []
+    },
+    {
+      "id": "edge_6",
+      "src": "288528695623:us-east-1:ecs_task:aa159ebd8a4f49e88535ece9be6b99f3",
+      "dst": "288528695623:us-east-1:ec2_instance:i-0856ceb64ac199e09",
+      "relation": "runs_on",
+      "directed": true,
+      "conditions": []
+    },
+    {
+      "id": "edge_2",
+      "src": "288528695623:us-east-1:ec2_instance:i-0856ceb64ac199e09",
+      "dst": "288528695623:iam_role:AROA5GXM3PEBICPNGAVNZ",
+      "relation": "has_iam_role",
+      "directed": true,
+      "conditions": []
+    },
+    {
+      "id": "edge_8",
+      "src": "288528695623:us-east-1:ecs_task:d66e62968799454da932464fa93aab0d",
+      "dst": "288528695623:iam_role:AROA5GXM3PEBDYX56YGFS",
+      "relation": "has_task_role",
+      "directed": true,
+      "conditions": []
+    },
+    {
+      "id": "edge_1",
+      "src": "288528695623:us-east-1:ec2_instance:i-0eb52e49428733ca0",
+      "dst": "288528695623:iam_role:AROA5GXM3PEBICPNGAVNZ",
+      "relation": "has_iam_role",
+      "directed": true,
+      "conditions": []
+    }
+  ]
+}
+    ]
   }
 ]
