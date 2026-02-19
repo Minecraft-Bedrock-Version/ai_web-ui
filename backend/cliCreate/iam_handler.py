@@ -2,6 +2,11 @@
 IAM 핸들러
 
 IAM(ID 및 액세스 관리) 리소스(사용자, 역할, 그룹)에 대한 AWS CLI 명령어를 생성합니다.
+action 필드를 기반으로 4가지 기능을 지원합니다:
+  - inline_policy: 리소스 생성 + 인라인 정책 부여 (기존 goNext 방식)
+  - create:        리소스 생성 + 관리형 정책 연결
+  - attach_policy:  기존 리소스에 관리형 정책 연결
+  - add_user_to_group: 그룹에 사용자 추가
 """
 
 import json
@@ -21,29 +26,139 @@ class IAMHandler(BaseHandler):
         
         Args:
             state: IAM 구성 정보
+                - action: 액션 종류 ("inline_policy", "create", "attach_policy", "add_user_to_group")
                 - resource: 리소스 타입 ("user", "role", "group")
                 - selectedEntity: 리소스 이름
-                - activePolicies: 서비스별 허용할 액션 목록
+                - activePolicies: 정책 데이터 (dict 또는 list)
             region: AWS 리전 (IAM은 글로벌 서비스이므로 사용하지 않음)
         
         Returns:
             str: 생성된 AWS CLI 명령어
         """
+        action = state.get("action", "inline_policy")
         resource_type = state.get("resource", "")
         entity_name = state.get("selectedEntity", "")
-        active_policies = state.get("activePolicies", {})
+        policies = state.get("activePolicies", {})
         
+        # action에 따라 분기
+        if action == "create":
+            return self._handle_create(resource_type, entity_name, policies)
+        elif action == "attach_policy":
+            return self._handle_attach_policy(resource_type, entity_name, policies)
+        elif action == "add_user_to_group":
+            return self._handle_add_user_to_group(entity_name, policies)
+        else:
+            # 기본값: 인라인 정책 방식 (기존 goNext에서 오는 데이터)
+            return self._handle_inline_policy(resource_type, entity_name, policies)
+    
+    # ─────────────────────────────────────────────
+    # 1. 인라인 정책 (기존 goNext 방식)
+    # ─────────────────────────────────────────────
+    def _handle_inline_policy(self, resource_type: str, entity_name: str, active_policies: dict) -> str:
+        """
+        리소스 생성 + 인라인 정책 부여 CLI를 생성합니다.
+        (기존 goNext() 함수에서 오는 데이터를 처리합니다.)
+        
+        active_policies 형식: { "s3": ["GetObject"], "ec2": ["StartInstances"] }
+        """
         commands = []
         
-        # 1. 기본 리소스 생성 명령어
-        if resource_type == "user":
-            # IAM 사용자(User) 생성
-            create_cmd = f"aws iam create-user --user-name {entity_name}"
+        # 1. 리소스 생성 명령어
+        create_cmd = self._create_resource_command(resource_type, entity_name)
+        if create_cmd:
             commands.append(create_cmd)
+        
+        # 2. 인라인 정책 부여 (선택된 정책이 있는 경우에만)
+        if active_policies:
+            policy_json = self._generate_policy_json(active_policies)
+            policy_str = json.dumps(policy_json, indent=2)
             
+            if resource_type == "user":
+                commands.append(f"aws iam put-user-policy --user-name {entity_name} --policy-name GeneratedPolicy --policy-document '{policy_str}'")
+            elif resource_type == "role":
+                commands.append(f"aws iam put-role-policy --role-name {entity_name} --policy-name GeneratedPolicy --policy-document '{policy_str}'")
+            elif resource_type == "group":
+                commands.append(f"aws iam put-group-policy --group-name {entity_name} --policy-name GeneratedPolicy --policy-document '{policy_str}'")
+        
+        return "\n".join(commands)
+    
+    # ─────────────────────────────────────────────
+    # 2. 리소스 생성 + 관리형 정책 연결
+    # ─────────────────────────────────────────────
+    def _handle_create(self, resource_type: str, entity_name: str, policies: list) -> str:
+        """
+        리소스 생성 + 관리형 정책(ARN 또는 이름) 연결 CLI를 생성합니다.
+        (submitCreateResource() 함수에서 오는 데이터를 처리합니다.)
+        
+        policies 형식: ["s3FullAccess", "ec2FullAccess"] 또는 ["arn:aws:iam::aws:policy/..."]
+        """
+        commands = []
+        
+        # 1. 리소스 생성
+        create_cmd = self._create_resource_command(resource_type, entity_name)
+        if create_cmd:
+            commands.append(create_cmd)
+        
+        # 2. 관리형 정책 연결
+        if policies and isinstance(policies, list):
+            for policy in policies:
+                attach_cmd = self._attach_policy_command(resource_type, entity_name, policy)
+                if attach_cmd:
+                    commands.append(attach_cmd)
+        
+        return "\n".join(commands)
+    
+    # ─────────────────────────────────────────────
+    # 3. 기존 리소스에 관리형 정책만 연결
+    # ─────────────────────────────────────────────
+    def _handle_attach_policy(self, resource_type: str, entity_name: str, policies: list) -> str:
+        """
+        기존 리소스에 관리형 정책(ARN) 연결 CLI를 생성합니다.
+        (submitAttachManagedPolicies() 함수에서 오는 데이터를 처리합니다.)
+        리소스를 생성하지 않고 정책만 연결합니다.
+        
+        policies 형식: ["arn:aws:iam::aws:policy/AmazonS3FullAccess", ...]
+        """
+        commands = []
+        
+        if policies and isinstance(policies, list):
+            for policy_arn in policies:
+                attach_cmd = self._attach_policy_command(resource_type, entity_name, policy_arn)
+                if attach_cmd:
+                    commands.append(attach_cmd)
+        
+        return "\n".join(commands)
+    
+    # ─────────────────────────────────────────────
+    # 4. 그룹에 사용자 추가
+    # ─────────────────────────────────────────────
+    def _handle_add_user_to_group(self, group_name: str, users: list) -> str:
+        """
+        그룹에 사용자를 추가하는 CLI를 생성합니다.
+        (submitAddUsersToGroup() 함수에서 오는 데이터를 처리합니다.)
+        
+        group_name: 그룹 이름 (selectedEntity에서 가져옴)
+        users: 추가할 사용자 이름 목록 (activePolicies에서 가져옴)
+        """
+        commands = []
+        
+        if users and isinstance(users, list):
+            for user_name in users:
+                commands.append(
+                    f"aws iam add-user-to-group --group-name {group_name} --user-name {user_name}"
+                )
+        
+        return "\n".join(commands)
+    
+    # ─────────────────────────────────────────────
+    # 공통 헬퍼 메서드
+    # ─────────────────────────────────────────────
+    def _create_resource_command(self, resource_type: str, entity_name: str) -> str:
+        """리소스 타입에 따른 생성 명령어를 반환합니다."""
+        if resource_type == "user":
+            return f"aws iam create-user --user-name {entity_name}"
+        
         elif resource_type == "role":
-            # IAM 역할(Role) 생성
-            # EC2 서비스와 Lambda 서비스가 이 역할을 사용할 수 있도록 신뢰 정책을 설정합니다.
             trust_policy = {
                 "Version": "2012-10-17",
                 "Statement": [
@@ -57,36 +172,29 @@ class IAMHandler(BaseHandler):
                 ]
             }
             trust_policy_str = json.dumps(trust_policy, indent=2)
-            # 윈도우 파워쉘 호환성을 위해 바깥은 작은따옴표('), 안쪽은 큰따옴표(")를 사용합니다.
-            create_cmd = f"aws iam create-role --role-name {entity_name} --assume-role-policy-document '{trust_policy_str}'"
-            commands.append(create_cmd)
-            
+            return f"aws iam create-role --role-name {entity_name} --assume-role-policy-document '{trust_policy_str}'"
+        
         elif resource_type == "group":
-            # IAM 그룹(Group) 생성
-            create_cmd = f"aws iam create-group --group-name {entity_name}"
-            commands.append(create_cmd)
+            return f"aws iam create-group --group-name {entity_name}"
         
-        # 2. 인라인 정책 부여 (선택된 정책이 있는 경우에만)
-        if active_policies:
-            # 정책 내용을 JSON으로 생성
-            policy_json = self._generate_policy_json(active_policies)
-            policy_str = json.dumps(policy_json, indent=2)
-            
-            # 리소스 타입에 따라 정책 부여 명령어가 다릅니다.
-            if resource_type == "user":
-                policy_cmd = f"aws iam put-user-policy --user-name {entity_name} --policy-name GeneratedPolicy --policy-document '{policy_str}'"
-                commands.append(policy_cmd)
-                
-            elif resource_type == "role":
-                policy_cmd = f"aws iam put-role-policy --role-name {entity_name} --policy-name GeneratedPolicy --policy-document '{policy_str}'"
-                commands.append(policy_cmd)
-                
-            elif resource_type == "group":
-                policy_cmd = f"aws iam put-group-policy --group-name {entity_name} --policy-name GeneratedPolicy --policy-document '{policy_str}'"
-                commands.append(policy_cmd)
+        return ""
+    
+    def _attach_policy_command(self, resource_type: str, entity_name: str, policy: str) -> str:
+        """리소스 타입에 따른 관리형 정책 연결 명령어를 반환합니다."""
+        # ARN이 아닌 경우 (예: "s3FullAccess") → 풀 ARN으로 변환
+        if not policy.startswith("arn:"):
+            policy_arn = f"arn:aws:iam::aws:policy/{policy}"
+        else:
+            policy_arn = policy
         
-        # 3. 모든 명령어를 줄바꿈(\n)으로 연결하여 반환
-        return "\n".join(commands)
+        if resource_type == "user":
+            return f"aws iam attach-user-policy --user-name {entity_name} --policy-arn {policy_arn}"
+        elif resource_type == "role":
+            return f"aws iam attach-role-policy --role-name {entity_name} --policy-arn {policy_arn}"
+        elif resource_type == "group":
+            return f"aws iam attach-group-policy --group-name {entity_name} --policy-arn {policy_arn}"
+        
+        return ""
     
     def _generate_policy_json(self, active_policies: dict) -> dict:
         """
