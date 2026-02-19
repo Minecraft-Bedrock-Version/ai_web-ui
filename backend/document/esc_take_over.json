@@ -1,0 +1,48 @@
+{
+  "platform": {
+    "name": "CloudGoat",
+    "scenario": "ecs_takeover",
+    "reference": "https://github.com/RhinoSecurityLabs/cloudgoat/tree/master/cloudgoat/scenarios/aws/ecs_takeover"
+  },
+
+  "vulnerability_title": "ECS 컨테이너 격리 우회 및 스케줄링 조작을 통한 민감 데이터 탈취",
+
+  "category": [
+    "Docker Socket 마운트 취약점",
+    "ECS Container Instance 상태 조작",
+    "컨테이너 간 격리 우회"
+  ],
+
+  "vulnerability_detail": "본 시나리오는 ECS Task에서 Docker Socket(/var/run/docker.sock)이 마운트되고 호스트 네트워크 모드로 실행되는 취약한 웹 애플리케이션을 통해, 동일 호스트에서 실행 중인 다른 컨테이너의 자격 증명을 탈취할 수 있다. Command Injection 취약점을 통해 Docker Socket에 접근하여 privileged 컨테이너의 Task Role 자격 증명과 호스트 EC2 인스턴스의 IAM Role 자격 증명을 획득한다. 이후 EC2 인스턴스 Role의 ecs:UpdateContainerInstancesState 권한을 악용하여 민감 데이터를 보유한 vault 컨테이너가 실행 중인 Container Instance를 DRAINING 상태로 변경함으로써, ECS 스케줄러가 vault 컨테이너를 공격자가 제어하는 호스트로 재배치하도록 유도하여 최종적으로 민감 데이터에 접근할 수 있습니다.",
+
+  "attack_path": [
+    {
+      "step": "Web Application(vulnsite) → Docker Socket",
+      "detail": "Command Injection, /var/run/docker.sock 마운트"
+    },
+    {
+      "step": "Docker Socket → privd Container",
+      "detail": "Task Metadata Endpoint 169.254.170.2, Task Role 자격 증명 탈취"
+    },
+    {
+      "step": "Web Application(vulnsite) → EC2 Metadata",
+      "detail": "호스트 네트워크 모드, 169.254.169.254, EC2 Instance Role 자격 증명 탈취"
+    },
+    {
+      "step": "privd Task Role → ECS Cluster",
+      "detail": "ecs:List*, ecs:Describe* 권한으로 vault 컨테이너 위치 파악"
+    },
+    {
+      "step": "EC2 Instance Role → Container Instance(vault)",
+      "detail": "ecs:UpdateContainerInstancesState 권한으로 DRAINING 상태 변경"
+    },
+    {
+      "step": "ECS Scheduler → vault Container",
+      "detail": "vulnsite 호스트로 재스케줄링"
+    },
+    {
+      "step": "Docker Socket → vault Container",
+      "detail": "docker exec로 FLAG.TXT 접근"
+    }
+  ]
+}
