@@ -920,5 +920,167 @@
   ]
 }
     ]
+  },
+  {
+    "id": 5,
+    "title": "vulnerable_lambda",
+    "description": "document/vulnerable_lambda.json",
+    "resources": [
+      {
+  "schema_version": "1.5",
+  "nodes": [
+    {
+      "node_id": "288528695623:iam_role:AROA5GXM3PEBPXUOICJVK",
+      "type": "iam_role",
+      "name": "cg-lambda-invoker-cgidqr0pwai050",
+      "properties": {
+        "assume_role_policy": {
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": "sts:AssumeRole",
+              "Principal": {
+                "AWS": "arn:aws:iam::288528695623:user/cg-bilbo-cgidqr0pwai050"
+              }
+            }
+          ]
+        },
+        "inline_policies": [
+          {
+            "PolicyName": "lambda-invoker",
+            "Statement": [
+              {
+                "Action": [
+                  "lambda:ListFunctionEventInvokeConfigs",
+                  "lambda:InvokeFunction",
+                  "lambda:ListTags",
+                  "lambda:GetFunction",
+                  "lambda:GetPolicy"
+                ],
+                "Effect": "Allow",
+                "Resource": "arn:aws:lambda:us-east-1:288528695623:function:cgidqr0pwai050-policy_applier_lambda1"
+              },
+              {
+                "Action": [
+                  "lambda:ListFunctions",
+                  "iam:Get*",
+                  "iam:List*",
+                  "iam:SimulateCustomPolicy",
+                  "iam:SimulatePrincipalPolicy"
+                ],
+                "Effect": "Allow",
+                "Resource": "*"
+              }
+            ]
+          }
+        ],
+        "attached_policies": []
+      }
+    },
+    {
+      "node_id": "288528695623:iam_user:AIDA5GXM3PEBNIW6X2Z4G",
+      "type": "iam_user",
+      "name": "cg-bilbo-cgidqr0pwai050",
+      "properties": {
+        "inline_policies": [
+          {
+            "Effect": "Allow",
+            "Action": "sts:AssumeRole",
+            "Resource": "arn:aws:iam::940877411605:role/cg-lambda-invoker*"
+          },
+          {
+            "Effect": "Allow",
+            "Action": [
+              "iam:Get*",
+              "iam:List*",
+              "iam:SimulateCustomPolicy",
+              "iam:SimulatePrincipalPolicy"
+            ],
+            "Resource": "*"
+          }
+        ],
+        "attached_policies": [],
+        "group_policies": []
+      }
+    },
+    {
+      "node_id": "288528695623:iam_role:AROA5GXM3PEBPE26GKYSY",
+      "type": "iam_role",
+      "name": "cgidqr0pwai050-policy_applier_lambda1",
+      "properties": {
+        "assume_role_policy": {
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": "sts:AssumeRole",
+              "Principal": {
+                "Service": "lambda.amazonaws.com"
+              }
+            }
+          ]
+        },
+        "inline_policies": [
+          {
+            "PolicyName": "policy_applier_lambda1",
+            "Statement": [
+              {
+                "Action": "iam:AttachUserPolicy",
+                "Effect": "Allow",
+                "Resource": "arn:aws:iam::288528695623:user/cg-bilbo-cgidqr0pwai050"
+              },
+              {
+                "Action": [
+                  "logs:CreateLogStream",
+                  "logs:PutLogEvents"
+                ],
+                "Effect": "Allow",
+                "Resource": "arn:aws:logs:us-east-1:288528695623:log-group:/aws/lambda/cgidqr0pwai050-policy_applier_lambda1:*"
+              }
+            ]
+          }
+        ],
+        "attached_policies": []
+      }
+    },
+    {
+      "node_id": "288528695623:us-east-1:secretsmanager:cgidqr0pwai050-final_flag",
+      "type": "secretsmanager",
+      "name": "cgidqr0pwai050-final_flag",
+      "properties": {
+        "arn": "arn:aws:secretsmanager:us-east-1:288528695623:secret:cgidqr0pwai050-final_flag-hN8Pks",
+        "description": ""
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge_1",
+      "src": "288528695623:iam_user:AIDA5GXM3PEBNIW6X2Z4G",
+      "dst": "288528695623:iam_role:AROA5GXM3PEBPXUOICJVK",
+      "relation": "can_assume_role",
+      "directed": true,
+      "conditions": []
+    },
+    {
+      "id": "edge_2",
+      "src": "288528695623:iam_role:AROA5GXM3PEBPE26GKYSY",
+      "dst": "288528695623:iam_user:AIDA5GXM3PEBNIW6X2Z4G",
+      "relation": "can_attach_policy_to",
+      "directed": true,
+      "conditions": []
+    },
+    {
+      "id": "edge_3",
+      "src": "288528695623:iam_user:AIDA5GXM3PEBNIW6X2Z4G",
+      "dst": "288528695623:us-east-1:secretsmanager:cgidqr0pwai050-final_flag",
+      "relation": "can_access_after_privesc",
+      "directed": true,
+      "conditions": [
+        "requires_admin_policy"
+      ]
+    }
+  ]
+}
+    ]
   }
 ]
