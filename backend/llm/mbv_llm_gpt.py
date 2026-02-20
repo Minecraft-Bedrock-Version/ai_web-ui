@@ -61,6 +61,8 @@ def run_security_analysis(target_infra_json: str, retrieved_context: str) -> Opt
     """
     EC2에서 지정된 모델을 사용하여 클라우드 보안 분석을 수행합니다.
     """
+
+    print("target_infra:",target_infra_json)
     # # 1. 취약점 지식 베이스(RAG) 파일 읽기
     # try:
     #     with open(CONTEXT_PATH, "r", encoding="utf-8") as f:
