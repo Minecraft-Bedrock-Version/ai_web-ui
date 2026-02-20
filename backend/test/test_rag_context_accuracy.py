@@ -1150,8 +1150,7 @@ def _run_test6_variant_c(num_docs):
 1. 각 RAG 문서의 공격 시나리오가 입력 인프라에서 실제로 재현 가능한지 검증하라.
 2. 재현 가능한 시나리오는 vulnerabilities에 포함하고 confidence score를 부여하라.
 3. 재현 불가능한 시나리오는 rejected_scenarios에 포함하고 구체적 거부 사유를 명시하라.
-4. 이 단계에서는 RAG에 없는 완전히 새로운 유형의 취약점을 탐색하지 마라.
-5. **[패턴 매칭 허용]**: RAG 문서의 원래 시나리오가 정확히 일치하지 않더라도, 동일한 취약점 패턴(예: AccessKey 생성을 통한 자격증명 탈취, AssumeRole 체인을 통한 권한 상승 등)의 **변형 경로**가 인프라에 존재하면 검증 통과로 처리하라. 이 경우 confidence_reason에 "원문 시나리오 변형: [변형 내용]"을 명시하라.
+4. **[패턴 매칭 허용]**: RAG 문서의 원래 시나리오가 정확히 일치하지 않더라도, 동일한 취약점 패턴(예: AccessKey 생성을 통한 자격증명 탈취, AssumeRole 체인을 통한 권한 상승 등)의 **변형 경로**가 인프라에 존재하면 검증 통과로 처리하라. 이 경우 confidence_reason에 "원문 시나리오 변형: [변형 내용]"을 명시하라.
 
 [심층 검증 및 오탐 제거 지침]
 1. **[Effective Permission Calculation]**: Allow/Deny/SCP/Boundary 모두 대조하여 실제 유효 권한 계산.
