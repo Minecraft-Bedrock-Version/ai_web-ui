@@ -247,22 +247,6 @@ function selectEntity(name, managedPolicies, inlinePolicies, members) {
   }
 }
 
-
-// submitCreateResource 내 payload 예시
-const payload = {
-  state: {
-    action: "create",
-    service: "iam",
-    resource: type,
-    selectedEntity: name,
-    managedPolicies: managedPolicies, // 명확하게 이름 변경 추천
-  },
-  region: state.region
-};
-
-
-
-
 // 명단을 직접 받아서 그리는 보조 함수 (가장 확실한 방법)
 function renderGroupMembersDirectly(members) {
   const memberListEl = document.getElementById("memberList");
