@@ -56,19 +56,15 @@ class IAMHandler(BaseHandler):
     # ─────────────────────────────────────────────
     def _handle_inline_policy(self, resource_type: str, entity_name: str, active_policies: dict) -> str:
         """
-        리소스 생성 + 인라인 정책 부여 CLI를 생성합니다.
+        기존 리소스에 인라인 정책을 부여하는 CLI를 생성합니다.
         (기존 goNext() 함수에서 오는 데이터를 처리합니다.)
+        리소스는 이미 존재하므로 생성 명령어는 포함하지 않습니다.
         
         active_policies 형식: { "s3": ["GetObject"], "ec2": ["StartInstances"] }
         """
         commands = []
         
-        # 1. 리소스 생성 명령어
-        create_cmd = self._create_resource_command(resource_type, entity_name)
-        if create_cmd:
-            commands.append(create_cmd)
-        
-        # 2. 인라인 정책 부여 (선택된 정책이 있는 경우에만)
+        # 인라인 정책 부여 (선택된 정책이 있는 경우에만)
         if active_policies:
             policy_json = self._generate_policy_json(active_policies)
             policy_str = json.dumps(policy_json, indent=2)
