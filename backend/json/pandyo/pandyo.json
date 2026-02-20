@@ -1082,5 +1082,155 @@
   ]
 }
     ]
+  },
+    {
+    "id": 6,
+    "title": "eventbridge_target",
+    "description": "document/eventbridge_target.json",
+    "resources": [
+      {
+  "nodes": [
+    {
+      "node_id": "node_id",
+      "type": "iam_user",
+      "name": "string",
+      "properties": {
+        "inline_policies": [
+          {
+            "Effect": "Allow",
+            "Action": [
+              "lambda:ListFunctions",
+              "lambda:GetFunction",
+              "events:PutTargets",
+              "events:PutRule"
+            ],
+            "Resource": "*"
+          }
+        ],
+        "attached_policies": [],
+        "group_policies": []
+      }
+    },
+    {
+      "node_id": "node_id",
+      "type": "iam_role",
+      "name": "string",
+      "properties": {
+        "assume_role_policy": {
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": "sts:AssumeRole",
+              "Principal": {
+                "Service": "lambda.amazonaws.com"
+              }
+            }
+          ]
+        },
+        "inline_policies": [],
+        "attached_policies": [
+          {
+            "PolicyName": "string",
+            "Statement": [
+              {
+                "Action": [
+                  "cloudtrail:LookupEvents"
+                ],
+                "Effect": "Allow",
+                "Resource": "*"
+              },
+              {
+                "Action": [
+                  "iam:AttachUserPolicy"
+                ],
+                "Effect": "Allow",
+                "Resource": "*"
+              },
+              {
+                "Action": [
+                  "logs:CreateLogGroup",
+                  "logs:CreateLogStream",
+                  "logs:PutLogEvents"
+                ],
+                "Effect": "Allow",
+                "Resource": "arn:aws:logs:*:*:*"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "node_id": "node_id",
+      "type": "eventbridge",
+      "name": "string",
+      "attributes": {
+        "state": "ENABLED",
+        "target_arn": [
+          "arn:aws:lambda:us-east-1:288528695623:function:"
+        ]
+      }
+    },
+    {
+      "node_id": "node_id",
+      "type": "lambda",
+      "name": "string",
+      "properties": {
+        "event_source_arn": []
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge id",
+      "src": "lambda node id",
+      "dst": "iam_role node id",
+      "relation": "LAMBDA_ASSUMES_ROLE",
+      "directed": true,
+      "conditions": "This Lambda function executes with the permissions of lambda-role-mbv role."
+    },
+    {
+      "id": "edge id",
+      "src": "iam_user node id",
+      "dst": "eventbridge node id",
+      "relation": "IAM_USER_MANAGE_EVENTBRIDGE",
+      "directed": true,
+      "conditions": "User can modify EventBridge rules to redirect triggers."
+    },
+    {
+      "id": "edge id",
+      "src": "iam_user node id",
+      "dst": "lambda node id",
+      "relation": "IAM_USER_ACCESS_LAMBDA",
+      "directed": true,
+      "conditions": "This User has access to Lambda."
+    },
+    {
+      "id": "edge id",
+      "src": "eventbridge node id",
+      "dst": "lambda node id",
+      "relation": "EVENTBRIDGE_TRIGGERS_LAMBDA",
+      "directed": true,
+      "conditions": "Rule triggers this Lambda. Attackers can modify 'Input' to exploit it."
+    },
+    {
+      "id": "edge id",
+      "src": "lambda node id",
+      "dst": "iam_role node id",
+      "relation": "ASSUME_ROLE",
+      "directed": true,
+      "conditions": "A role that a Lambda function can assume."
+    },
+    {
+      "id": "edge id",
+      "src": "iam_role node id",
+      "dst": "iam_user node id",
+      "relation": "ELEVATES_PRIVILEGE",
+      "directed": true,
+      "conditions": "This role can elevate privileges of user string via iam:AttachUserPolicy."
+    }
+  ]
+}
+    ]
   }
 ]
