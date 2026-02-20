@@ -1,0 +1,53 @@
+{
+  "platform": {
+    "name": "CloudGoat",
+    "scenario": "vulnerable_lambda",
+    "reference": "https://github.com/RhinoSecurityLabs/cloudgoat/tree/master/scenarios/vulnerable_lambda"
+  },
+
+  "vulnerability_title": "Lambda 함수 SQL Injection을 통한 IAM 권한 상승 및 민감 데이터 탈취",
+
+  "category": [
+    "Lambda 함수 코드 취약점",
+    "SQL Injection",
+    "IAM 권한 상승",
+    "Secrets Manager 데이터 탈취"
+  ],
+
+  "vulnerability_detail": "본 시나리오는 IAM 사용자에게 정책을 적용하는 Lambda 함수의 소스 코드에 존재하는 SQL Injection 취약점을 악용하여 권한 상승을 수행한다. 공격자는 제한된 권한을 가진 'bilbo' IAM 사용자로 시작하여, sts:AssumeRole 권한을 통해 Lambda 함수를 호출할 수 있는 'cg-lambda-invoker' 역할을 획득한다. lambda:GetFunction 권한을 사용하여 Lambda 배포 패키지(deployment package)를 다운로드하고 소스 코드를 분석한 결과, 정책 이름을 처리하는 SQL 쿼리에서 사용자 입력값에 대한 검증이 없어 SQL Injection 취약점이 존재함을 발견한다. SQLite 데이터베이스는 'public=True'인 정책만 적용하도록 설계되었으나, SQL Injection 페이로드(\"AdministratorAccess' --\")를 통해 public 검증 로직을 우회하여 AdministratorAccess 정책을 bilbo 사용자에게 부여한다. 최종적으로 관리자 권한을 획득한 후 Secrets Manager에 접근하여 민감 데이터를 탈취할 수 있다.",
+
+  "attack_path": [
+    {
+      "step": "IAM User(bilbo) → IAM Enumeration",
+      "detail": "iam:Get*, iam:List* 권한으로 자신의 권한 파악"
+    },
+    {
+      "step": "IAM User(bilbo) → IAM Role(cg-lambda-invoker)",
+      "detail": "sts:AssumeRole 권한으로 Lambda 호출 가능한 역할 획득"
+    },
+    {
+      "step": "IAM Role(cg-lambda-invoker) → Lambda Function",
+      "detail": "lambda:ListFunctions, lambda:GetFunction으로 함수 발견 및 소스 코드 다운로드"
+    },
+    {
+      "step": "Lambda Deployment Package → Source Code Analysis",
+      "detail": "main.py 분석, SQL Injection 취약점 발견"
+    },
+    {
+      "step": "SQLite Database → Vulnerability Confirmation",
+      "detail": "my_database.db 분석, public=True 검증 로직 확인"
+    },
+    {
+      "step": "IAM Role(cg-lambda-invoker) → Lambda Function Invocation",
+      "detail": "lambda:InvokeFunction, SQL Injection 페이로드 전송: \"AdministratorAccess' --\""
+    },
+    {
+      "step": "Lambda Function → IAM User(bilbo)",
+      "detail": "iam:AttachUserPolicy로 AdministratorAccess 정책 부여"
+    },
+    {
+      "step": "IAM User(bilbo) → Secrets Manager",
+      "detail": "secretsmanager:ListSecrets, secretsmanager:GetSecretValue로 민감 데이터 탈취"
+    }
+  ]
+}

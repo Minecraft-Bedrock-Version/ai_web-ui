@@ -34,7 +34,7 @@ async def lambda_invoke(request: Request):
         #body = lambda_result.get("body",{})
         #if isinstance(body, str):
         #   body = json.loads(body)
-        #fix
+        
 
         body = lambda_result.get("body", {})
         
