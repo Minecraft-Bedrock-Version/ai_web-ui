@@ -30,7 +30,11 @@ DOC_FILES = {
     "vulnerable_lambda": os.path.join(DOC_DIR, "vulnerable_lambda.json"),
     "eventbridge_target": os.path.join(DOC_DIR, "eventbridge_target.json"),
     "iam_privesc_by_key_rotation": os.path.join(DOC_DIR, "iam_privesc_by_key_rotation.json"),
+    "lambda_privesc": os.path.join(DOC_DIR, "lambda_privesc.json"),
 }
+
+# 모델 최대 출력 토큰: 33,000 (context window: 128K)
+# MAX_TOKENS는 테스트별로 다르게 설정 가능
 
 # Bedrock 클라이언트
 client = boto3.client(service_name='bedrock-runtime', region_name=REGION)
@@ -875,6 +879,509 @@ def run_test5():
 
 
 # ──────────────────────────────────────────────────────────
+# Test 6: Confidence+거부사유 Phase 1 → Secondary Phase 2
+#   6a: Phase 1에서 "RAG에 없는 추가 취약점 탐색 금지" 포함
+#   6b: Phase 1에서 해당 제한 제거 (자유 탐지 허용)
+#   num_docs=3 or 4 로 문서 수 조절
+# ──────────────────────────────────────────────────────────
+def _build_test6_context(num_docs):
+    """문서 로딩 + retrieved_context 조립"""
+    doc1 = load_doc("vulnerable_lambda")
+    doc2 = load_doc("eventbridge_target")
+    doc3 = load_doc("iam_privesc_by_key_rotation")
+
+    ctx = f"""[문서 1 - vulnerable_lambda (유사도: 0.8014)]
+{doc1}
+
+[문서 2 - eventbridge_target (유사도: 0.7964)]
+{doc2}
+
+[문서 3 - iam_privesc_by_key_rotation (유사도: 0.7200)]
+{doc3}"""
+
+    source_tags = """- "rag_doc_1": 문서 1(vulnerable_lambda)에서 파생
+- "rag_doc_2": 문서 2(eventbridge_target)에서 파생
+- "rag_doc_3": 문서 3(iam_privesc_by_key_rotation)에서 파생"""
+
+    doc_names = ["vulnerable_lambda", "eventbridge_target", "iam_privesc_by_key_rotation"]
+
+    if num_docs >= 4:
+        doc4 = load_doc("lambda_privesc")
+        ctx += f"""
+
+[문서 4 - lambda_privesc (유사도: 추정 ~0.70)]
+{doc4}"""
+        source_tags += '\n- "rag_doc_4": 문서 4(lambda_privesc)에서 파생'
+        doc_names.append("lambda_privesc")
+
+    return ctx, source_tags, doc_names
+
+
+def _run_test6_variant(variant, num_docs, retrieved_context, source_tags, doc_names):
+    """Test 6 Phase 1 + Phase 2 실행 (variant='a' or 'b')"""
+    restrict = (variant == "a")
+    label = f"6{variant}_{num_docs}docs"
+    emoji = "🔵" if variant == "a" else "🟢"
+
+    print(f"\n{emoji * 35}")
+    print(f"  Test {label}: {'제한 O' if restrict else '제한 X'} + {num_docs}문서")
+    print(f"{emoji * 35}")
+
+    # ── Phase 1 프롬프트 ──
+    restriction_line = ""
+    if restrict:
+        restriction_line = "4. 이 단계에서는 RAG에 없는 추가 취약점을 탐색하지 마라.\n"
+    else:
+        restriction_line = "4. RAG 문서의 시나리오 검증과 함께, RAG에 없더라도 인프라에서 발견되는 추가 취약점도 함께 보고하라.\n"
+
+    # Source 태깅 스키마 (4문서일 때 rag_doc_4 추가)
+    source_enum = "rag_doc_1|rag_doc_2|rag_doc_3"
+    if num_docs >= 4:
+        source_enum = "rag_doc_1|rag_doc_2|rag_doc_3|rag_doc_4"
+
+    phase1_prompt = f"""역할: 너는 전 세계 기업 환경을 대상으로 실전 침투 시나리오를 설계하고 검증하는 Tier-1 클라우드 보안 아키텍트이자 레드팀 리더이다.
+목표: 아래 RAG 문서들의 공격 시나리오가 입력 인프라에서 실제로 재현 가능한지 검증하고, 각 문서에 대해 confidence score와 출처를 명시한다.
+
+컨텍스트: 취약점 지식 베이스 (RAG)
+{retrieved_context}
+
+입력: 분석 대상 인프라 구성 (JSON)
+{TARGET_INFRA_STR}
+
+[분석 지침 (반드시 준수)]
+1. 각 RAG 문서의 공격 시나리오가 입력 인프라에서 실제로 재현 가능한지 검증하라.
+2. 재현 가능한 시나리오는 vulnerabilities에 포함하고 confidence score를 부여하라.
+3. 재현 불가능한 시나리오는 rejected_scenarios에 포함하고 구체적 거부 사유를 명시하라.
+{restriction_line}
+[심층 검증 및 오탐 제거 지침]
+1. **[Effective Permission Calculation]**: Allow/Deny/SCP/Boundary 모두 대조하여 실제 유효 권한 계산.
+2. **[Multi-hop Attack Simulation]**: sts:AssumeRole, iam:PassRole, Lambda 실행 역할 등을 포함한 연쇄·간접 공격 경로를 시뮬레이션하라.
+3. **[간접 권한 주의]**: 사용자가 직접 보유하지 않더라도 Lambda 실행 역할, AssumeRole 체인 등 간접 경로를 통해 획득 가능한 권한을 반드시 고려하라.
+4. **[False Positive Filtering]**: MFA, SourceIp 등 제어 조건을 검토하여 실제 공격 불가능한 오탐을 제거하라.
+
+[Confidence Score 산출 기준]
+- 0.9~1.0: 확실히 재현 가능 (필요 권한이 모두 존재, 공격 경로 완전 증명)
+- 0.7~0.9: 높은 확률 (대부분 조건 충족, 일부 환경 의존적)
+- 0.5~0.7: 가능성 있음 (일부 권한 있으나 MFA/SourceIp 등 미확인)
+- 0.3~0.5: 낮은 가능성 (핵심 권한 일부 누락)
+- 0.0~0.3: 재현 불가 (필수 권한/리소스 없음)
+
+[Source 태깅]
+{source_tags}
+
+출력 형식: 순수 JSON 객체만 출력한다. 다른 텍스트, 마크다운, 코드펜스, 주석을 포함하지 않는다.
+모든 문자열은 한국어로 작성하고, 전문 용어는 괄호 안에 영문을 병기할 수 있다.
+
+스키마
+{{{{
+    "summary": {{{{ "high": 0, "medium": 0, "low": 0 }}}},
+    "vulnerabilities": [
+        {{{{
+            "severity": "high|medium|low",
+            "title": "문장형 제목",
+            "description": "취약점 설명",
+            "attackPath": ["단계1", "단계2"],
+            "impact": "잠재적 영향",
+            "recommendation": "권장 사항",
+            "cvss_score": 0.0,
+            "source": "{source_enum}",
+            "confidence": 0.0,
+            "confidence_reason": "점수 산출 근거"
+        }}}}
+    ],
+    "rejected_scenarios": [
+        {{{{
+            "source": "{source_enum}",
+            "doc_title": "문서 시나리오 제목",
+            "rejection_reason": "거부 사유 (어떤 권한이 없어서 재현 불가능한지 구체적으로)",
+            "missing_permissions": ["iam:InvokeFunction"]
+        }}}}
+    ]
+}}}}
+"""
+
+    print(f"\n  ── Phase 1: RAG 검증 + Confidence + 거부사유 ({'제한 O' if restrict else '제한 X'}) ──")
+    phase1_result = call_llm(phase1_prompt)
+    print_result(f"Test {label} - Phase 1", phase1_result, doc_names)
+
+    # 거부 시나리오 출력
+    if phase1_result["parsed"]:
+        rejected = phase1_result["parsed"].get("rejected_scenarios", [])
+        if rejected:
+            print(f"\n  📊 거부된 RAG 시나리오: {len(rejected)}개")
+            for r in rejected:
+                src = r.get("source", "?")
+                title = r.get("doc_title", "N/A")
+                reason = r.get("rejection_reason", "N/A")
+                missing = r.get("missing_permissions", [])
+                print(f"    ❌ [{src}] {title}")
+                print(f"       사유: {reason}")
+                if missing:
+                    print(f"       누락 권한: {', '.join(missing)}")
+
+        vulns = phase1_result["parsed"].get("vulnerabilities", [])
+        if vulns:
+            print(f"\n  📊 검증 통과: {len(vulns)}개")
+            for v in vulns:
+                src = v.get("source", "?")
+                conf = v.get("confidence", "?")
+                title = v.get("title", "N/A")
+                print(f"    ✅ [{src}] conf={conf} | {title}")
+
+    # Phase 2: Secondary
+    primary_summary = "없음"
+    if phase1_result["parsed"]:
+        vulns = phase1_result["parsed"].get("vulnerabilities", [])
+        titles = [v.get("title", "") for v in vulns]
+        primary_summary = "\n".join([f"- {t}" for t in titles]) if titles else "없음"
+
+    print(f"\n  ── Phase 2: Secondary (Zero-Base 확장 탐지) ──")
+    secondary_prompt = f"""역할: 너는 전 세계 기업 환경을 대상으로 실전 침투 시나리오를 설계하고 검증하는 Tier-1 클라우드 보안 아키텍트이자 레드팀 리더이다.
+목표: 아래 인프라에서 아직 식별되지 않은 추가 취약점을 탐색한다.
+
+입력: 분석 대상 인프라 구성 (JSON)
+{TARGET_INFRA_STR}
+
+이미 식별된 취약점 (제외 대상 - 중복 보고 금지):
+{primary_summary}
+
+[분석 지침 (반드시 준수)]
+1. 위에 이미 식별된 취약점은 중복 보고하지 마라.
+2. 클라우드 보안 지식(OWASP, AWS Best Practices)을 총동원하여 인프라 전체를 스캔하라.
+3. IAM 권한 오남용, 리소스 노출, 암호화 미비 등 치명적 취약점을 식별하여 보고하라.
+4. sts:AssumeRole, iam:PassRole 등을 포함한 연쇄 공격 경로(Multi-hop Attack)를 시뮬레이션하라.
+5. 간접 경로(Lambda 역할, EventBridge 등)를 통한 권한 획득 가능성도 고려하라.
+
+출력 형식: 순수 JSON 객체만 출력한다. 다른 텍스트, 마크다운, 코드펜스, 주석을 포함하지 않는다.
+모든 문자열은 한국어로 작성하고, 전문 용어는 괄호 안에 영문을 병기할 수 있다.
+
+스키마
+{{{{
+    "summary": {{{{ "high": 0, "medium": 0, "low": 0 }}}},
+    "vulnerabilities": [
+        {{{{
+            "severity": "high|medium|low",
+            "title": "문장형 제목",
+            "description": "취약점 설명",
+            "attackPath": ["단계1", "단계2"],
+            "impact": "잠재적 영향",
+            "recommendation": "권장 사항",
+            "cvss_score": 0.0
+        }}}}
+    ]
+}}}}
+"""
+    secondary_result = call_llm(secondary_prompt)
+    print_result(f"Test {label} - Phase 2 (Secondary)", secondary_result, ["zero_base_only"])
+
+    # 통합 로그
+    combined_log = {
+        "test_id": f"test6{variant}_{num_docs}docs",
+        "variant": f"6{variant}",
+        "restriction": restrict,
+        "num_docs": num_docs,
+        "timestamp": datetime.now().isoformat(),
+        "context_docs": doc_names,
+        "phase1": {
+            "input_tokens": phase1_result["input_tokens"],
+            "output_tokens": phase1_result["output_tokens"],
+            "response_time_sec": phase1_result["response_time_sec"],
+            "finish_reason": phase1_result["finish_reason"],
+            "truncated": phase1_result["truncated"],
+            "vuln_count": len(phase1_result["parsed"].get("vulnerabilities", [])) if phase1_result["parsed"] else 0,
+            "rejected_count": len(phase1_result["parsed"].get("rejected_scenarios", [])) if phase1_result["parsed"] else 0,
+            "result": phase1_result["parsed"],
+        },
+        "phase2": {
+            "input_tokens": secondary_result["input_tokens"],
+            "output_tokens": secondary_result["output_tokens"],
+            "response_time_sec": secondary_result["response_time_sec"],
+            "finish_reason": secondary_result["finish_reason"],
+            "truncated": secondary_result["truncated"],
+            "vuln_count": len(secondary_result["parsed"].get("vulnerabilities", [])) if secondary_result["parsed"] else 0,
+            "result": secondary_result["parsed"],
+        },
+        "total_input_tokens": phase1_result["input_tokens"] + secondary_result["input_tokens"],
+        "total_output_tokens": phase1_result["output_tokens"] + secondary_result["output_tokens"],
+        "total_response_time_sec": phase1_result["response_time_sec"] + secondary_result["response_time_sec"],
+    }
+
+    log_dir = os.path.join(BASE_DIR, "logs")
+    os.makedirs(log_dir, exist_ok=True)
+    log_path = os.path.join(log_dir, f"test6{variant}_{num_docs}docs_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json")
+    with open(log_path, "w", encoding="utf-8") as f:
+        json.dump(combined_log, f, ensure_ascii=False, indent=2)
+    print(f"  📁 로그 저장: {log_path}")
+
+    total_vulns = combined_log["phase1"]["vuln_count"] + combined_log["phase2"]["vuln_count"]
+    print(f"\n  📊 [{label}] Phase1 {combined_log['phase1']['vuln_count']}개(검증) + {combined_log['phase1']['rejected_count']}개(거부) + Phase2 {combined_log['phase2']['vuln_count']}개(추가) = 총 {total_vulns}개")
+
+    return combined_log
+
+
+def run_test6_1():
+    """Test 6-1: 제한O + 3문서"""
+    ctx, tags, names = _build_test6_context(3)
+    return _run_test6_variant("a", 3, ctx, tags, names)
+
+
+def run_test6_2():
+    """Test 6-2: 제한O + 4문서"""
+    ctx, tags, names = _build_test6_context(4)
+    return _run_test6_variant("a", 4, ctx, tags, names)
+
+
+def run_test6_3():
+    """Test 6-3: 제한X + 3문서"""
+    ctx, tags, names = _build_test6_context(3)
+    return _run_test6_variant("b", 3, ctx, tags, names)
+
+
+def run_test6_4():
+    """Test 6-4: 제한X + 4문서"""
+    ctx, tags, names = _build_test6_context(4)
+    return _run_test6_variant("b", 4, ctx, tags, names)
+
+
+def run_test6_all():
+    """Test 6 전체: 4가지 변형 모두 실행 후 비교"""
+    results = {}
+    for idx, (label, func) in enumerate([
+        ("6-1 (제한O, 3문서)", run_test6_1),
+        ("6-2 (제한O, 4문서)", run_test6_2),
+        ("6-3 (제한X, 3문서)", run_test6_3),
+        ("6-4 (제한X, 4문서)", run_test6_4),
+    ], 1):
+        print(f"\n\n{'🔶' * 35}")
+        print(f"  ▶ Test {label} 시작 ({idx}/4)")
+        print(f"{'🔶' * 35}")
+        try:
+            results[f"test6_{idx}"] = func()
+        except Exception as e:
+            print(f"  ❌ {label} 실패: {e}")
+            results[f"test6_{idx}"] = {"error": str(e)}
+
+    # ── 4가지 비교 요약 ──
+    print(f"\n\n{'=' * 80}")
+    print("📊 Test 6 전체 비교 요약 (4가지 변형)")
+    print(f"{'=' * 80}")
+    print(f"  {'테스트':<22} {'제한':<6} {'문서':<4} {'P1검증':<6} {'P1거부':<6} {'P2추가':<6} {'총합':<6} {'토큰(합계)':<12} {'시간(초)':<8}")
+    print(f"  {'─' * 76}")
+
+    configs = [
+        ("test6_1", "제한O", "3"),
+        ("test6_2", "제한O", "4"),
+        ("test6_3", "제한X", "3"),
+        ("test6_4", "제한X", "4"),
+    ]
+    for key, restrict, docs in configs:
+        r = results.get(key, {})
+        if "error" in r:
+            print(f"  {key:<22} {restrict:<6} {docs:<4} ERROR: {r['error']}")
+            continue
+        p1_v = r.get("phase1", {}).get("vuln_count", 0)
+        p1_r = r.get("phase1", {}).get("rejected_count", 0)
+        p2_v = r.get("phase2", {}).get("vuln_count", 0)
+        total = p1_v + p2_v
+        tok = r.get("total_input_tokens", 0) + r.get("total_output_tokens", 0)
+        time_s = r.get("total_response_time_sec", 0)
+        print(f"  {key:<22} {restrict:<6} {docs:<4} {p1_v:<6} {p1_r:<6} {p2_v:<6} {total:<6} {tok:<12} {time_s:<8.1f}")
+
+    # 비교 분석
+    print(f"\n  📊 비교 분석:")
+    t1 = results.get("test6_1", {})
+    t2 = results.get("test6_2", {})
+    t3 = results.get("test6_3", {})
+    t4 = results.get("test6_4", {})
+
+    # 제한 유무 비교 (3문서)
+    if "phase1" in t1 and "phase1" in t3:
+        v1 = t1["phase1"]["vuln_count"]
+        v3 = t3["phase1"]["vuln_count"]
+        print(f"    [3문서] 제한O({v1}개) vs 제한X({v3}개) → {'제한 제거 시 더 많은 취약점 발견' if v3 > v1 else '비슷한 결과' if v3 == v1 else '제한이 더 효과적'}")
+
+    # 제한 유무 비교 (4문서)
+    if "phase1" in t2 and "phase1" in t4:
+        v2 = t2["phase1"]["vuln_count"]
+        v4 = t4["phase1"]["vuln_count"]
+        print(f"    [4문서] 제한O({v2}개) vs 제한X({v4}개) → {'제한 제거 시 더 많은 취약점 발견' if v4 > v2 else '비슷한 결과' if v4 == v2 else '제한이 더 효과적'}")
+
+    # 문서 수 비교 (제한O)
+    if "phase1" in t1 and "phase1" in t2:
+        v1 = t1["phase1"]["vuln_count"]
+        v2 = t2["phase1"]["vuln_count"]
+        print(f"    [제한O] 3문서({v1}개) vs 4문서({v2}개) → {'4문서가 더 많음' if v2 > v1 else '비슷한 결과' if v2 == v1 else '3문서가 더 많음'}")
+
+    # 문서 수 비교 (제한X)
+    if "phase1" in t3 and "phase1" in t4:
+        v3 = t3["phase1"]["vuln_count"]
+        v4 = t4["phase1"]["vuln_count"]
+        print(f"    [제한X] 3문서({v3}개) vs 4문서({v4}개) → {'4문서가 더 많음' if v4 > v3 else '비슷한 결과' if v4 == v3 else '3문서가 더 많음'}")
+
+    return results
+
+
+
+# ──────────────────────────────────────────────────────────
+# Test 7: 거부 사유 추적 + Confidence (Test4 강화판, 단일 호출)
+#   num_docs=3 or 4 로 문서 수 조절
+# ──────────────────────────────────────────────────────────
+def _run_test7(num_docs):
+    label = f"7_{num_docs}docs"
+    print("\n" + "🟤" * 35)
+    print(f"  Test {label}: Confidence + Source + 거부 사유 추적 (단일 호출)")
+    print("🟤" * 35)
+
+    doc1 = load_doc("vulnerable_lambda")
+    doc2 = load_doc("eventbridge_target")
+    doc3 = load_doc("iam_privesc_by_key_rotation")
+
+    retrieved_context = f"""[문서 1 - vulnerable_lambda]
+{doc1}
+
+[문서 2 - eventbridge_target]
+{doc2}
+
+[문서 3 - iam_privesc_by_key_rotation]
+{doc3}"""
+
+    source_tags = """- "rag_doc_1": 문서 1(vulnerable_lambda)에서 파생
+- "rag_doc_2": 문서 2(eventbridge_target)에서 파생
+- "rag_doc_3": 문서 3(iam_privesc_by_key_rotation)에서 파생
+- "zero_base": RAG 문서와 무관하게 자체 발견"""
+
+    source_enum = "rag_doc_1|rag_doc_2|rag_doc_3|zero_base"
+    context_docs = ["vulnerable_lambda", "eventbridge_target", "iam_privesc_by_key_rotation"]
+
+    if num_docs >= 4:
+        doc4 = load_doc("lambda_privesc")
+        retrieved_context += f"""
+
+[문서 4 - lambda_privesc]
+{doc4}"""
+        source_tags = source_tags.replace(
+            '- "zero_base"',
+            '- "rag_doc_4": 문서 4(lambda_privesc)에서 파생\n- "zero_base"'
+        )
+        source_enum = "rag_doc_1|rag_doc_2|rag_doc_3|rag_doc_4|zero_base"
+        context_docs.append("lambda_privesc")
+
+    prompt = f"""역할: 너는 전 세계 기업 환경을 대상으로 실전 침투 시나리오를 설계하고 검증하는 Tier-1 클라우드 보안 아키텍트이자 레드팀 리더이다.
+목표: 단순한 설정 오류 나열이 아니라, 현실적인 공격자가 실제로 악용 가능한 권한 조합과 신뢰 경계 붕괴 시나리오를 논리적으로 증명한다.
+
+컨텍스트: 취약점 지식 베이스 (RAG)
+{retrieved_context}
+
+입력: 분석 대상 인프라 구성 (JSON)
+{TARGET_INFRA_STR}
+
+[분석 실행 전략 (반드시 준수)]
+1. **Primary Task (RAG 시나리오 검증):**
+   - 각 RAG 문서의 공격 시나리오가 입력 인프라에서 실제로 재현 가능한지 검증하라.
+   - 재현 가능한 시나리오는 vulnerabilities에 포함하라.
+   - 재현 불가능한 시나리오는 rejected_scenarios에 반드시 포함하고, 어떤 권한이 누락되어 재현 불가능한지 구체적으로 명시하라.
+
+2. **Secondary Task (Zero-Base 확장 탐지):**
+   - RAG 시나리오 검증 후, 클라우드 보안 지식을 총동원하여 인프라 전체를 스캔하라.
+   - 컨텍스트에 없는 추가 취약점을 식별하여 보고하라 (source: "zero_base").
+
+[심층 검증 및 오탐 제거 지침]
+1. **[Effective Permission Calculation]**: Allow/Deny/SCP/Boundary 모두 대조하여 실제 유효 권한 계산.
+2. **[Multi-hop Attack Simulation]**: sts:AssumeRole, Lambda 실행 역할 등 간접 경로 시뮬레이션.
+3. **[간접 권한 주의]**: Lambda 실행 역할이 가진 권한은 Lambda를 트리거할 수 있는 사용자도 간접적으로 활용 가능.
+4. **[False Positive Filtering]**: MFA, SourceIp 등 제어 조건을 검토.
+
+[Confidence Score 산출 기준]
+- 0.9~1.0: 확실히 재현 가능 (필요 권한이 모두 존재, 공격 경로 완전 증명)
+- 0.7~0.9: 높은 확률 (대부분 조건 충족, 일부 환경 의존적)
+- 0.5~0.7: 가능성 있음 (일부 권한 있으나 MFA/SourceIp 등 미확인)
+- 0.3~0.5: 낮은 가능성 (핵심 권한 일부 누락)
+- 0.0~0.3: 재현 불가 (필수 권한/리소스 없음)
+
+[Source 태깅]
+{source_tags}
+
+출력 형식
+아래 스키마의 순수 JSON 객체만 출력한다. 다른 텍스트, 마크다운, 코드펜스, 주석을 포함하지 않는다.
+모든 문자열은 한국어로 작성하고, 전문 용어는 괄호 안에 영문을 병기할 수 있다.
+
+스키마
+{{{{
+    "summary": {{{{ "high": 0, "medium": 0, "low": 0 }}}},
+    "vulnerabilities": [
+        {{{{
+            "severity": "high|medium|low",
+            "title": "문장형 제목",
+            "description": "취약점 설명",
+            "attackPath": ["단계1", "단계2"],
+            "impact": "잠재적 영향",
+            "recommendation": "권장 사항",
+            "cvss_score": 0.0,
+            "source": "{source_enum}",
+            "confidence": 0.0,
+            "confidence_reason": "점수 산출 근거"
+        }}}}
+    ],
+    "rejected_scenarios": [
+        {{{{
+            "source": "{source_enum}",
+            "doc_title": "문서 시나리오 제목",
+            "rejection_reason": "거부 사유 (어떤 권한이 없어서 재현 불가능한지 구체적으로)",
+            "missing_permissions": ["permission1", "permission2"]
+        }}}}
+    ]
+}}}}
+"""
+
+    # 단일 호출이므로 출력 양이 많음 → max_tokens 8192 (모델 최대: 33,000)
+    result = call_llm(prompt, max_tokens=8192)
+    print_result(f"Test {label} (Confidence+거부추적)", result, context_docs)
+
+    if result["parsed"]:
+        vulns = result["parsed"].get("vulnerabilities", [])
+        print(f"\n  📊 Confidence 분석:")
+        for v in vulns:
+            conf = v.get("confidence", "N/A")
+            src = v.get("source", "N/A")
+            reason = v.get("confidence_reason", "N/A")
+            title = v.get("title", "N/A")
+            print(f"    [{src}] confidence={conf} | {title}")
+            print(f"           근거: {reason}")
+
+        rejected = result["parsed"].get("rejected_scenarios", [])
+        if rejected:
+            print(f"\n  📊 거부된 RAG 시나리오: {len(rejected)}개")
+            for r in rejected:
+                src = r.get("source", "?")
+                title = r.get("doc_title", "N/A")
+                reason = r.get("rejection_reason", "N/A")
+                missing = r.get("missing_permissions", [])
+                print(f"    ❌ [{src}] {title}")
+                print(f"       사유: {reason}")
+                if missing:
+                    print(f"       누락 권한: {', '.join(missing)}")
+        else:
+            print(f"\n  📊 거부된 시나리오: 없음 (모두 통과)")
+
+        high_conf = [v for v in vulns if isinstance(v.get("confidence"), (int, float)) and v["confidence"] >= 0.7]
+        low_conf = [v for v in vulns if isinstance(v.get("confidence"), (int, float)) and v["confidence"] < 0.7]
+        print(f"\n  📊 필터링 결과 (confidence >= 0.7):")
+        print(f"    통과: {len(high_conf)}개 / 제외: {len(low_conf)}개")
+
+    return save_log(f"test7_{num_docs}docs", result, context_docs)
+
+
+def run_test7_3docs():
+    """Test 7 (3문서): 단일 호출 Confidence + 거부 추적"""
+    return _run_test7(3)
+
+
+def run_test7_4docs():
+    """Test 7 (4문서): 단일 호출 Confidence + 거부 추적"""
+    return _run_test7(4)
+
+
+# ──────────────────────────────────────────────────────────
 # 메인 실행
 # ──────────────────────────────────────────────────────────
 TESTS = {
@@ -884,18 +1391,30 @@ TESTS = {
     "test3": run_test3,
     "test4": run_test4,
     "test5": run_test5,
+    "test6_1": run_test6_1,
+    "test6_2": run_test6_2,
+    "test6_3": run_test6_3,
+    "test6_4": run_test6_4,
+    "test6_all": run_test6_all,
 }
 
 def main():
     if len(sys.argv) < 2:
-        print("사용법: python3 test_rag_context_accuracy.py [baseline|test1|test2|test3|test4|test5|all]")
-        print("\n  baseline  - 기존 프롬프트 + Top-1 (비교 기준)")
+        print("사용법: python3 test_rag_context_accuracy.py [테스트명|all]")
+        print("\n  === 기본 테스트 (baseline ~ test5) ===")
+        print("  baseline  - 기존 프롬프트 + Top-1 (비교 기준)")
         print("  test1     - 기존 프롬프트 + Top-2")
         print("  test2     - 기존 프롬프트 + Top-3")
         print("  test3     - 2단계 분리 호출 (Primary + Secondary)")
         print("  test4     - Confidence Score + Source 태깅")
         print("  test5     - Chain-of-Verification (목록화 → 검증)")
-        print("  all       - 전체 순차 실행")
+        print("\n  === Test 6 변형 (제한 유무 × 문서 수) ===")
+        print("  test6_1   - 제한O + 3문서 (Phase1 RAG검증 → Phase2 추가탐색)")
+        print("  test6_2   - 제한O + 4문서")
+        print("  test6_3   - 제한X + 3문서")
+        print("  test6_4   - 제한X + 4문서")
+        print("  test6_all - ★ 위 4가지 모두 실행 후 비교 요약")
+        print("\n  all       - 전체 순차 실행")
         sys.exit(1)
 
     target = sys.argv[1].lower()
@@ -904,12 +1423,14 @@ def main():
     print(f"  RAG Context 정확도 테스트")
     print(f"  실행 시간: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     print(f"  모델: {MODEL_ID}")
-    print(f"  max_tokens: {MAX_TOKENS}")
+    print(f"  max_tokens (기본): {MAX_TOKENS}  |  모델 최대: 33,000")
     print(f"{'=' * 70}")
 
     if target == "all":
         results = {}
         for name, func in TESTS.items():
+            if name == "test6_all":
+                continue  # test6_all은 개별 test6_1~4를 포함하므로 중복 방지
             try:
                 results[name] = func()
             except Exception as e:
@@ -930,11 +1451,11 @@ def main():
             out_tok = r.get("total_output_tokens", r.get("output_tokens", "?"))
             time_s = r.get("total_response_time_sec", r.get("response_time_sec", "?"))
             vuln_c = r.get("vuln_count", "?")
-            if "phase1" in r:  # test3, test5
-                vuln_c = r.get("phase1", {}).get("vuln_count", 0) + r.get("phase2", {}).get("vuln_count", r.get("phase2_verification", {}).get("vuln_count", 0))
+            if "phase1" in r:
+                vuln_c = r.get("phase1", {}).get("vuln_count", 0) + r.get("phase2", {}).get("vuln_count", 0)
             trunc = r.get("truncated", "?")
             if "phase1" in r:
-                trunc = r.get("phase1", {}).get("truncated", False) or r.get("phase2", r.get("phase2_verification", {})).get("truncated", False)
+                trunc = r.get("phase1", {}).get("truncated", False) or r.get("phase2", {}).get("truncated", False)
             print(f"  {name:<12} {str(in_tok):<10} {str(out_tok):<10} {str(time_s):<8} {str(vuln_c):<8} {'⚠️' if trunc else '✅'}")
     
     elif target in TESTS:
