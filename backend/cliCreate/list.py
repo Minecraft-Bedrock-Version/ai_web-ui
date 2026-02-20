@@ -7,44 +7,57 @@ router = APIRouter()
 # AWS IAM의 사용자, 역할, 그룹과 직접 연결된 정책 불러오기
 @router.post("/iam_list")
 async def get_detailed_inventory():
-    # IAM 서비스 클라이언트 초기화
     iam = boto3.client('iam')
-
-    # 결과 데이터 구조 초기화
     inventory = {"user": [], "role": [], "group": []}
 
     try:
-        # 1. Users + Policies 조회
+        # 1. Users 조회
         users_data = iam.list_users()
         for u in users_data.get('Users', []):
             name = u['UserName']
-            # 해당 유저에게 연결된 '관리형 정책' 조회
-            p_resp = iam.list_attached_user_policies(UserName=name)
-            policies = [p['PolicyName'] for p in p_resp.get('AttachedPolicies', [])]
+            # 관리형 정책
+            attached = iam.list_attached_user_policies(UserName=name)
+            managed_policies = [p['PolicyName'] for p in attached.get('AttachedPolicies', [])]
+            # 인라인 정책 (추가)
+            inline = iam.list_user_policies(UserName=name)
+            inline_policies = inline.get('PolicyNames', [])
 
-            # 사용자 이름과 정책 리트 저장
-            inventory["user"].append({"name": name, "policies": policies})
+            inventory["user"].append({
+                "name": name, 
+                "managed_policies": managed_policies,
+                "inline_policies": inline_policies
+            })
 
-        # 2. Roles + Policies 조회
+        # 2. Roles 조회
         roles_data = iam.list_roles()
         for r in roles_data.get('Roles', []):
             name = r['RoleName']
-            p_resp = iam.list_attached_role_policies(RoleName=name)
-            policies = [p['PolicyName'] for p in p_resp.get('AttachedPolicies', [])]
-            inventory["role"].append({"name": name, "policies": policies})
+            # 관리형 정책
+            attached = iam.list_attached_role_policies(RoleName=name)
+            managed_policies = [p['PolicyName'] for p in attached.get('AttachedPolicies', [])]
+            # 인라인 정책 (추가)
+            inline = iam.list_role_policies(RoleName=name)
+            inline_policies = inline.get('PolicyNames', [])
 
-        # 3. Groups + Policies + Members 조회
+            inventory["role"].append({
+                "name": name, 
+                "managed_policies": managed_policies,
+                "inline_policies": inline_policies
+            })
+
+        # 3. Groups 조회
         groups_data = iam.list_groups()
         for g in groups_data.get('Groups', []):
             name = g['GroupName']
+            # 관리형 정책
+            attached = iam.list_attached_group_policies(GroupName=name)
+            managed_policies = [p['PolicyName'] for p in attached.get('AttachedPolicies', [])]
+            # 인라인 정책 (추가)
+            inline = iam.list_group_policies(GroupName=name)
+            inline_policies = inline.get('PolicyNames', [])
             
-            # 3-1. 그룹에 연결된 '관리형 정책' 조회
-            p_resp = iam.list_attached_group_policies(GroupName=name)
-            policies = [p['PolicyName'] for p in p_resp.get('AttachedPolicies', [])]
-
-            # 3-2. 핵심: 그룹에 속한 '사용자 리스트' 조회 추가
+            # 멤버 조회
             try:
-                # get_group은 해당 그룹의 정보와 멤버 리스트를 반환합니다.
                 g_resp = iam.get_group(GroupName=name)
                 members = [u['UserName'] for u in g_resp.get('Users', [])]
             except Exception:
@@ -52,12 +65,11 @@ async def get_detailed_inventory():
 
             inventory["group"].append({
                 "name": name, 
-                "policies": policies,
-                "members": members  # <--- 프론트엔드로 멤버 정보 전달
+                "managed_policies": managed_policies,
+                "inline_policies": inline_policies,
+                "members": members
             })
 
-        # 결과 데이터 반환
-        print(inventory)
         return inventory
 
     except Exception as e:

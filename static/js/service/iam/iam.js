@@ -177,7 +177,6 @@ function renderResourceList() {
   const tbody = document.getElementById("resourceList");
   tbody.innerHTML = "";
 
-  // 현재 선택된 리소스 타입(user, group, role)의 데이터 배열
   const items = mockResources[state.resource] || [];
 
   items.forEach(item => {
@@ -185,51 +184,84 @@ function renderResourceList() {
     tr.innerHTML = `<td>${item.name}</td>`;
 
     tr.onclick = () => {
-      // 선택 효과
       document.querySelectorAll("#resourceList tr").forEach(r => r.classList.remove("selected"));
       tr.classList.add("selected");
 
-      // [중요] 세 번째 인자로 item.members를 넘깁니다.
-      // 데이터가 없을 경우를 대비해 기본값 []를 설정합니다.
-      selectEntity(item.name, item.policies || [], item.members || []);
+      // [수정] managed_policies와 inline_policies를 각각 전달
+      selectEntity(
+        item.name, 
+        item.managed_policies || [], 
+        item.inline_policies || [], 
+        item.members || []
+      );
     };
     tbody.appendChild(tr);
   });
 }
 
-function selectEntity(name, policies, members) {
+
+function selectEntity(name, managedPolicies, inlinePolicies, members) {
   state.selectedEntity = name;
 
   // 1. 정책 섹션 노출 및 렌더링
   document.getElementById("policySection").style.display = "block";
   const policyListEl = document.getElementById("policyList");
-  policyListEl.innerHTML = (policies && policies.length > 0)
-    ? policies.map(p => `<span class="policy-tag">${p}</span>`).join("")
-    : `<span style="color: #666; font-size: 12px;">연결된 정책이 없습니다.</span>`;
+  
+  let html = "";
 
-  // 2. 그룹인 경우 멤버 관리 섹션 처리
+  // 관리형 정책 (기본 파란색 태그)
+  if (managedPolicies && managedPolicies.length > 0) {
+    html += managedPolicies.map(p => 
+      `<span class="policy-tag" style="background-color: #e3f2fd; color: #0d47a1; border: 1px solid #bbdefb;">${p}</span>`
+    ).join("");
+  }
+
+  // 인라인 정책 (보라색/주황색 등 다른 색상으로 구분)
+  if (inlinePolicies && inlinePolicies.length > 0) {
+    html += inlinePolicies.map(p => 
+      `<span class="policy-tag" style="background-color: #f3e5f5; color: #4a148c; border: 1px solid #e1bee7;">${p} (Inline)</span>`
+    ).join("");
+  }
+
+  if (html === "") {
+    html = `<span style="color: #666; font-size: 12px;">연결된 정책이 없습니다.</span>`;
+  }
+  
+  policyListEl.innerHTML = html;
+
+  // 2. 그룹 멤버 관리 섹션 (기존 코드 유지)
   const memberSection = document.getElementById("groupMemberSection");
   const memberListEl = document.getElementById("memberList");
 
   if (state.resource === 'group') {
-    memberSection.style.display = "block"; // 섹션 보이기
-
-    if (members && members.length > 0) {
-      // 멤버가 있을 때: 리스트 생성
-      memberListEl.innerHTML = members.map(m => `
-                <div class="member-item" style="padding: 10px; border-bottom: 1px solid #eee; display: flex; align-items: center;">
-                    <span style="margin-right: 10px;">👤</span>
-                    <strong>${m}</strong>
-                </div>
-            `).join("");
-    } else {
-      // 멤버가 없을 때
-      memberListEl.innerHTML = `<p style="color:#999; font-size:12px; padding: 15px; background: #f9f9f9; border-radius: 4px;">이 그룹에 소속된 사용자가 없습니다.</p>`;
-    }
+    memberSection.style.display = "block";
+    memberListEl.innerHTML = (members && members.length > 0)
+      ? members.map(m => `
+          <div class="member-item" style="padding: 10px; border-bottom: 1px solid #eee; display: flex; align-items: center;">
+              <span style="margin-right: 10px;">👤</span>
+              <strong>${m}</strong>
+          </div>`).join("")
+      : `<p style="color:#999; font-size:12px; padding: 15px;">멤버가 없습니다.</p>`;
   } else {
-    memberSection.style.display = "none"; // 유저나 역할일 때는 숨김
+    memberSection.style.display = "none";
   }
 }
+
+
+// submitCreateResource 내 payload 예시
+const payload = {
+  state: {
+    action: "create",
+    service: "iam",
+    resource: type,
+    selectedEntity: name,
+    managedPolicies: managedPolicies, // 명확하게 이름 변경 추천
+  },
+  region: state.region
+};
+
+
+
 
 // 명단을 직접 받아서 그리는 보조 함수 (가장 확실한 방법)
 function renderGroupMembersDirectly(members) {
