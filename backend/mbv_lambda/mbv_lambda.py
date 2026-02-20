@@ -31,9 +31,9 @@ async def lambda_invoke(request: Request):
         )
 
         lambda_result = json.loads(response["Payload"].read())
-        #body = lambda_result.get("body",{})
-        #if isinstance(body, str):
-        #   body = json.loads(body)
+        body = lambda_result.get("body",{})
+        if isinstance(body, str):
+           body = json.loads(body)
         
 
         body = lambda_result.get("body", {})
