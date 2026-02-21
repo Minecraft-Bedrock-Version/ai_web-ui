@@ -316,6 +316,113 @@ def save_log(test_name, log_data):
 
 
 # ──────────────────────────────────────────────────────────
+# Test 2 (medium): 기존 프롬프트 + Top-3 문서 (단일 호출, medium reasoning)
+# ──────────────────────────────────────────────────────────
+def run_test2_medium():
+    print("\n" + "🟡" * 35)
+    print("  Test 2 (medium): 기존 프롬프트 + Top-3 (단일 호출)")
+    print(f"  reasoning_effort: {REASONING_EFFORT}")
+    print("🟡" * 35)
+
+    # ── 문서 로딩 ──
+    doc1 = load_doc("vulnerable_lambda")
+    doc2 = load_doc("eventbridge_target")
+    doc3 = load_doc("iam_privesc_by_key_rotation")
+
+    retrieved_context = f"""[문서 1 - vulnerable_lambda]
+{doc1}
+
+[문서 2 - eventbridge_target]
+{doc2}
+
+[문서 3 - iam_privesc_by_key_rotation]
+{doc3}"""
+
+    context_docs = ["vulnerable_lambda", "eventbridge_target", "iam_privesc_by_key_rotation"]
+
+    # ── 기존 build_existing_prompt 와 동일한 프롬프트 ──
+    prompt = f"""역할: 너는 전 세계 기업 환경을 대상으로 실전 침투 시나리오를 설계하고 검증하는 Tier-1 클라우드 보안 아키텍트이자 레드팀 리더이다.
+목표: 단순한 설정 오류 나열이 아니라, 현실적인 공격자가 실제로 악용 가능한 권한 조합과 신뢰 경계 붕괴 시나리오를 논리적으로 증명한다.
+
+컨텍스트: 취약점 지식 베이스 (RAG)
+{retrieved_context}
+
+입력: 분석 대상 인프라 구성 (JSON)
+{TARGET_INFRA_STR}
+
+[분석 실행 전략 (반드시 준수)]
+1. **Primary Task (RAG 시나리오 검증):**
+   - 최우선적으로 상기 '컨텍스트'에 명시된 공격 기법이 '입력된 인프라'에서 실제로 재현 가능한지 검증하라.
+   - 해당 시나리오가 성립한다면 이를 결과에 반드시 포함해야 한다.
+
+2. **Secondary Task (Zero-Base 확장 탐지):**
+   - RAG 시나리오 검증 후 분석을 멈추지 말고, 네가 가진 클라우드 보안 지식(OWASP, AWS Best Practices)을 총동원하여 인프라 전체를 다시 스캔하라.
+   - 컨텍스트에 없는 치명적인 취약점(IAM 권한 오남용, 리소스 노출, 암호화 미비 등)을 식별하여 보고하라.
+
+[심층 검증 및 오탐 제거 지침]
+1. **[Effective Permission Calculation]**: Allow 뿐만 아니라 Deny, SCP, Permissions Boundary 등을 모두 대조하여 실제 유효 권한을 계산하라.
+2. **[Identity vs Resource-based Policy Interaction]**: IAM 정책과 리소스 기반 정책의 상호작용을 분석하여 신뢰 경계 붕괴를 식별하라.
+3. **[Multi-hop Attack Simulation]**: sts:AssumeRole, iam:PassRole 등을 포함한 연쇄 공격 경로를 시뮬레이션하라.
+4. **[False Positive Filtering]**: MFA, SourceIp 등 제어 조건을 검토하여 실제 공격 불가능한 오탐을 제거하라.
+
+
+출력 형식
+아래 스키마의 순수 JSON 객체만 출력한다. 다른 텍스트, 마크다운, 코드펜스, 주석을 포함하지 않는다.
+모든 문자열은 한국어로 작성하고, 전문 용어는 괄호 안에 영문을 병기할 수 있다.
+
+스키마
+{{{{
+    "summary": {{{{ "high": 0, "medium": 0, "low": 0 }}}},
+    "vulnerabilities": [
+        {{{{
+            "severity": "high|medium|low",
+            "title": "문장형 제목",
+            "description": "취약점 설명",
+            "attackPath": ["단계1", "단계2"],
+            "impact": "잠재적 영향",
+            "recommendation": "권장 사항",
+            "cvss_score": 0.0
+        }}}}
+    ]
+}}}}
+"""
+
+    result = call_llm(prompt)
+    print_result("Test 2 (medium, 3 docs)", result, context_docs)
+
+    # ── 로그 저장 ──
+    log_data = {
+        "test_id": "test2_medium",
+        "description": "기존 프롬프트 + Top-3 문서 (단일 호출, medium reasoning)",
+        "reasoning_effort": REASONING_EFFORT,
+        "timestamp": datetime.now().isoformat(),
+        "context_docs": context_docs,
+        "input_tokens": result["input_tokens"],
+        "output_tokens": result["output_tokens"],
+        "response_time_sec": result["response_time_sec"],
+        "finish_reason": result["finish_reason"],
+        "truncated": result["truncated"],
+        "vuln_count": len(result["parsed"].get("vulnerabilities", [])) if result["parsed"] else 0,
+        "result": result["parsed"],
+    }
+
+    save_log("test2_medium", log_data)
+
+    # ── 요약 ──
+    vuln_count = log_data["vuln_count"]
+    print(f"\n{'=' * 70}")
+    print(f"📊 Test 2 (medium) 요약")
+    print(f"{'=' * 70}")
+    print(f"  취약점 수: {vuln_count}개")
+    print(f"  토큰: Input {result['input_tokens']} + Output {result['output_tokens']}")
+    print(f"  시간: {result['response_time_sec']}초")
+    print(f"  reasoning_effort: {REASONING_EFFORT}")
+    print(f"{'=' * 70}")
+
+    return log_data
+
+
+# ──────────────────────────────────────────────────────────
 # 43newtest1: Phase 1 (Test4 방식) + Phase 2 (Test3 방식)
 # ──────────────────────────────────────────────────────────
 def run_43newtest1():
@@ -569,14 +676,32 @@ def run_43newtest1():
 
 
 # ──────────────────────────────────────────────────────────
-# 메인 실행
+# 테스트 레지스트리 & 메인 실행
 # ──────────────────────────────────────────────────────────
+TESTS = {
+    "test2": run_test2_medium,
+    "43newtest1": run_43newtest1,
+}
+
 if __name__ == "__main__":
+    target = sys.argv[1] if len(sys.argv) > 1 else "43newtest1"
+
     print(f"\n{'=' * 70}")
-    print(f"  43newtest1: Test4 Phase1 + Test3 Phase2")
+    print(f"  43newtest1.py — 테스트 실행기")
     print(f"  실행 시간: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     print(f"  모델: {MODEL_ID}")
     print(f"  max_tokens: {MAX_TOKENS}  |  reasoning_effort: {REASONING_EFFORT}")
+    print(f"  사용법: python3 43newtest1.py [test2|43newtest1|all]")
     print(f"{'=' * 70}")
 
-    run_43newtest1()
+    if target == "all":
+        for name, func in TESTS.items():
+            print(f"\n\n{'#' * 70}")
+            print(f"  ▶ {name} 실행")
+            print(f"{'#' * 70}")
+            func()
+    elif target in TESTS:
+        TESTS[target]()
+    else:
+        print(f"  ❌ 알 수 없는 테스트: {target}")
+        print(f"  사용 가능: {', '.join(TESTS.keys())}, all")
