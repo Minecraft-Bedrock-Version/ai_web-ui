@@ -140,7 +140,7 @@ def run_security_analysis(target_infra_json: str, retrieved_context: str) -> Opt
         "max_tokens": 4096,
         "temperature": 0.2,
         "top_p": 0.9,
-        "reasoning_effort": "low"
+        "reasoning_effort": "medium"
     }
     body = json.dumps(payload)
 
@@ -185,7 +185,11 @@ def resolve_doc_path(relative_path: str) -> str:
     full_path = os.path.normpath(os.path.join(BASE_DIR, "..", relative_path))
     return full_path
 
-def run_mbv_llm(description: str) -> str:
+def run_mbv_llm(doc_info) -> str:
+    """
+    doc_info: str (하위호환, 단일 문서 경로)
+             또는 list[(path, title, score)] (다중 문서)
+    """
 
 # 사용자 인프라 읽기
     if not os.path.exists(TARGET_JSON_PATH):
@@ -194,16 +198,28 @@ def run_mbv_llm(description: str) -> str:
         target_infra_json = json.dumps(json.load(f), ensure_ascii=False)
 
 
-# RAG 문서 읽기
+# RAG 문서 읽기 (다중 문서 지원)
 
-    # description == "document/sqs_flag_shop.json"
-    doc_path = resolve_doc_path(description)
+    # 하위호환: 기존처럼 str 하나만 넘어온 경우
+    if isinstance(doc_info, str):
+        doc_info = [(doc_info, "unknown", 0.0)]
 
-    if not os.path.exists(doc_path):
-        raise FileNotFoundError(f"문서 없음: {doc_path}")
+    context_parts = []
+    for i, (path, title, score) in enumerate(doc_info, 1):
+        full_path = resolve_doc_path(path)
+        if not os.path.exists(full_path):
+            print(f"⚠️ 문서 파일 없음 (건너뜀): {full_path}")
+            continue
+        with open(full_path, "r", encoding="utf-8") as f:
+            content = f.read()
+        context_parts.append(f"[문서 {i} - {title} (유사도: {score:.4f})]\n{content}")
+        print(f"  📖 문서 {i} 로딩 완료: {title} ({len(content)} bytes)")
 
-    with open(doc_path, "r", encoding="utf-8") as f:
-        retrieved_context = f.read()
+    if not context_parts:
+        raise FileNotFoundError("유사도 기준을 충족하는 문서를 찾을 수 없습니다.")
+
+    retrieved_context = "\n\n".join(context_parts)
+    print(f"📄 총 {len(context_parts)}개 문서 → 컨텍스트 길이: {len(retrieved_context)} chars")
 
  # LLM 분석 실행
     analysis_result = run_security_analysis(target_infra_json, retrieved_context)

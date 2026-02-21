@@ -67,51 +67,54 @@ async def mbv_search(request: Request):
 
         print(f"🔎 인프라 구조 분석 중... (데이터 길이: {len(query_text)})")
 
-        # 2. 벡터 검색 수행
+        # 2. 벡터 검색 수행 (유사도 ≥ 0.7 인 문서 전부 수집)
+        SIMILARITY_THRESHOLD = 0.7
         query_vector = get_embedding(query_text)
         search_response = q_client.query_points(
             collection_name=COLLECTION_NAME,
             query=query_vector,
-            limit=1
+            limit=10
         )
         
-        # 3. 결과 출력
+        # 3. 유사도 필터링 및 결과 출력
         results = search_response.points
-        description = search_data.get("description", "경로 없음")
 
-        description_path ="경로_없음"
-        
-        if results:
-            top_hit = results[0]
-            if top_hit.score < 0.6: # 유사도 임계값 설정
-                print(f"⚠️ 유사도 점수가 낮습니다. (최고 점수: {top_hit.score:.4f})")
-                print(" 유사도 점수가 낮아 탐지된 취약점이 없습니다.")
-                return {"infrastructure":search_data,"analysis": 1}
-            
-            print("\n" + "="*30 + " 검색 결과 " + "="*30)
-            for i, hit in enumerate(results):
-                p = hit.payload
-                if i ==0:
-                    description_path = p.get("description", "no경로")
-                print(f"[{i+1}위] {p.get('title')} | 유사도: {hit.score:.4f}")
-                print(f"📌 취약점 설명: {p.get('description')}")
-                print("-" * 71)
-        else:
-            print("❌ 매칭되는 취약점 패턴을 찾지 못했습니다.")
-        
-        # 매칭 취약점 경로 mbv_llm_gpt로 전달
+        # 유사도 ≥ 0.7 인 문서만 필터링
+        qualified_docs = [hit for hit in results if hit.score >= SIMILARITY_THRESHOLD]
 
-        print("전달 경로:", description_path)
-        analysis_result = {"error":"분석이 실행되지 않음."}
+        print("\n" + "="*30 + " 검색 결과 " + "="*30)
+        print(f"📊 전체 결과: {len(results)}건 | 유사도 ≥ {SIMILARITY_THRESHOLD}: {len(qualified_docs)}건")
 
-        print("run_mbv_llm 실행 시작")
-        analysis_result = run_mbv_llm(description_path)
+        for i, hit in enumerate(results):
+            p = hit.payload
+            marker = "✅" if hit.score >= SIMILARITY_THRESHOLD else "❌"
+            print(f"  {marker} [{i+1}위] {p.get('title')} | 유사도: {hit.score:.4f} | 경로: {p.get('description')}")
+        print("-" * 71)
+
+        if not qualified_docs:
+            print(f"⚠️ 유사도 ≥ {SIMILARITY_THRESHOLD} 인 문서가 없습니다.")
+            print("  탐지된 취약점이 없습니다.")
+            return {"infrastructure": search_data, "analysis": 1}
+
+        # 4. 매칭 문서 경로 리스트 구성 → mbv_llm_gpt 로 전달
+        doc_paths = [
+            (hit.payload.get("description", ""), hit.payload.get("title", "unknown"), hit.score)
+            for hit in qualified_docs
+        ]
+
+        print(f"\n📄 LLM 에 전달할 문서 {len(doc_paths)}건:")
+        for i, (path, title, score) in enumerate(doc_paths, 1):
+            print(f"  [{i}] {title} (유사도: {score:.4f}) → {path}")
+
+        analysis_result = {"error": "분석이 실행되지 않음."}
+
+        print("\nrun_mbv_llm 실행 시작")
+        analysis_result = run_mbv_llm(doc_paths)
         print("run_mbv_llm 실행 완료")
 
-        print("LLM 분석 결과:",analysis_result)
+        print("LLM 분석 결과:", analysis_result)
 
-        return {"infrastructure":search_data,"analysis": analysis_result}
-    
+        return {"infrastructure": search_data, "analysis": analysis_result}
 
     except Exception as e:
         print(f"❌ 오류 발생: {e}")
