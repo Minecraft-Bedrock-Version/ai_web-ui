@@ -652,20 +652,777 @@
   },
     {
     "id": 4,
-    "title": "ecs_take_over",
-    "description": "document/ecs_take_over.json",
+    "title": "ecs_takeover",
+    "description": "document/ecs_takeover.json",
     "resources": [
       {
-  "schema_version": "1.5",
+  "schema_version": "1.0",
+  "account_id": "288528695623",
+  "region": "us-east-1",
+  "collected_at": "2026-02-21T08:16:36.989553+00:00",
   "nodes": [
     {
-      "node_id": "288528695623:us-east-1:ecs_task:0f6353dd0a8b4128899f715db6724cab",
-      "type": "ecs_task",
+      "node_type": "ec2_instance",
+      "node_id": "288528695623:us-east-1:ec2_instance:i-0b998422cf811c859",
+      "resource_id": "i-0b998422cf811c859",
+      "name": "CloudGoat cgidwyb9q0wweu super-critical-security-server EC2 Instance",
+      "account_id": "288528695623",
+      "region": "us-east-1",
+      "attributes": {
+        "instance_type": "t3.micro",
+        "state": "terminated",
+        "public": false,
+        "public_ip": null,
+        "private_ip": null,
+        "launch_time": "2026-02-20T12:54:38Z",
+        "vpc_id": null,
+        "subnet_id": null,
+        "key_name": null,
+        "iam_instance_profile": null,
+        "security_groups": [],
+        "imds_token": "optional",
+        "ecs_cluster": null,
+        "tags": [
+          {
+            "Key": "Name",
+            "Value": "CloudGoat cgidwyb9q0wweu super-critical-security-server EC2 Instance"
+          },
+          {
+            "Key": "Scenario",
+            "Value": "iam-privesc-by-attachment"
+          },
+          {
+            "Key": "Stack",
+            "Value": "CloudGoat"
+          }
+        ]
+      }
+    },
+    {
+      "node_type": "ec2_instance",
+      "node_id": "288528695623:us-east-1:ec2_instance:i-061cec93c751bc410",
+      "resource_id": "i-061cec93c751bc410",
+      "name": "cg-ecs-takeover-cgidil69c4g7qu-vulnsite",
+      "account_id": "288528695623",
+      "region": "us-east-1",
+      "attributes": {
+        "instance_type": "t2.micro",
+        "state": "running",
+        "public": true,
+        "public_ip": "44.211.245.152",
+        "private_ip": "10.0.1.55",
+        "launch_time": "2026-02-21T08:03:21Z",
+        "vpc_id": "vpc-0ba50c1115fbf923b",
+        "subnet_id": "subnet-0fc26c2dfe2555099",
+        "key_name": null,
+        "iam_instance_profile": "cg-ecs-takeover-cgidil69c4g7qu-ecs-agent",
+        "security_groups": [
+          {
+            "GroupId": "sg-012ccab046a9fddf5",
+            "GroupName": "terraform-20260221080315742900000002"
+          }
+        ],
+        "imds_token": "optional",
+        "ecs_cluster": null,
+        "tags": [
+          {
+            "Key": "Stack",
+            "Value": "CloudGoat"
+          },
+          {
+            "Key": "Name",
+            "Value": "cg-ecs-takeover-cgidil69c4g7qu-vulnsite"
+          },
+          {
+            "Key": "Scenario",
+            "Value": "ecs-takeover"
+          }
+        ]
+      }
+    },
+    {
+      "node_type": "ec2_instance",
+      "node_id": "288528695623:us-east-1:ec2_instance:i-055d1241028794699",
+      "resource_id": "i-055d1241028794699",
+      "name": "cg-ecs-takeover-cgidil69c4g7qu-vault",
+      "account_id": "288528695623",
+      "region": "us-east-1",
+      "attributes": {
+        "instance_type": "t2.micro",
+        "state": "running",
+        "public": true,
+        "public_ip": "3.231.148.62",
+        "private_ip": "10.0.1.101",
+        "launch_time": "2026-02-21T08:03:21Z",
+        "vpc_id": "vpc-0ba50c1115fbf923b",
+        "subnet_id": "subnet-0fc26c2dfe2555099",
+        "key_name": null,
+        "iam_instance_profile": "cg-ecs-takeover-cgidil69c4g7qu-ecs-agent",
+        "security_groups": [
+          {
+            "GroupId": "sg-012ccab046a9fddf5",
+            "GroupName": "terraform-20260221080315742900000002"
+          }
+        ],
+        "imds_token": "optional",
+        "ecs_cluster": null,
+        "tags": [
+          {
+            "Key": "Scenario",
+            "Value": "ecs-takeover"
+          },
+          {
+            "Key": "Stack",
+            "Value": "CloudGoat"
+          },
+          {
+            "Key": "Name",
+            "Value": "cg-ecs-takeover-cgidil69c4g7qu-vault"
+          }
+        ]
+      }
+    },
+    {
+      "node_type": "iam_role",
+      "node_id": "288528695623:iam_role:AROA5GXM3PEBMHVZKFNVN",
+      "resource_id": "AROA5GXM3PEBMHVZKFNVN",
+      "name": "cg-ecs-takeover-cgidil69c4g7qu-ecs-agent",
+      "account_id": "288528695623",
+      "region": "global",
+      "attributes": {
+        "arn": "arn:aws:iam::288528695623:role/cg-ecs-takeover-cgidil69c4g7qu-ecs-agent",
+        "create_date": "2026-02-21T08:03:02+00:00",
+        "assume_role_policy": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "ec2.amazonaws.com"
+              },
+              "Action": "sts:AssumeRole"
+            }
+          ]
+        },
+        "attached_policies": [
+          {
+            "PolicyName": "AmazonEC2ContainerServiceforEC2Role",
+            "PolicyArn": "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role",
+            "Versions": [
+              {
+                "VersionId": "v10",
+                "IsDefaultVersion": true,
+                "Document": {
+                  "Version": "2012-10-17",
+                  "Statement": [
+                    {
+                      "Effect": "Allow",
+                      "Action": [
+                        "ec2:DescribeTags",
+                        "ecs:CreateCluster",
+                        "ecs:DeregisterContainerInstance",
+                        "ecs:DiscoverPollEndpoint",
+                        "ecs:Poll",
+                        "ecs:RegisterContainerInstance",
+                        "ecs:StartTelemetrySession",
+                        "ecs:UpdateContainerInstancesState",
+                        "ecs:Submit*",
+                        "ecr:GetAuthorizationToken",
+                        "ecr:BatchCheckLayerAvailability",
+                        "ecr:GetDownloadUrlForLayer",
+                        "ecr:BatchGetImage",
+                        "logs:CreateLogStream",
+                        "logs:PutLogEvents"
+                      ],
+                      "Resource": "*"
+                    },
+                    {
+                      "Effect": "Allow",
+                      "Action": "ecs:TagResource",
+                      "Resource": "*",
+                      "Condition": {
+                        "StringEquals": {
+                          "ecs:CreateAction": [
+                            "CreateCluster",
+                            "RegisterContainerInstance"
+                          ]
+                        }
+                      }
+                    },
+                    {
+                      "Effect": "Allow",
+                      "Action": [
+                        "ecs:ListTagsForResource"
+                      ],
+                      "Resource": [
+                        "arn:aws:ecs:*:*:task/*/*",
+                        "arn:aws:ecs:*:*:container-instance/*/*"
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "VersionId": "v9",
+                "IsDefaultVersion": false,
+                "Document": {
+                  "Version": "2012-10-17",
+                  "Statement": [
+                    {
+                      "Effect": "Allow",
+                      "Action": [
+                        "ec2:DescribeTags",
+                        "ecs:CreateCluster",
+                        "ecs:DeregisterContainerInstance",
+                        "ecs:DiscoverPollEndpoint",
+                        "ecs:Poll",
+                        "ecs:RegisterContainerInstance",
+                        "ecs:StartTelemetrySession",
+                        "ecs:UpdateContainerInstancesState",
+                        "ecs:Submit*",
+                        "ecr:GetAuthorizationToken",
+                        "ecr:BatchCheckLayerAvailability",
+                        "ecr:GetDownloadUrlForLayer",
+                        "ecr:BatchGetImage",
+                        "logs:CreateLogStream",
+                        "logs:PutLogEvents"
+                      ],
+                      "Resource": "*"
+                    },
+                    {
+                      "Effect": "Allow",
+                      "Action": "ecs:TagResource",
+                      "Resource": "*",
+                      "Condition": {
+                        "StringEquals": {
+                          "ecs:CreateAction": [
+                            "CreateCluster",
+                            "RegisterContainerInstance"
+                          ]
+                        }
+                      }
+                    },
+                    {
+                      "Effect": "Allow",
+                      "Action": [
+                        "ecs:ListTagsForResource"
+                      ],
+                      "Resource": [
+                        "arn:aws:ecs:*:*:task/*/*",
+                        "arn:aws:ecs:*:*:container-instance/*/*"
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "VersionId": "v8",
+                "IsDefaultVersion": false,
+                "Document": {
+                  "Version": "2012-10-17",
+                  "Statement": [
+                    {
+                      "Effect": "Allow",
+                      "Action": [
+                        "ec2:DescribeTags",
+                        "ecs:CreateCluster",
+                        "ecs:DeregisterContainerInstance",
+                        "ecs:DiscoverPollEndpoint",
+                        "ecs:Poll",
+                        "ecs:RegisterContainerInstance",
+                        "ecs:StartTelemetrySession",
+                        "ecs:UpdateContainerInstancesState",
+                        "ecs:Submit*",
+                        "ecr:GetAuthorizationToken",
+                        "ecr:BatchCheckLayerAvailability",
+                        "ecr:GetDownloadUrlForLayer",
+                        "ecr:BatchGetImage",
+                        "logs:CreateLogStream",
+                        "logs:PutLogEvents"
+                      ],
+                      "Resource": "*"
+                    },
+                    {
+                      "Effect": "Allow",
+                      "Action": "ecs:TagResource",
+                      "Resource": "*",
+                      "Condition": {
+                        "StringEquals": {
+                          "ecs:CreateAction": [
+                            "CreateCluster",
+                            "RegisterContainerInstance"
+                          ]
+                        }
+                      }
+                    },
+                    {
+                      "Effect": "Allow",
+                      "Action": [
+                        "ecs:ListTagsForResource"
+                      ],
+                      "Resource": [
+                        "arn:aws:ecs:*:*:task/*/*",
+                        "arn:aws:ecs:*:*:container-instance/*/*"
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "VersionId": "v7",
+                "IsDefaultVersion": false,
+                "Document": {
+                  "Version": "2012-10-17",
+                  "Statement": [
+                    {
+                      "Effect": "Allow",
+                      "Action": [
+                        "ec2:DescribeTags",
+                        "ecs:CreateCluster",
+                        "ecs:DeregisterContainerInstance",
+                        "ecs:DiscoverPollEndpoint",
+                        "ecs:Poll",
+                        "ecs:RegisterContainerInstance",
+                        "ecs:StartTelemetrySession",
+                        "ecs:UpdateContainerInstancesState",
+                        "ecs:Submit*",
+                        "ecr:GetAuthorizationToken",
+                        "ecr:BatchCheckLayerAvailability",
+                        "ecr:GetDownloadUrlForLayer",
+                        "ecr:BatchGetImage",
+                        "logs:CreateLogStream",
+                        "logs:PutLogEvents"
+                      ],
+                      "Resource": "*"
+                    },
+                    {
+                      "Effect": "Allow",
+                      "Action": "ecs:TagResource",
+                      "Resource": "*",
+                      "Condition": {
+                        "StringEquals": {
+                          "ecs:CreateAction": [
+                            "CreateCluster",
+                            "RegisterContainerInstance"
+                          ]
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "VersionId": "v6",
+                "IsDefaultVersion": false,
+                "Document": {
+                  "Version": "2012-10-17",
+                  "Statement": [
+                    {
+                      "Effect": "Allow",
+                      "Action": [
+                        "ec2:DescribeTags",
+                        "ecs:CreateCluster",
+                        "ecs:DeregisterContainerInstance",
+                        "ecs:DiscoverPollEndpoint",
+                        "ecs:Poll",
+                        "ecs:RegisterContainerInstance",
+                        "ecs:StartTelemetrySession",
+                        "ecs:UpdateContainerInstancesState",
+                        "ecs:Submit*",
+                        "ecr:GetAuthorizationToken",
+                        "ecr:BatchCheckLayerAvailability",
+                        "ecr:GetDownloadUrlForLayer",
+                        "ecr:BatchGetImage",
+                        "logs:CreateLogStream",
+                        "logs:PutLogEvents"
+                      ],
+                      "Resource": "*"
+                    }
+                  ]
+                }
+              },
+              {
+                "VersionId": "v5",
+                "IsDefaultVersion": false,
+                "Document": {
+                  "Version": "2012-10-17",
+                  "Statement": [
+                    {
+                      "Effect": "Allow",
+                      "Action": [
+                        "ecs:CreateCluster",
+                        "ecs:DeregisterContainerInstance",
+                        "ecs:DiscoverPollEndpoint",
+                        "ecs:Poll",
+                        "ecs:RegisterContainerInstance",
+                        "ecs:StartTelemetrySession",
+                        "ecs:UpdateContainerInstancesState",
+                        "ecs:Submit*",
+                        "ecr:GetAuthorizationToken",
+                        "ecr:BatchCheckLayerAvailability",
+                        "ecr:GetDownloadUrlForLayer",
+                        "ecr:BatchGetImage",
+                        "logs:CreateLogStream",
+                        "logs:PutLogEvents"
+                      ],
+                      "Resource": "*"
+                    }
+                  ]
+                }
+              },
+              {
+                "VersionId": "v4",
+                "IsDefaultVersion": false,
+                "Document": {
+                  "Version": "2012-10-17",
+                  "Statement": [
+                    {
+                      "Effect": "Allow",
+                      "Action": [
+                        "ecs:CreateCluster",
+                        "ecs:DeregisterContainerInstance",
+                        "ecs:DiscoverPollEndpoint",
+                        "ecs:Poll",
+                        "ecs:RegisterContainerInstance",
+                        "ecs:StartTelemetrySession",
+                        "ecs:Submit*",
+                        "ecr:GetAuthorizationToken",
+                        "ecr:BatchCheckLayerAvailability",
+                        "ecr:GetDownloadUrlForLayer",
+                        "ecr:BatchGetImage",
+                        "logs:CreateLogStream",
+                        "logs:PutLogEvents"
+                      ],
+                      "Resource": "*"
+                    }
+                  ]
+                }
+              },
+              {
+                "VersionId": "v3",
+                "IsDefaultVersion": false,
+                "Document": {
+                  "Version": "2012-10-17",
+                  "Statement": [
+                    {
+                      "Effect": "Allow",
+                      "Action": [
+                        "ecs:CreateCluster",
+                        "ecs:DeregisterContainerInstance",
+                        "ecs:DiscoverPollEndpoint",
+                        "ecs:Poll",
+                        "ecs:RegisterContainerInstance",
+                        "ecs:StartTelemetrySession",
+                        "ecs:Submit*",
+                        "ecr:GetAuthorizationToken",
+                        "ecr:BatchCheckLayerAvailability",
+                        "ecr:GetDownloadUrlForLayer",
+                        "ecr:BatchGetImage"
+                      ],
+                      "Resource": "*"
+                    }
+                  ]
+                }
+              },
+              {
+                "VersionId": "v2",
+                "IsDefaultVersion": false,
+                "Document": {
+                  "Version": "2012-10-17",
+                  "Statement": [
+                    {
+                      "Effect": "Allow",
+                      "Action": [
+                        "ecs:CreateCluster",
+                        "ecs:DeregisterContainerInstance",
+                        "ecs:DiscoverPollEndpoint",
+                        "ecs:Poll",
+                        "ecs:RegisterContainerInstance",
+                        "ecs:StartTelemetrySession",
+                        "ecs:Submit*"
+                      ],
+                      "Resource": "*"
+                    }
+                  ]
+                }
+              },
+              {
+                "VersionId": "v1",
+                "IsDefaultVersion": false,
+                "Document": {
+                  "Version": "2012-10-17",
+                  "Statement": [
+                    {
+                      "Effect": "Allow",
+                      "Action": [
+                        "ecs:CreateCluster",
+                        "ecs:DeregisterContainerInstance",
+                        "ecs:DiscoverPollEndpoint",
+                        "ecs:Poll",
+                        "ecs:RegisterContainerInstance",
+                        "ecs:Submit*"
+                      ],
+                      "Resource": "*"
+                    }
+                  ]
+                }
+              }
+            ],
+            "DefaultVersionId": "v10"
+          }
+        ],
+        "inline_policies": [],
+        "tags": [
+          {
+            "Key": "Stack",
+            "Value": "CloudGoat"
+          },
+          {
+            "Key": "Name",
+            "Value": "cg-cgidil69c4g7qu"
+          },
+          {
+            "Key": "Scenario",
+            "Value": "ecs-takeover"
+          }
+        ]
+      }
+    },
+    {
+      "node_type": "iam_role",
+      "node_id": "288528695623:iam_role:AROA5GXM3PEBD6ORFXBXQ",
+      "resource_id": "AROA5GXM3PEBD6ORFXBXQ",
+      "name": "cg-ecs-takeover-cgidil69c4g7qu-privd",
+      "account_id": "288528695623",
+      "region": "global",
+      "attributes": {
+        "arn": "arn:aws:iam::288528695623:role/cg-ecs-takeover-cgidil69c4g7qu-privd",
+        "create_date": "2026-02-21T08:03:02+00:00",
+        "assume_role_policy": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "ecs-tasks.amazonaws.com"
+              },
+              "Action": "sts:AssumeRole"
+            }
+          ]
+        },
+        "attached_policies": [
+          {
+            "PolicyName": "cg-ecs-takeover-cgidil69c4g7qu-privd",
+            "PolicyArn": "arn:aws:iam::288528695623:policy/cg-ecs-takeover-cgidil69c4g7qu-privd",
+            "Versions": [
+              {
+                "VersionId": "v1",
+                "IsDefaultVersion": true,
+                "Document": {
+                  "Statement": [
+                    {
+                      "Action": [
+                        "ecs:ListServices",
+                        "ecs:ListTasks",
+                        "ecs:DescribeServices",
+                        "ecs:ListContainerInstances",
+                        "ecs:DescribeContainerInstances",
+                        "ecs:DescribeTasks",
+                        "ecs:ListTaskDefinitions",
+                        "ecs:DescribeClusters",
+                        "ecs:ListClusters",
+                        "iam:GetPolicyVersion",
+                        "iam:GetPolicy",
+                        "iam:ListAttachedRolePolicies",
+                        "iam:GetRolePolicy"
+                      ],
+                      "Effect": "Allow",
+                      "Resource": "*"
+                    }
+                  ],
+                  "Version": "2012-10-17"
+                }
+              }
+            ],
+            "DefaultVersionId": "v1"
+          }
+        ],
+        "inline_policies": [],
+        "tags": [
+          {
+            "Key": "Scenario",
+            "Value": "ecs-takeover"
+          },
+          {
+            "Key": "Stack",
+            "Value": "CloudGoat"
+          },
+          {
+            "Key": "Name",
+            "Value": "cg-cgidil69c4g7qu"
+          }
+        ]
+      }
+    },
+    {
+      "node_type": "vpc",
+      "node_id": "288528695623:us-east-1:vpc:vpc-0ba50c1115fbf923b",
+      "resource_id": "vpc-0ba50c1115fbf923b",
+      "name": "cg-ecs-takeover-cgidil69c4g7qu-main",
+      "attributes": {
+        "cidr": "10.0.0.0/16",
+        "default": false
+      }
+    },
+    {
+      "node_type": "subnet",
+      "node_id": "288528695623:us-east-1:subnet:subnet-0fc26c2dfe2555099",
+      "resource_id": "subnet-0fc26c2dfe2555099",
+      "name": "cg-ecs-takeover-cgidil69c4g7qu-public",
+      "attributes": {
+        "vpc_id": "vpc-0ba50c1115fbf923b",
+        "cidr": "10.0.1.0/24",
+        "az": "us-east-1a"
+      }
+    },
+    {
+      "node_type": "igw",
+      "node_id": "288528695623:us-east-1:igw:igw-0f69683c6f7a33920",
+      "resource_id": "igw-0f69683c6f7a33920",
+      "name": "cg-ecs-takeover-cgidil69c4g7qu-main",
+      "attributes": {
+        "attached_vpc_id": "vpc-0ba50c1115fbf923b",
+        "state": "available"
+      }
+    },
+    {
+      "node_type": "route_table",
+      "node_id": "288528695623:us-east-1:route_table:rtb-001d4c96be2f244b0",
+      "resource_id": "rtb-001d4c96be2f244b0",
+      "name": "rtb-001d4c96be2f244b0",
+      "attributes": {
+        "vpc_id": "vpc-0ba50c1115fbf923b",
+        "main": true
+      }
+    },
+    {
+      "node_type": "route_table",
+      "node_id": "288528695623:us-east-1:route_table:rtb-07ed2478431f601ce",
+      "resource_id": "rtb-07ed2478431f601ce",
+      "name": "cg-ecs-takeover-cgidil69c4g7qu-public",
+      "attributes": {
+        "vpc_id": "vpc-0ba50c1115fbf923b",
+        "main": false
+      }
+    },
+    {
+      "node_type": "security_group",
+      "node_id": "288528695623:us-east-1:security_group:sg-0f98f6cb3ac985ca4",
+      "resource_id": "sg-0f98f6cb3ac985ca4",
+      "name": "default",
+      "vpc_id": "vpc-0ba50c1115fbf923b",
+      "attributes": {
+        "description": "default VPC security group",
+        "inbound_rules_count": 1,
+        "outbound_rules_count": 1,
+        "inbound_rules": [
+          {
+            "IpProtocol": "-1",
+            "UserIdGroupPairs": [
+              {
+                "UserId": "288528695623",
+                "GroupId": "sg-0f98f6cb3ac985ca4"
+              }
+            ],
+            "IpRanges": [],
+            "Ipv6Ranges": [],
+            "PrefixListIds": []
+          }
+        ],
+        "outbound_rules": [
+          {
+            "IpProtocol": "-1",
+            "UserIdGroupPairs": [],
+            "IpRanges": [
+              {
+                "CidrIp": "0.0.0.0/0"
+              }
+            ],
+            "Ipv6Ranges": [],
+            "PrefixListIds": []
+          }
+        ]
+      }
+    },
+    {
+      "node_type": "security_group",
+      "node_id": "288528695623:us-east-1:security_group:sg-012ccab046a9fddf5",
+      "resource_id": "sg-012ccab046a9fddf5",
+      "name": "cg-ecs-takeover-cgidil69c4g7qu-ecs-sg",
+      "vpc_id": "vpc-0ba50c1115fbf923b",
+      "attributes": {
+        "description": "Managed by Terraform",
+        "inbound_rules_count": 2,
+        "outbound_rules_count": 1,
+        "inbound_rules": [
+          {
+            "IpProtocol": "tcp",
+            "FromPort": 80,
+            "ToPort": 80,
+            "UserIdGroupPairs": [],
+            "IpRanges": [
+              {
+                "CidrIp": "116.32.137.86/32"
+              }
+            ],
+            "Ipv6Ranges": [],
+            "PrefixListIds": []
+          },
+          {
+            "IpProtocol": "tcp",
+            "FromPort": 443,
+            "ToPort": 443,
+            "UserIdGroupPairs": [],
+            "IpRanges": [
+              {
+                "CidrIp": "116.32.137.86/32"
+              }
+            ],
+            "Ipv6Ranges": [],
+            "PrefixListIds": []
+          }
+        ],
+        "outbound_rules": [
+          {
+            "IpProtocol": "tcp",
+            "FromPort": 0,
+            "ToPort": 65535,
+            "UserIdGroupPairs": [],
+            "IpRanges": [
+              {
+                "CidrIp": "0.0.0.0/0"
+              }
+            ],
+            "Ipv6Ranges": [],
+            "PrefixListIds": []
+          }
+        ]
+      }
+    },
+    {
+      "node_type": "ecs_task",
+      "node_id": "288528695623:us-east-1:ecs-task:073c605c30ce4424a897252ed3a839e6",
+      "resource_id": "073c605c30ce4424a897252ed3a839e6",
       "name": "privd",
-      "properties": {
-        "cluster_name": "ecs-takeover-cgid33k7dvei2d-cluster",
-        "host_instance_id": "i-0eb52e49428733ca0",
+      "account_id": "288528695623",
+      "region": "us-east-1",
+      "attributes": {
+        "task_arn": "arn:aws:ecs:us-east-1:288528695623:task/ecs-takeover-cgidil69c4g7qu-cluster/073c605c30ce4424a897252ed3a839e6",
+        "cluster_name": "ecs-takeover-cgidil69c4g7qu-cluster",
+        "task_definition": "arn:aws:ecs:us-east-1:288528695623:task-definition/cg-ecs-takeover-cgidil69c4g7qu-privd:2",
+        "host_instance_id": "i-055d1241028794699",
         "launch_type": "EC2",
+        "last_status": "RUNNING",
         "has_docker_socket": false,
         "containers": [
           {
@@ -678,13 +1435,19 @@
       }
     },
     {
-      "node_id": "288528695623:us-east-1:ecs_task:60342375896846f2a61a6cb1ba28039a",
-      "type": "ecs_task",
+      "node_type": "ecs_task",
+      "node_id": "288528695623:us-east-1:ecs-task:2178e6ccd8c24efea3a0e070dd65ef3c",
+      "resource_id": "2178e6ccd8c24efea3a0e070dd65ef3c",
       "name": "vault",
-      "properties": {
-        "cluster_name": "ecs-takeover-cgid33k7dvei2d-cluster",
-        "host_instance_id": "i-0eb52e49428733ca0",
+      "account_id": "288528695623",
+      "region": "us-east-1",
+      "attributes": {
+        "task_arn": "arn:aws:ecs:us-east-1:288528695623:task/ecs-takeover-cgidil69c4g7qu-cluster/2178e6ccd8c24efea3a0e070dd65ef3c",
+        "cluster_name": "ecs-takeover-cgidil69c4g7qu-cluster",
+        "task_definition": "arn:aws:ecs:us-east-1:288528695623:task-definition/cg-ecs-takeover-cgidil69c4g7qu-vault:2",
+        "host_instance_id": "i-055d1241028794699",
         "launch_type": "EC2",
+        "last_status": "RUNNING",
         "has_docker_socket": false,
         "containers": [
           {
@@ -697,63 +1460,19 @@
       }
     },
     {
-      "node_id": "288528695623:us-east-1:ec2_instance:i-0eb52e49428733ca0",
-      "type": "ec2",
-      "name": "cg-ecs-takeover-cgid33k7dvei2d-vault"
-    },
-    {
-      "node_id": "288528695623:iam_role:AROA5GXM3PEBDYX56YGFS",
-      "type": "iam_role",
-      "name": "cg-ecs-takeover-cgid33k7dvei2d-privd",
-      "properties": {
-        "assume_role_policy": {
-          "Statement": [
-            {
-              "Effect": "Allow",
-              "Action": "sts:AssumeRole",
-              "Principal": {
-                "Service": "ecs-tasks.amazonaws.com"
-              }
-            }
-          ]
-        },
-        "inline_policies": [],
-        "attached_policies": [
-          {
-            "PolicyName": "cg-ecs-takeover-cgid33k7dvei2d-privd",
-            "Statement": [
-              {
-                "Action": [
-                  "ecs:ListServices",
-                  "ecs:ListTasks",
-                  "ecs:DescribeServices",
-                  "ecs:ListContainerInstances",
-                  "ecs:DescribeContainerInstances",
-                  "ecs:DescribeTasks",
-                  "ecs:ListTaskDefinitions",
-                  "ecs:DescribeClusters",
-                  "ecs:ListClusters",
-                  "iam:GetPolicyVersion",
-                  "iam:GetPolicy",
-                  "iam:ListAttachedRolePolicies",
-                  "iam:GetRolePolicy"
-                ],
-                "Effect": "Allow",
-                "Resource": "*"
-              }
-            ]
-          }
-        ]
-      }
-    },
-    {
-      "node_id": "288528695623:us-east-1:ecs_task:d66e62968799454da932464fa93aab0d",
-      "type": "ecs_task",
+      "node_type": "ecs_task",
+      "node_id": "288528695623:us-east-1:ecs-task:5884828e7f9b4957bd162a7c0e834e91",
+      "resource_id": "5884828e7f9b4957bd162a7c0e834e91",
       "name": "privd",
-      "properties": {
-        "cluster_name": "ecs-takeover-cgid33k7dvei2d-cluster",
-        "host_instance_id": "i-0856ceb64ac199e09",
+      "account_id": "288528695623",
+      "region": "us-east-1",
+      "attributes": {
+        "task_arn": "arn:aws:ecs:us-east-1:288528695623:task/ecs-takeover-cgidil69c4g7qu-cluster/5884828e7f9b4957bd162a7c0e834e91",
+        "cluster_name": "ecs-takeover-cgidil69c4g7qu-cluster",
+        "task_definition": "arn:aws:ecs:us-east-1:288528695623:task-definition/cg-ecs-takeover-cgidil69c4g7qu-privd:2",
+        "host_instance_id": "i-061cec93c751bc410",
         "launch_type": "EC2",
+        "last_status": "RUNNING",
         "has_docker_socket": false,
         "containers": [
           {
@@ -766,80 +1485,19 @@
       }
     },
     {
-      "node_id": "288528695623:iam_role:AROA5GXM3PEBICPNGAVNZ",
-      "type": "iam_role",
-      "name": "cg-ecs-takeover-cgid33k7dvei2d-ecs-agent",
-      "properties": {
-        "assume_role_policy": {
-          "Statement": [
-            {
-              "Effect": "Allow",
-              "Action": "sts:AssumeRole",
-              "Principal": {
-                "Service": "ec2.amazonaws.com"
-              }
-            }
-          ]
-        },
-        "inline_policies": [],
-        "attached_policies": [
-          {
-            "PolicyName": "AmazonEC2ContainerServiceforEC2Role",
-            "Statement": [
-              {
-                "Action": [
-                  "ec2:DescribeTags",
-                  "ecs:CreateCluster",
-                  "ecs:DeregisterContainerInstance",
-                  "ecs:DiscoverPollEndpoint",
-                  "ecs:Poll",
-                  "ecs:RegisterContainerInstance",
-                  "ecs:StartTelemetrySession",
-                  "ecs:UpdateContainerInstancesState",
-                  "ecs:Submit*",
-                  "ecr:GetAuthorizationToken",
-                  "ecr:BatchCheckLayerAvailability",
-                  "ecr:GetDownloadUrlForLayer",
-                  "ecr:BatchGetImage",
-                  "logs:CreateLogStream",
-                  "logs:PutLogEvents"
-                ],
-                "Effect": "Allow",
-                "Resource": "*"
-              },
-              {
-                "Action": "ecs:TagResource",
-                "Effect": "Allow",
-                "Resource": "*"
-              },
-              {
-                "Action": [
-                  "ecs:ListTagsForResource"
-                ],
-                "Effect": "Allow",
-                "Resource": [
-                  "arn:aws:ecs:*:*:task/*/*",
-                  "arn:aws:ecs:*:*:container-instance/*/*"
-                ]
-              }
-            ]
-          }
-        ]
-      }
-    },
-    {
-      "node_id": "288528695623:us-east-1:ec2_instance:i-0856ceb64ac199e09",
-      "type": "ec2",
-      "name": "cg-ecs-takeover-cgid33k7dvei2d-vulnsite"
-    },
-    {
-      "node_id": "288528695623:us-east-1:ecs_task:aa159ebd8a4f49e88535ece9be6b99f3",
-      "type": "ecs_task",
+      "node_type": "ecs_task",
+      "node_id": "288528695623:us-east-1:ecs-task:726b3139dc7541788d2593908214dbe1",
+      "resource_id": "726b3139dc7541788d2593908214dbe1",
       "name": "vulnsite",
-      "properties": {
-        "cluster_name": "ecs-takeover-cgid33k7dvei2d-cluster",
-        "host_instance_id": "i-0856ceb64ac199e09",
+      "account_id": "288528695623",
+      "region": "us-east-1",
+      "attributes": {
+        "task_arn": "arn:aws:ecs:us-east-1:288528695623:task/ecs-takeover-cgidil69c4g7qu-cluster/726b3139dc7541788d2593908214dbe1",
+        "cluster_name": "ecs-takeover-cgidil69c4g7qu-cluster",
+        "task_definition": "arn:aws:ecs:us-east-1:288528695623:task-definition/cg-ecs-takeover-cgidil69c4g7qu-vulnsite:2",
+        "host_instance_id": "i-061cec93c751bc410",
         "launch_type": "EC2",
+        "last_status": "RUNNING",
         "has_docker_socket": true,
         "containers": [
           {
@@ -850,72 +1508,292 @@
           }
         ]
       }
+    },
+    {
+      "node_type": "iam_instance_profile",
+      "node_id": "288528695623:iam_instance_profile:cg-ecs-takeover-cgidil69c4g7qu-ecs-agent",
+      "resource_id": "AIPA5GXM3PEBCNPFJEDFN",
+      "name": "cg-ecs-takeover-cgidil69c4g7qu-ecs-agent",
+      "account_id": "288528695623",
+      "region": "us-east-1",
+      "attributes": {
+        "arn": "arn:aws:iam::288528695623:instance-profile/cg-ecs-takeover-cgidil69c4g7qu-ecs-agent",
+        "path": "/",
+        "create_date": "2026-02-21T08:03:03+00:00",
+        "bound_roles": [
+          "cg-ecs-takeover-cgidil69c4g7qu-ecs-agent"
+        ],
+        "bound_role_arns": [
+          "arn:aws:iam::288528695623:role/cg-ecs-takeover-cgidil69c4g7qu-ecs-agent"
+        ],
+        "is_attached": false
+      }
     }
   ],
   "edges": [
     {
-      "id": "edge_3",
-      "src": "288528695623:us-east-1:ecs_task:0f6353dd0a8b4128899f715db6724cab",
-      "dst": "288528695623:us-east-1:ec2_instance:i-0eb52e49428733ca0",
-      "relation": "runs_on",
-      "directed": true,
-      "conditions": []
+      "id": "edge:i-061cec93c751bc410:EC2_ACCESS_IGW:igw-0f69683c6f7a33920",
+      "relation": "EC2_PUBLIC",
+      "src": "288528695623:us-east-1:ec2:i-061cec93c751bc410",
+      "dst": "288528695623:us-east-1:igw:igw-0f69683c6f7a33920",
+      "directed": false,
+      "conditions": "EC2 is assigned a public IP, and the subnet where EC2 is located is connected to an IGW that can communicate externally through the route table."
     },
     {
-      "id": "edge_4",
-      "src": "288528695623:us-east-1:ecs_task:0f6353dd0a8b4128899f715db6724cab",
-      "dst": "288528695623:iam_role:AROA5GXM3PEBDYX56YGFS",
-      "relation": "has_task_role",
+      "id": "edge:i-061cec93c751bc410:HAS_IAM_ROLE:cg-ecs-takeover-cgidil69c4g7qu-ecs-agent",
+      "relation": "HAS_IAM_ROLE",
+      "src": "288528695623:us-east-1:ec2:i-061cec93c751bc410",
+      "dst": "288528695623:iam_role:cg-ecs-takeover-cgidil69c4g7qu-ecs-agent",
       "directed": true,
-      "conditions": []
+      "conditions": "EC2 instance is associated with an IAM Instance Profile."
     },
     {
-      "id": "edge_5",
-      "src": "288528695623:us-east-1:ecs_task:60342375896846f2a61a6cb1ba28039a",
-      "dst": "288528695623:us-east-1:ec2_instance:i-0eb52e49428733ca0",
-      "relation": "runs_on",
-      "directed": true,
-      "conditions": []
+      "id": "edge:i-055d1241028794699:EC2_ACCESS_IGW:igw-0f69683c6f7a33920",
+      "relation": "EC2_PUBLIC",
+      "src": "288528695623:us-east-1:ec2:i-055d1241028794699",
+      "dst": "288528695623:us-east-1:igw:igw-0f69683c6f7a33920",
+      "directed": false,
+      "conditions": "EC2 is assigned a public IP, and the subnet where EC2 is located is connected to an IGW that can communicate externally through the route table."
     },
     {
-      "id": "edge_7",
-      "src": "288528695623:us-east-1:ecs_task:d66e62968799454da932464fa93aab0d",
-      "dst": "288528695623:us-east-1:ec2_instance:i-0856ceb64ac199e09",
-      "relation": "runs_on",
+      "id": "edge:i-055d1241028794699:HAS_IAM_ROLE:cg-ecs-takeover-cgidil69c4g7qu-ecs-agent",
+      "relation": "HAS_IAM_ROLE",
+      "src": "288528695623:us-east-1:ec2:i-055d1241028794699",
+      "dst": "288528695623:iam_role:cg-ecs-takeover-cgidil69c4g7qu-ecs-agent",
       "directed": true,
-      "conditions": []
+      "conditions": "EC2 instance is associated with an IAM Instance Profile."
     },
     {
-      "id": "edge_6",
-      "src": "288528695623:us-east-1:ecs_task:aa159ebd8a4f49e88535ece9be6b99f3",
-      "dst": "288528695623:us-east-1:ec2_instance:i-0856ceb64ac199e09",
-      "relation": "runs_on",
+      "id": "edge:i-0b998422cf811c859:ASSUME_ROLE:cg-ecs-takeover-cgidil69c4g7qu-ecs-agent",
+      "relation": "ASSUME_ROLE",
+      "src": "288528695623:us-east-1:ec2:i-0b998422cf811c859",
+      "dst": "288528695623:iam_role:cg-ecs-takeover-cgidil69c4g7qu-ecs-agent",
       "directed": true,
-      "conditions": []
+      "conditions": "A role that a EC2 Instance can assume."
     },
     {
-      "id": "edge_2",
-      "src": "288528695623:us-east-1:ec2_instance:i-0856ceb64ac199e09",
-      "dst": "288528695623:iam_role:AROA5GXM3PEBICPNGAVNZ",
-      "relation": "has_iam_role",
+      "id": "edge:i-061cec93c751bc410:ASSUME_ROLE:cg-ecs-takeover-cgidil69c4g7qu-ecs-agent",
+      "relation": "ASSUME_ROLE",
+      "src": "288528695623:us-east-1:ec2:i-061cec93c751bc410",
+      "dst": "288528695623:iam_role:cg-ecs-takeover-cgidil69c4g7qu-ecs-agent",
       "directed": true,
-      "conditions": []
+      "conditions": "A role that a EC2 Instance can assume."
     },
     {
-      "id": "edge_8",
-      "src": "288528695623:us-east-1:ecs_task:d66e62968799454da932464fa93aab0d",
-      "dst": "288528695623:iam_role:AROA5GXM3PEBDYX56YGFS",
-      "relation": "has_task_role",
+      "id": "edge:i-055d1241028794699:ASSUME_ROLE:cg-ecs-takeover-cgidil69c4g7qu-ecs-agent",
+      "relation": "ASSUME_ROLE",
+      "src": "288528695623:us-east-1:ec2:i-055d1241028794699",
+      "dst": "288528695623:iam_role:cg-ecs-takeover-cgidil69c4g7qu-ecs-agent",
       "directed": true,
-      "conditions": []
+      "conditions": "A role that a EC2 Instance can assume."
     },
     {
-      "id": "edge_1",
-      "src": "288528695623:us-east-1:ec2_instance:i-0eb52e49428733ca0",
-      "dst": "288528695623:iam_role:AROA5GXM3PEBICPNGAVNZ",
-      "relation": "has_iam_role",
+      "id": "edge:cg-ecs-takeover-cgidil69c4g7qu-ecs-agent:IAM_ROLE_ACCESS_EC2:i-0b998422cf811c859",
+      "relation": "IAM_ROLE_ACCESS_EC2",
+      "src": "288528695623:iam_role:cg-ecs-takeover-cgidil69c4g7qu-ecs-agent",
+      "dst": "288528695623:us-east-1:ec2:i-0b998422cf811c859",
       "directed": true,
-      "conditions": []
+      "conditions": "This role gives you access to EC2."
+    },
+    {
+      "id": "edge:cg-ecs-takeover-cgidil69c4g7qu-ecs-agent:IAM_ROLE_ACCESS_EC2:i-061cec93c751bc410",
+      "relation": "IAM_ROLE_ACCESS_EC2",
+      "src": "288528695623:iam_role:cg-ecs-takeover-cgidil69c4g7qu-ecs-agent",
+      "dst": "288528695623:us-east-1:ec2:i-061cec93c751bc410",
+      "directed": true,
+      "conditions": "This role gives you access to EC2."
+    },
+    {
+      "id": "edge:cg-ecs-takeover-cgidil69c4g7qu-ecs-agent:IAM_ROLE_ACCESS_EC2:i-055d1241028794699",
+      "relation": "IAM_ROLE_ACCESS_EC2",
+      "src": "288528695623:iam_role:cg-ecs-takeover-cgidil69c4g7qu-ecs-agent",
+      "dst": "288528695623:us-east-1:ec2:i-055d1241028794699",
+      "directed": true,
+      "conditions": "This role gives you access to EC2."
+    },
+    {
+      "id": "edge:cg-ecs-takeover-cgidil69c4g7qu-ecs-agent:IAM_ROLE_CAN_DRAIN_ECS:privd",
+      "relation": "IAM_ROLE_CAN_DRAIN_ECS",
+      "src": "288528695623:iam_role:cg-ecs-takeover-cgidil69c4g7qu-ecs-agent",
+      "dst": "288528695623:us-east-1:ecs_cluster:privd",
+      "directed": true,
+      "conditions": "This role can drain ECS host instances, forcing tasks to reschedule."
+    },
+    {
+      "id": "edge:cg-ecs-takeover-cgidil69c4g7qu-ecs-agent:IAM_ROLE_CAN_DRAIN_ECS:vault",
+      "relation": "IAM_ROLE_CAN_DRAIN_ECS",
+      "src": "288528695623:iam_role:cg-ecs-takeover-cgidil69c4g7qu-ecs-agent",
+      "dst": "288528695623:us-east-1:ecs_cluster:vault",
+      "directed": true,
+      "conditions": "This role can drain ECS host instances, forcing tasks to reschedule."
+    },
+    {
+      "id": "edge:cg-ecs-takeover-cgidil69c4g7qu-ecs-agent:IAM_ROLE_CAN_DRAIN_ECS:vulnsite",
+      "relation": "IAM_ROLE_CAN_DRAIN_ECS",
+      "src": "288528695623:iam_role:cg-ecs-takeover-cgidil69c4g7qu-ecs-agent",
+      "dst": "288528695623:us-east-1:ecs_cluster:vulnsite",
+      "directed": true,
+      "conditions": "This role can drain ECS host instances, forcing tasks to reschedule."
+    },
+    {
+      "id": "edge:cg-ecs-takeover-cgidil69c4g7qu-ecs-agent:INSTANCE_PROFILE:i-061cec93c751bc410",
+      "relation": "IAM_ROLE_HAS_INSTANCE_PROFILE",
+      "src": "288528695623:iam_role:cg-ecs-takeover-cgidil69c4g7qu-ecs-agent",
+      "dst": "288528695623:us-east-1:ec2:i-061cec93c751bc410",
+      "directed": true,
+      "conditions": "This role is explicitly assigned to the EC2 instance."
+    },
+    {
+      "id": "edge:cg-ecs-takeover-cgidil69c4g7qu-ecs-agent:INSTANCE_PROFILE:i-055d1241028794699",
+      "relation": "IAM_ROLE_HAS_INSTANCE_PROFILE",
+      "src": "288528695623:iam_role:cg-ecs-takeover-cgidil69c4g7qu-ecs-agent",
+      "dst": "288528695623:us-east-1:ec2:i-055d1241028794699",
+      "directed": true,
+      "conditions": "This role is explicitly assigned to the EC2 instance."
+    },
+    {
+      "id": "edge:cg-ecs-takeover-cgidil69c4g7qu-privd:IAM_ROLE_CAN_RECON_ECS:privd",
+      "relation": "IAM_ROLE_CAN_RECON_ECS",
+      "src": "288528695623:iam_role:cg-ecs-takeover-cgidil69c4g7qu-privd",
+      "dst": "288528695623:us-east-1:ecs_cluster:privd",
+      "directed": true,
+      "conditions": "This role can enumerate ECS tasks and clusters to locate targets."
+    },
+    {
+      "id": "edge:cg-ecs-takeover-cgidil69c4g7qu-privd:IAM_ROLE_CAN_RECON_ECS:vault",
+      "relation": "IAM_ROLE_CAN_RECON_ECS",
+      "src": "288528695623:iam_role:cg-ecs-takeover-cgidil69c4g7qu-privd",
+      "dst": "288528695623:us-east-1:ecs_cluster:vault",
+      "directed": true,
+      "conditions": "This role can enumerate ECS tasks and clusters to locate targets."
+    },
+    {
+      "id": "edge:cg-ecs-takeover-cgidil69c4g7qu-privd:IAM_ROLE_CAN_RECON_ECS:vulnsite",
+      "relation": "IAM_ROLE_CAN_RECON_ECS",
+      "src": "288528695623:iam_role:cg-ecs-takeover-cgidil69c4g7qu-privd",
+      "dst": "288528695623:us-east-1:ecs_cluster:vulnsite",
+      "directed": true,
+      "conditions": "This role can enumerate ECS tasks and clusters to locate targets."
+    },
+    {
+      "id": "edge:cg-ecs-takeover-cgidil69c4g7qu-privd:IAM_ROLE_ACCESS_IAM:cg-ecs-takeover-cgidil69c4g7qu-ecs-agent",
+      "relation": "IAM_ROLE_ACCESS_IAM",
+      "src": "288528695623:iam_role:cg-ecs-takeover-cgidil69c4g7qu-privd",
+      "dst": "288528695623:iam_role:cg-ecs-takeover-cgidil69c4g7qu-ecs-agent",
+      "directed": true,
+      "conditions": "This role gives you access to IAM."
+    },
+    {
+      "id": "edge:073c605c30ce4424a897252ed3a839e6:MEMBER_OF:ecs-takeover-cgidil69c4g7qu-cluster",
+      "relation": "MEMBER_OF",
+      "src": "288528695623:us-east-1:ecs_task:073c605c30ce4424a897252ed3a839e6",
+      "dst": "288528695623:us-east-1:ecs_cluster:ecs-takeover-cgidil69c4g7qu-cluster",
+      "directed": true,
+      "conditions": "This Task belongs to the Cluster."
+    },
+    {
+      "id": "edge:073c605c30ce4424a897252ed3a839e6:HAS_TASK_ROLE:cg-ecs-takeover-cgidil69c4g7qu-privd",
+      "relation": "HAS_IAM_ROLE",
+      "src": "288528695623:us-east-1:ecs_task:073c605c30ce4424a897252ed3a839e6",
+      "dst": "288528695623:iam_role:cg-ecs-takeover-cgidil69c4g7qu-privd",
+      "directed": true,
+      "conditions": "This ECS task assumes an IAM role for AWS service access."
+    },
+    {
+      "id": "edge:i-055d1241028794699:HOSTS:073c605c30ce4424a897252ed3a839e6",
+      "relation": "HOSTS",
+      "src": "288528695623:us-east-1:ec2:i-055d1241028794699",
+      "dst": "288528695623:us-east-1:ecs_task:073c605c30ce4424a897252ed3a839e6",
+      "directed": true,
+      "conditions": "This EC2 instance hosts this Task."
+    },
+    {
+      "id": "edge:2178e6ccd8c24efea3a0e070dd65ef3c:MEMBER_OF:ecs-takeover-cgidil69c4g7qu-cluster",
+      "relation": "MEMBER_OF",
+      "src": "288528695623:us-east-1:ecs_task:2178e6ccd8c24efea3a0e070dd65ef3c",
+      "dst": "288528695623:us-east-1:ecs_cluster:ecs-takeover-cgidil69c4g7qu-cluster",
+      "directed": true,
+      "conditions": "This Task belongs to the Cluster."
+    },
+    {
+      "id": "edge:i-055d1241028794699:HOSTS:2178e6ccd8c24efea3a0e070dd65ef3c",
+      "relation": "HOSTS",
+      "src": "288528695623:us-east-1:ec2:i-055d1241028794699",
+      "dst": "288528695623:us-east-1:ecs_task:2178e6ccd8c24efea3a0e070dd65ef3c",
+      "directed": true,
+      "conditions": "This EC2 instance hosts this Task."
+    },
+    {
+      "id": "edge:5884828e7f9b4957bd162a7c0e834e91:MEMBER_OF:ecs-takeover-cgidil69c4g7qu-cluster",
+      "relation": "MEMBER_OF",
+      "src": "288528695623:us-east-1:ecs_task:5884828e7f9b4957bd162a7c0e834e91",
+      "dst": "288528695623:us-east-1:ecs_cluster:ecs-takeover-cgidil69c4g7qu-cluster",
+      "directed": true,
+      "conditions": "This Task belongs to the Cluster."
+    },
+    {
+      "id": "edge:5884828e7f9b4957bd162a7c0e834e91:HAS_TASK_ROLE:cg-ecs-takeover-cgidil69c4g7qu-privd",
+      "relation": "HAS_IAM_ROLE",
+      "src": "288528695623:us-east-1:ecs_task:5884828e7f9b4957bd162a7c0e834e91",
+      "dst": "288528695623:iam_role:cg-ecs-takeover-cgidil69c4g7qu-privd",
+      "directed": true,
+      "conditions": "This ECS task assumes an IAM role for AWS service access."
+    },
+    {
+      "id": "edge:i-061cec93c751bc410:HOSTS:5884828e7f9b4957bd162a7c0e834e91",
+      "relation": "HOSTS",
+      "src": "288528695623:us-east-1:ec2:i-061cec93c751bc410",
+      "dst": "288528695623:us-east-1:ecs_task:5884828e7f9b4957bd162a7c0e834e91",
+      "directed": true,
+      "conditions": "This EC2 instance hosts this Task."
+    },
+    {
+      "id": "edge:726b3139dc7541788d2593908214dbe1:MEMBER_OF:ecs-takeover-cgidil69c4g7qu-cluster",
+      "relation": "MEMBER_OF",
+      "src": "288528695623:us-east-1:ecs_task:726b3139dc7541788d2593908214dbe1",
+      "dst": "288528695623:us-east-1:ecs_cluster:ecs-takeover-cgidil69c4g7qu-cluster",
+      "directed": true,
+      "conditions": "This Task belongs to the Cluster."
+    },
+    {
+      "id": "edge:i-061cec93c751bc410:HOSTS:726b3139dc7541788d2593908214dbe1",
+      "relation": "HOSTS",
+      "src": "288528695623:us-east-1:ec2:i-061cec93c751bc410",
+      "dst": "288528695623:us-east-1:ecs_task:726b3139dc7541788d2593908214dbe1",
+      "directed": true,
+      "conditions": "This EC2 instance hosts this Task."
+    },
+    {
+      "id": "edge:726b3139dc7541788d2593908214dbe1:DOCKER_SOCKET:i-061cec93c751bc410",
+      "relation": "DOCKER_SOCKET_EXPOSED",
+      "src": "288528695623:us-east-1:ecs_task:726b3139dc7541788d2593908214dbe1",
+      "dst": "288528695623:us-east-1:ec2:i-061cec93c751bc410",
+      "directed": true,
+      "conditions": "WARNING: Docker socket is exposed to this Task."
+    },
+    {
+      "id": "edge:cg-ecs-takeover-cgidil69c4g7qu-ecs-agent:HAS_ROLE:cg-ecs-takeover-cgidil69c4g7qu-ecs-agent",
+      "relation": "INSTANCE_PROFILE_HAS_ROLE",
+      "src": "288528695623:iam_instance_profile:cg-ecs-takeover-cgidil69c4g7qu-ecs-agent",
+      "dst": "288528695623:iam_role:cg-ecs-takeover-cgidil69c4g7qu-ecs-agent",
+      "directed": true,
+      "conditions": "This instance profile acts as a container for the IAM Role, allowing it to be passed to EC2."
+    },
+    {
+      "id": "edge:cg-ecs-takeover-cgidil69c4g7qu-ecs-agent:ATTACHED_TO:i-061cec93c751bc410",
+      "relation": "INSTANCE_PROFILE_ATTACHED_TO_EC2",
+      "src": "288528695623:iam_instance_profile:cg-ecs-takeover-cgidil69c4g7qu-ecs-agent",
+      "dst": "288528695623:us-east-1:ec2_instance:i-061cec93c751bc410",
+      "directed": true,
+      "conditions": "This instance profile is currently associated with the EC2 instance, providing its IAM identity."
+    },
+    {
+      "id": "edge:cg-ecs-takeover-cgidil69c4g7qu-ecs-agent:ATTACHED_TO:i-055d1241028794699",
+      "relation": "INSTANCE_PROFILE_ATTACHED_TO_EC2",
+      "src": "288528695623:iam_instance_profile:cg-ecs-takeover-cgidil69c4g7qu-ecs-agent",
+      "dst": "288528695623:us-east-1:ec2_instance:i-055d1241028794699",
+      "directed": true,
+      "conditions": "This instance profile is currently associated with the EC2 instance, providing its IAM identity."
     }
   ]
 }
@@ -927,157 +1805,427 @@
     "description": "document/vulnerable_lambda.json",
     "resources": [
       {
-  "schema_version": "1.5",
+  "schema_version": "1.0",
+  "account_id": "288528695623",
+  "region": "us-east-1",
+  "collected_at": "2026-02-21T07:37:27.456127+00:00",
   "nodes": [
     {
-      "node_id": "288528695623:iam_role:AROA5GXM3PEBPXUOICJVK",
-      "type": "iam_role",
-      "name": "cg-lambda-invoker-cgidqr0pwai050",
-      "properties": {
-        "assume_role_policy": {
-          "Statement": [
-            {
-              "Effect": "Allow",
-              "Action": "sts:AssumeRole",
-              "Principal": {
-                "AWS": "arn:aws:iam::288528695623:user/cg-bilbo-cgidqr0pwai050"
-              }
-            }
-          ]
-        },
-        "inline_policies": [
+      "node_type": "ec2_instance",
+      "node_id": "288528695623:us-east-1:ec2_instance:i-0b998422cf811c859",
+      "resource_id": "i-0b998422cf811c859",
+      "name": "CloudGoat cgidwyb9q0wweu super-critical-security-server EC2 Instance",
+      "account_id": "288528695623",
+      "region": "us-east-1",
+      "attributes": {
+        "instance_type": "t3.micro",
+        "state": "terminated",
+        "public": false,
+        "public_ip": null,
+        "private_ip": null,
+        "launch_time": "2026-02-20T12:54:38Z",
+        "vpc_id": null,
+        "subnet_id": null,
+        "key_name": null,
+        "iam_instance_profile": null,
+        "security_groups": [],
+        "imds_token": "optional",
+        "ecs_cluster": null,
+        "tags": [
           {
-            "PolicyName": "lambda-invoker",
-            "Statement": [
-              {
-                "Action": [
-                  "lambda:ListFunctionEventInvokeConfigs",
-                  "lambda:InvokeFunction",
-                  "lambda:ListTags",
-                  "lambda:GetFunction",
-                  "lambda:GetPolicy"
-                ],
-                "Effect": "Allow",
-                "Resource": "arn:aws:lambda:us-east-1:288528695623:function:cgidqr0pwai050-policy_applier_lambda1"
-              },
-              {
-                "Action": [
-                  "lambda:ListFunctions",
-                  "iam:Get*",
-                  "iam:List*",
-                  "iam:SimulateCustomPolicy",
-                  "iam:SimulatePrincipalPolicy"
-                ],
-                "Effect": "Allow",
-                "Resource": "*"
-              }
-            ]
+            "Key": "Name",
+            "Value": "CloudGoat cgidwyb9q0wweu super-critical-security-server EC2 Instance"
+          },
+          {
+            "Key": "Scenario",
+            "Value": "iam-privesc-by-attachment"
+          },
+          {
+            "Key": "Stack",
+            "Value": "CloudGoat"
           }
-        ],
-        "attached_policies": []
+        ]
       }
     },
     {
-      "node_id": "288528695623:iam_user:AIDA5GXM3PEBNIW6X2Z4G",
-      "type": "iam_user",
-      "name": "cg-bilbo-cgidqr0pwai050",
-      "properties": {
-        "inline_policies": [
+      "node_type": "lambda",
+      "node_id": "288528695623:us-east-1:lambda:cgidwn3o6o82rw-policy_applier_lambda1",
+      "resource_id": "cgidwn3o6o82rw-policy_applier_lambda1",
+      "name": "cgidwn3o6o82rw-policy_applier_lambda1",
+      "account_id": "288528695623",
+      "region": "us-east-1",
+      "execution_role": "arn:aws:iam::288528695623:role/cgidwn3o6o82rw-policy_applier_lambda1",
+      "code_metadata": {
+        "source_url": "https://prod-04-2014-tasks.s3.us-east-1.amazonaws.com/snapshots/288528695623/cgidwn3o6o82rw-policy_applier_lambda1-ef2743a7-96b3-4550-a033-96d767799f53?versionId=69P5oBdf7eJeDiZ7Qm8v2bLSQ.K3ZU.h&X-Amz-Security-Token=IQoJb3JpZ2luX2VjENv%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEaCXVzLWVhc3QtMSJIMEYCIQC99bneuY9gf36tPqxWl3jT7%2BwbmzLv7qoATothLxd4LgIhAKsbHPbaI8nGBFgGpzjW6X5vnos4r%2BDhNRvPbwjhGNw%2BKpQCCKT%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEQABoMNzQ5Njc4OTAyODM5Igy2hnRnHlHchP%2Bjj4Uq6AF8plSndzaUT7eDsPXIlw49k5Rjgr7GS4bczTI4YTMu7kkk7vhnyybGcnWI2YhKu12jtF%2BdFCk0TmxuAkdKWveM0cHoT4O5IstXFGI%2BH6AdX4e8z3L5SqORP6jcFCJdh37RWhnmv09Ofgs840a0mNtuK%2F5sNW%2BMXqW2LS7HHoPBmGSq9S3XhaczeE%2FoJ7IhADjVYvRLw1Hw1iCY89LZ7xsP6W5jT48Na6nxRWFqsVP%2B3z5X92kRKtUYFbgIFZOOnHlHkTA51A1z2wYJEKRNjygPjPR1WFrdsGxv99zI1xBfsxUTwDxB1nSAMOS45MwGOowB9WMK4Y8w4rz6m%2BrHnT93uqpWmeLNpToKUF%2BvCNZBd%2Fd%2BiQA%2BmWipK6I1epEtGuCUoMMU7CB8HZ00sHh8FXkqiX%2BzEBZI1LI9jyINDdnPUIzJ4hMq7mI%2F69QoJeg7TDz4wailCURLMXty%2F5pUwpesYSGjQ%2B%2Bv%2Fali9SkyqryC9EwB2TFEHsAFg692RHk%3D&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20260221T073733Z&X-Amz-SignedHeaders=host&X-Amz-Expires=600&X-Amz-Credential=ASIA25DCYHY3XUISMWCB%2F20260221%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Signature=bc356514b2b2d9beb5729421ebe9495ebf0bb3c72c285e2b08eb140c12e6734d",
+        "image_uri": null,
+        "handler": "main.handler",
+        "runtime": "python3.9",
+        "last_modified": "2026-02-21T07:36:57.011+0000"
+      },
+      "attributes": {
+        "runtime": "python3.9",
+        "handler": "main.handler",
+        "code_size": 991559,
+        "timeout": 3,
+        "memory_size": 128,
+        "environment_variables": {},
+        "last_modified": "2026-02-21T07:36:57.011+0000"
+      },
+      "resource_based_policy": null,
+      "event_source_mapping": {
+        "event_source_arn": []
+      }
+    },
+    {
+      "node_type": "iam_user",
+      "node_id": "288528695623:iam_user:AIDA5GXM3PEBFVZAPEREI",
+      "resource_id": "AIDA5GXM3PEBFVZAPEREI",
+      "name": "cg-bilbo-cgidwn3o6o82rw",
+      "account_id": "288528695623",
+      "region": "global",
+      "attributes": {
+        "arn": "arn:aws:iam::288528695623:user/cg-bilbo-cgidwn3o6o82rw",
+        "create_date": "2026-02-21T07:36:45+00:00",
+        "tags": [
           {
-            "Effect": "Allow",
-            "Action": "sts:AssumeRole",
-            "Resource": "arn:aws:iam::940877411605:role/cg-lambda-invoker*"
+            "Key": "deployment_profile",
+            "Value": "default"
           },
           {
-            "Effect": "Allow",
-            "Action": [
-              "iam:Get*",
-              "iam:List*",
-              "iam:SimulateCustomPolicy",
-              "iam:SimulatePrincipalPolicy"
-            ],
-            "Resource": "*"
+            "Key": "Stack",
+            "Value": "CloudGoat"
+          },
+          {
+            "Key": "Name",
+            "Value": "cg-cgidwn3o6o82rw"
+          },
+          {
+            "Key": "Scenario",
+            "Value": "vulnerable-lambda"
+          }
+        ],
+        "mfa_devices": [],
+        "access_keys": [
+          {
+            "UserName": "cg-bilbo-cgidwn3o6o82rw",
+            "AccessKeyId": "AKIA5GXM3PEBL66V5B7Z",
+            "Status": "Active",
+            "CreateDate": "2026-02-21 07:36:45+00:00"
           }
         ],
         "attached_policies": [],
+        "inline_policies": [
+          {
+            "PolicyName": "cg-bilbo-cgidwn3o6o82rw-standard-user-assumer",
+            "PolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Action": "sts:AssumeRole",
+                  "Effect": "Allow",
+                  "Resource": "arn:aws:iam::940877411605:role/cg-lambda-invoker*",
+                  "Sid": ""
+                },
+                {
+                  "Action": [
+                    "iam:Get*",
+                    "iam:List*",
+                    "iam:SimulateCustomPolicy",
+                    "iam:SimulatePrincipalPolicy"
+                  ],
+                  "Effect": "Allow",
+                  "Resource": "*",
+                  "Sid": ""
+                }
+              ]
+            }
+          }
+        ],
         "group_policies": []
       }
     },
     {
-      "node_id": "288528695623:iam_role:AROA5GXM3PEBPE26GKYSY",
-      "type": "iam_role",
-      "name": "cgidqr0pwai050-policy_applier_lambda1",
-      "properties": {
+      "node_type": "iam_role",
+      "node_id": "288528695623:iam_role:AROA5GXM3PEBISDIUJ6PA",
+      "resource_id": "AROA5GXM3PEBISDIUJ6PA",
+      "name": "cg-lambda-invoker-cgidwn3o6o82rw",
+      "account_id": "288528695623",
+      "region": "global",
+      "attributes": {
+        "arn": "arn:aws:iam::288528695623:role/cg-lambda-invoker-cgidwn3o6o82rw",
+        "create_date": "2026-02-21T07:37:04+00:00",
         "assume_role_policy": {
+          "Version": "2012-10-17",
           "Statement": [
             {
+              "Sid": "",
               "Effect": "Allow",
-              "Action": "sts:AssumeRole",
               "Principal": {
-                "Service": "lambda.amazonaws.com"
-              }
+                "AWS": "arn:aws:iam::288528695623:user/cg-bilbo-cgidwn3o6o82rw"
+              },
+              "Action": "sts:AssumeRole"
             }
           ]
         },
+        "attached_policies": [],
         "inline_policies": [
           {
-            "PolicyName": "policy_applier_lambda1",
-            "Statement": [
-              {
-                "Action": "iam:AttachUserPolicy",
-                "Effect": "Allow",
-                "Resource": "arn:aws:iam::288528695623:user/cg-bilbo-cgidqr0pwai050"
-              },
-              {
-                "Action": [
-                  "logs:CreateLogStream",
-                  "logs:PutLogEvents"
-                ],
-                "Effect": "Allow",
-                "Resource": "arn:aws:logs:us-east-1:288528695623:log-group:/aws/lambda/cgidqr0pwai050-policy_applier_lambda1:*"
-              }
-            ]
+            "PolicyName": "lambda-invoker",
+            "PolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Action": [
+                    "lambda:ListFunctionEventInvokeConfigs",
+                    "lambda:InvokeFunction",
+                    "lambda:ListTags",
+                    "lambda:GetFunction",
+                    "lambda:GetPolicy"
+                  ],
+                  "Effect": "Allow",
+                  "Resource": "arn:aws:lambda:us-east-1:288528695623:function:cgidwn3o6o82rw-policy_applier_lambda1"
+                },
+                {
+                  "Action": [
+                    "lambda:ListFunctions",
+                    "iam:Get*",
+                    "iam:List*",
+                    "iam:SimulateCustomPolicy",
+                    "iam:SimulatePrincipalPolicy"
+                  ],
+                  "Effect": "Allow",
+                  "Resource": "*"
+                }
+              ]
+            }
           }
         ],
-        "attached_policies": []
+        "tags": [
+          {
+            "Key": "Stack",
+            "Value": "CloudGoat"
+          },
+          {
+            "Key": "Name",
+            "Value": "cg-cgidwn3o6o82rw"
+          },
+          {
+            "Key": "Scenario",
+            "Value": "vulnerable-lambda"
+          }
+        ]
       }
     },
     {
-      "node_id": "288528695623:us-east-1:secretsmanager:cgidqr0pwai050-final_flag",
-      "type": "secretsmanager",
-      "name": "cgidqr0pwai050-final_flag",
-      "properties": {
-        "arn": "arn:aws:secretsmanager:us-east-1:288528695623:secret:cgidqr0pwai050-final_flag-hN8Pks",
-        "description": ""
+      "node_type": "iam_role",
+      "node_id": "288528695623:iam_role:AROA5GXM3PEBBLWJ2LLXV",
+      "resource_id": "AROA5GXM3PEBBLWJ2LLXV",
+      "name": "cgidwn3o6o82rw-policy_applier_lambda1",
+      "account_id": "288528695623",
+      "region": "global",
+      "attributes": {
+        "arn": "arn:aws:iam::288528695623:role/cgidwn3o6o82rw-policy_applier_lambda1",
+        "create_date": "2026-02-21T07:36:46+00:00",
+        "assume_role_policy": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Sid": "",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com"
+              },
+              "Action": "sts:AssumeRole"
+            }
+          ]
+        },
+        "attached_policies": [],
+        "inline_policies": [
+          {
+            "PolicyName": "policy_applier_lambda1",
+            "PolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Action": "iam:AttachUserPolicy",
+                  "Effect": "Allow",
+                  "Resource": "arn:aws:iam::288528695623:user/cg-bilbo-cgidwn3o6o82rw"
+                },
+                {
+                  "Action": [
+                    "logs:CreateLogStream",
+                    "logs:PutLogEvents"
+                  ],
+                  "Effect": "Allow",
+                  "Resource": "arn:aws:logs:us-east-1:288528695623:log-group:/aws/lambda/cgidwn3o6o82rw-policy_applier_lambda1:*"
+                }
+              ]
+            }
+          }
+        ],
+        "tags": [
+          {
+            "Key": "Name",
+            "Value": "cg-cgidwn3o6o82rw"
+          },
+          {
+            "Key": "Scenario",
+            "Value": "vulnerable-lambda"
+          },
+          {
+            "Key": "Stack",
+            "Value": "CloudGoat"
+          }
+        ]
       }
+    },
+    {
+      "node_type": "secretsmanager",
+      "node_id": "288528695623:us-east-1:secretsmanager:cgidwn3o6o82rw-final_flag",
+      "resource_id": "cgidwn3o6o82rw-final_flag",
+      "name": "cgidwn3o6o82rw-final_flag",
+      "account_id": "288528695623",
+      "region": "us-east-1",
+      "attributes": {
+        "arn": "arn:aws:secretsmanager:us-east-1:288528695623:secret:cgidwn3o6o82rw-final_flag-CtxOhp",
+        "create_date": "2026-02-21T16:36:44.894000+09:00",
+        "description": "",
+        "resource_policy": null,
+        "versions_to_stages": {
+          "terraform-20260221073644336600000002": [
+            "AWSCURRENT"
+          ]
+        },
+        "tags": [
+          {
+            "Key": "Stack",
+            "Value": "CloudGoat"
+          },
+          {
+            "Key": "Name",
+            "Value": "cg-cgidwn3o6o82rw"
+          },
+          {
+            "Key": "Scenario",
+            "Value": "vulnerable-lambda"
+          }
+        ]
+      },
+      "resource_based_policy": null
     }
   ],
   "edges": [
     {
-      "id": "edge_1",
-      "src": "288528695623:iam_user:AIDA5GXM3PEBNIW6X2Z4G",
-      "dst": "288528695623:iam_role:AROA5GXM3PEBPXUOICJVK",
-      "relation": "can_assume_role",
+      "id": "edge:cgidwn3o6o82rw-policy_applier_lambda1:ASSUMES_ROLE:cgidwn3o6o82rw-policy_applier_lambda1",
+      "relation": "LAMBDA_ASSUMES_ROLE",
+      "src": "288528695623:us-east-1:lambda:cgidwn3o6o82rw-policy_applier_lambda1",
+      "dst": "288528695623:iam_role:cgidwn3o6o82rw-policy_applier_lambda1",
       "directed": true,
-      "conditions": []
+      "conditions": "This Lambda function executes with the permissions of cgidwn3o6o82rw-policy_applier_lambda1 role."
     },
     {
-      "id": "edge_2",
-      "src": "288528695623:iam_role:AROA5GXM3PEBPE26GKYSY",
-      "dst": "288528695623:iam_user:AIDA5GXM3PEBNIW6X2Z4G",
-      "relation": "can_attach_policy_to",
+      "id": "edge:cg-bilbo-cgidwn3o6o82rw-standard-user-assumer:ATTACHED_TO:cg-bilbo-cgidwn3o6o82rw",
+      "relation": "POLICY_ATTACHED_TO_USER",
+      "src": "288528695623:iam_policy:cg-bilbo-cgidwn3o6o82rw-standard-user-assumer",
+      "dst": "288528695623:iam_user:cg-bilbo-cgidwn3o6o82rw",
       "directed": true,
-      "conditions": []
+      "conditions": "The IAM Policy 'cg-bilbo-cgidwn3o6o82rw-standard-user-assumer' is directly attached to user 'cg-bilbo-cgidwn3o6o82rw'."
     },
     {
-      "id": "edge_3",
-      "src": "288528695623:iam_user:AIDA5GXM3PEBNIW6X2Z4G",
-      "dst": "288528695623:us-east-1:secretsmanager:cgidqr0pwai050-final_flag",
-      "relation": "can_access_after_privesc",
+      "id": "edge:cg-bilbo-cgidwn3o6o82rw:IAM_USER_ASSUME_ROLE:cg-lambda-invoker*",
+      "relation": "IAM_USER_ASSUME_ROLE",
+      "src": "288528695623:iam_user:cg-bilbo-cgidwn3o6o82rw",
+      "dst": "288528695623:iam_role:cg-lambda-invoker*",
       "directed": true,
-      "conditions": [
-        "requires_admin_policy"
-      ]
+      "conditions": "This User can Assume Roles."
+    },
+    {
+      "id": "edge:cg-bilbo-cgidwn3o6o82rw:IAM_USER_ACCESS_IAM:cg-lambda-invoker-cgidwn3o6o82rw",
+      "relation": "IAM_USER_ACCESS_IAM",
+      "src": "288528695623:iam_user:cg-bilbo-cgidwn3o6o82rw",
+      "dst": "288528695623:iam_role:cg-lambda-invoker-cgidwn3o6o82rw",
+      "directed": true,
+      "conditions": "This User has access to IAM."
+    },
+    {
+      "id": "edge:cg-bilbo-cgidwn3o6o82rw:IAM_USER_ACCESS_IAM:cgidwn3o6o82rw-policy_applier_lambda1",
+      "relation": "IAM_USER_ACCESS_IAM",
+      "src": "288528695623:iam_user:cg-bilbo-cgidwn3o6o82rw",
+      "dst": "288528695623:iam_role:cgidwn3o6o82rw-policy_applier_lambda1",
+      "directed": true,
+      "conditions": "This User has access to IAM."
+    },
+    {
+      "id": "edge:cg-bilbo-cgidwn3o6o82rw:STS_ASSUME_ROLE_TRUST:cg-lambda-invoker-cgidwn3o6o82rw",
+      "relation": "STS_ASSUME_ROLE",
+      "src": "288528695623:iam_user:cg-bilbo-cgidwn3o6o82rw",
+      "dst": "288528695623:iam_role:cg-lambda-invoker-cgidwn3o6o82rw",
+      "directed": true,
+      "conditions": "Role 'cg-lambda-invoker-cgidwn3o6o82rw' has a Trust Policy that allows user 'cg-bilbo-cgidwn3o6o82rw' to assume it."
+    },
+    {
+      "id": "edge:cg-bilbo-cgidwn3o6o82rw:ASSUME_ROLE:cg-lambda-invoker-cgidwn3o6o82rw",
+      "relation": "ASSUME_ROLE",
+      "src": "288528695623:iam_user:cg-bilbo-cgidwn3o6o82rw",
+      "dst": "288528695623:iam_role:cg-lambda-invoker-cgidwn3o6o82rw",
+      "directed": true,
+      "conditions": "This is a role that an IAM User can assume."
+    },
+    {
+      "id": "edge:cg-bilbo-cgidwn3o6o82rw:CAN_ASSUME:cg-lambda-invoker-cgidwn3o6o82rw",
+      "relation": "STS_ASSUME_ROLE",
+      "src": "288528695623:iam_user:cg-bilbo-cgidwn3o6o82rw",
+      "dst": "288528695623:iam_role:cg-lambda-invoker-cgidwn3o6o82rw",
+      "directed": true,
+      "conditions": "User cg-bilbo-cgidwn3o6o82rw is trusted to assume this role."
+    },
+    {
+      "id": "edge:cg-lambda-invoker-cgidwn3o6o82rw:IAM_ROLE_ACCESS_LAMBDA:cgidwn3o6o82rw-policy_applier_lambda1",
+      "relation": "IAM_ROLE_ACCESS_LAMBDA",
+      "src": "288528695623:iam_role:cg-lambda-invoker-cgidwn3o6o82rw",
+      "dst": "288528695623:us-east-1:lambda:cgidwn3o6o82rw-policy_applier_lambda1",
+      "directed": true,
+      "conditions": "This role gives you access to Lambda."
+    },
+    {
+      "id": "edge:cg-lambda-invoker-cgidwn3o6o82rw:IAM_ROLE_ACCESS_IAM:cg-bilbo-cgidwn3o6o82rw",
+      "relation": "IAM_ROLE_ACCESS_IAM",
+      "src": "288528695623:iam_role:cg-lambda-invoker-cgidwn3o6o82rw",
+      "dst": "288528695623:iam_user:cg-bilbo-cgidwn3o6o82rw",
+      "directed": true,
+      "conditions": "This role gives you access to IAM."
+    },
+    {
+      "id": "edge:cg-lambda-invoker-cgidwn3o6o82rw:IAM_ROLE_ACCESS_IAM:cgidwn3o6o82rw-policy_applier_lambda1",
+      "relation": "IAM_ROLE_ACCESS_IAM",
+      "src": "288528695623:iam_role:cg-lambda-invoker-cgidwn3o6o82rw",
+      "dst": "288528695623:iam_role:cgidwn3o6o82rw-policy_applier_lambda1",
+      "directed": true,
+      "conditions": "This role gives you access to IAM."
+    },
+    {
+      "id": "edge:cgidwn3o6o82rw-policy_applier_lambda1:ASSUME_ROLE:cgidwn3o6o82rw-policy_applier_lambda1",
+      "relation": "ASSUME_ROLE",
+      "src": "288528695623:us-east-1:lambda:cgidwn3o6o82rw-policy_applier_lambda1",
+      "dst": "288528695623:iam_role:cgidwn3o6o82rw-policy_applier_lambda1",
+      "directed": true,
+      "conditions": "A role that a Lambda function can assume."
+    },
+    {
+      "id": "edge:cgidwn3o6o82rw-policy_applier_lambda1:ELEVATES_PRIVILEGE:cg-bilbo-cgidwn3o6o82rw",
+      "relation": "ELEVATES_PRIVILEGE",
+      "src": "288528695623:iam_role:cgidwn3o6o82rw-policy_applier_lambda1",
+      "dst": "288528695623:iam_user:cg-bilbo-cgidwn3o6o82rw",
+      "directed": true,
+      "conditions": "This role can elevate privileges of specific user cg-bilbo-cgidwn3o6o82rw via iam:AttachUserPolicy."
+    },
+    {
+      "id": "edge:cgidwn3o6o82rw-policy_applier_lambda1:IAM_ROLE_ACCESS_USER:cg-bilbo-cgidwn3o6o82rw",
+      "relation": "IAM_ROLE_ACCESS_USER",
+      "src": "288528695623:iam_role:cgidwn3o6o82rw-policy_applier_lambda1",
+      "dst": "288528695623:iam_user:cg-bilbo-cgidwn3o6o82rw",
+      "directed": true,
+      "conditions": "This role gives you access to IAM User."
     }
   ]
 }
